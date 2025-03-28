@@ -15,22 +15,9 @@
 		CE0A731F2D956FE400CFA9E9 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		CE0A72952D9540C500CFA9E9 /* Exceptions for "LastPage" folder in "LastPage" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = CE0A72822D9540C400CFA9E9 /* LastPage */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		CE0A72852D9540C400CFA9E9 /* LastPage */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				CE0A72952D9540C500CFA9E9 /* Exceptions for "LastPage" folder in "LastPage" target */,
-			);
 			path = LastPage;
 			sourceTree = "<group>";
 		};
