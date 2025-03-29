@@ -265,6 +265,12 @@ class ReadingViewController: BaseViewController {
     }
     
     @objc private func memoEditButtonTapped() {
-        // Handle back button tap
+        var vc: UIViewController
+        switch readingStatusSegmentControl.selectedSegmentIndex {
+        case 0 : vc = EditReadingViewController()
+        case 1: vc = EditReadingInProgressViewController()
+        default : vc = EditReadingViewController()
+        }
+        navigationController?.pushViewController(vc, animated: true)
     }
 }

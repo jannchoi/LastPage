@@ -10,7 +10,7 @@ import SnapKit
 
 final class InfoFieldView: UIView {
     private let infoLabel = UILabel()
-    private(set) var textField = UITextField()
+    var textField = UITextField()
     private let tagsScrollView = UIScrollView()
     private let tagsStackView = UIStackView()
     
