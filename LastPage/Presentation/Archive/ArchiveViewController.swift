@@ -64,7 +64,8 @@ extension ArchiveViewController: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        //
+        let vc = ReadingViewController()
+        navigationController?.pushViewController(vc, animated: true)
     }
     
     
