@@ -57,6 +57,8 @@ class ViewController: UIViewController {
     }
     @objc func archiveVC() {
         print(#function)
+        let vc = ArchiveViewController()
+        navigationController?.pushViewController(vc, animated: true)
     }
     @objc func statisticsVC() {
         print(#function)
