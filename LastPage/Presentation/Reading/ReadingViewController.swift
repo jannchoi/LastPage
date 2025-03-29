@@ -7,7 +7,7 @@
 import UIKit
 import SnapKit
 
-class ReadingViewController: UIViewController {
+class ReadingViewController: BaseViewController {
     
     private let topContainerView: UIView = {
         let view = UIView()
@@ -103,8 +103,6 @@ class ReadingViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        configureHierachy()
-        setupConstraints()
         setupActions()
         
         // Set initial view based on default segment
@@ -112,7 +110,7 @@ class ReadingViewController: UIViewController {
     }
     
     // MARK: - UI Setup
-    private func configureHierachy() {
+    override func configureHierarchy() {
         // Add subviews
         view.addSubview(topContainerView)
         view.addSubview(bottomContainerView)
@@ -134,13 +132,11 @@ class ReadingViewController: UIViewController {
         segmentContentView.addSubview(afterReadingView)
         
 
-        beforeReadingView.isHidden = true
-        readingInProgressView.isHidden = true
-        afterReadingView.isHidden = true
+
     }
     
     // MARK: - Constraints
-    private func setupConstraints() {
+    override func configureLayout() {
         
         // Top Gray View
         topContainerView.snp.makeConstraints { make in
@@ -231,9 +227,15 @@ class ReadingViewController: UIViewController {
     // MARK: - Actions
     private func setupActions() {
         readingStatusSegmentControl.addTarget(self, action: #selector(segmentControlValueChanged), for: .valueChanged)
-        infoEditButton.addTarget(self, action: #selector(editButtonTapped), for: .touchUpInside)
+        infoEditButton.addTarget(self, action: #selector(infoEditButtonTapped), for: .touchUpInside)
+        memoEditButton.addTarget(self, action: #selector(memoEditButtonTapped), for: .touchUpInside)
+        
     }
-    
+    override func configureView() {
+        beforeReadingView.isHidden = true
+        readingInProgressView.isHidden = true
+        afterReadingView.isHidden = true
+    }
     @objc private func segmentControlValueChanged() {
         updateContentForSelectedSegment()
     }
@@ -257,11 +259,12 @@ class ReadingViewController: UIViewController {
         }
     }
     
-    @objc private func editButtonTapped() {
-        // Handle edit button tap
+    @objc private func infoEditButtonTapped() {
+        let vc = EditInfoViewController()
+        navigationController?.pushViewController(vc, animated: true)
     }
     
-    @objc private func backButtonTapped() {
+    @objc private func memoEditButtonTapped() {
         // Handle back button tap
     }
 }

@@ -51,12 +51,10 @@ class ViewController: UIViewController {
         statistics.addTarget(self, action: #selector(statisticsVC), for: .touchUpInside)
     }
     @objc func searchVC() {
-        print(#function)
         let vc = SearchBookViewController()
         navigationController?.pushViewController(vc, animated: true)
     }
     @objc func archiveVC() {
-        print(#function)
         let vc = ArchiveViewController()
         navigationController?.pushViewController(vc, animated: true)
     }
