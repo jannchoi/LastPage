@@ -64,6 +64,13 @@ class EditReadingViewController: BaseViewController {
         datePicker.datePickerMode = .date
         datePicker.preferredDatePickerStyle = .wheels
         dateField.textField.inputView = datePicker
+        
+        let toolbar = UIToolbar()
+        toolbar.sizeToFit()
+        let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(doneButtonTapped))
+        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        toolbar.setItems([flexSpace, doneButton], animated: true)
+        dateField.textField.inputAccessoryView = toolbar
  
         // Configure text view
         textView.font = .systemFont(ofSize: 16)
@@ -83,8 +90,18 @@ class EditReadingViewController: BaseViewController {
         helpButton.addTarget(self, action: #selector(helpButtonTapped), for: .touchUpInside)
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
     }
+
+    @objc private func doneButtonTapped() {
+        if let datePicker = dateField.textField.inputView as? UIDatePicker {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateStyle = .medium
+            dateField.textField.text = dateFormatter.string(from: datePicker.date)
+        }
+        view.endEditing(true)
+    }
     @objc private func helpButtonTapped() {
-       
+        let vc = RecommendViewController()
+        navigationController?.pushViewController(vc, animated: true)
     }
  
     @objc private func keyboardWillShow(notification: NSNotification) {
