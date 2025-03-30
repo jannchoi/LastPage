@@ -14,8 +14,8 @@ final class SearchBookViewController: BaseViewController {
     private let searchBar = UISearchBar()
     
     private var cancellables: Set<AnyCancellable> = []
-    //private let testBookUseCase = DIContainer.shared.getFetchBookUseCase
-    private let testkeywordUseCaae = DIContainer.shared.getFetchKeywordUseCase
+    private let testBookUseCase = FetchBookUseCase(bookRepository: MockBookRepository())
+    private let testkeywordUseCaae = FetchKeywordUseCase(keywordRepository: MockKeywordRepository())
     
     let list = Array(0...10)
     override func viewDidLoad() {
@@ -45,33 +45,33 @@ final class SearchBookViewController: BaseViewController {
         tableView.delegate = self
         tableView.dataSource = self
         
-//        testkeywordUseCaae.execute(prompt: "인간실격")
-//            .sink(receiveCompletion: { completion in
-//                switch completion {
-//                case .failure(let error):
-//                    // 에러 처리
-//                    print("Error fetching books: \(error.localizedDescription)")
-//                case .finished:
-//                    break
-//                }
-//            }, receiveValue: { result in
-//                print(result.keywords)
-//            })
-//            .store(in: &cancellables)
-//        
-//        testBookUseCase.execute(query: "swift")
-//            .sink(receiveCompletion: { completion in
-//                switch completion {
-//                case .failure(let error):
-//                    // 에러 처리
-//                    print("Error fetching books: \(error.localizedDescription)")
-//                case .finished:
-//                    break
-//                }
-//            }, receiveValue: { [weak self] books in
-//                print(books.item.count)
-//            })
-//            .store(in: &cancellables)
+        testkeywordUseCaae.execute(prompt: "인간실격")
+            .sink(receiveCompletion: { completion in
+                switch completion {
+                case .failure(let error):
+                    // 에러 처리
+                    print("Error fetching books: \(error.localizedDescription)")
+                case .finished:
+                    break
+                }
+            }, receiveValue: { result in
+                print(result.keywords)
+            })
+            .store(in: &cancellables)
+        
+        testBookUseCase.execute(query: "swift")
+            .sink(receiveCompletion: { completion in
+                switch completion {
+                case .failure(let error):
+                    // 에러 처리
+                    print("Error fetching books: \(error.localizedDescription)")
+                case .finished:
+                    break
+                }
+            }, receiveValue: {books in
+                print(books.item.count)
+            })
+            .store(in: &cancellables)
 
     }
 
