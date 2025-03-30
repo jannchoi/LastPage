@@ -7,14 +7,20 @@
 
 import UIKit
 import SnapKit
+import Combine
 
 final class SearchBookViewController: BaseViewController {
     private let tableView = UITableView()
     private let searchBar = UISearchBar()
+    
+    private var cancellables: Set<AnyCancellable> = []
+    private let testBookUseCase = DIContainer.shared.fetchBookUseCase
+    
     let list = Array(0...10)
     override func viewDidLoad() {
         super.viewDidLoad()
         temp()
+
     }
     override func configureHierarchy() {
         view.addSubview(searchBar)
@@ -37,6 +43,22 @@ final class SearchBookViewController: BaseViewController {
     func temp() {
         tableView.delegate = self
         tableView.dataSource = self
+        
+        
+//        testBookUseCase.execute(query: "swift")
+//            .sink(receiveCompletion: { completion in
+//                switch completion {
+//                case .failure(let error):
+//                    // 에러 처리
+//                    print("Error fetching books: \(error.localizedDescription)")
+//                case .finished:
+//                    break
+//                }
+//            }, receiveValue: { [weak self] books in
+//                print(books.item.count)
+//            })
+//            .store(in: &cancellables)
+
     }
 
 }
