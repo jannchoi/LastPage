@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-class EditReadingViewController: BaseViewController {
+final class EditReadingViewController: BaseViewController {
     
     private let dateField = InfoFieldView(title: "Date")
 

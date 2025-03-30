@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-class SearchBookTableViewCell: UITableViewCell {
+final class SearchBookTableViewCell: UITableViewCell {
     // UI Components
     private let bookCoverImageView: UIImageView = {
         let imageView = UIImageView()

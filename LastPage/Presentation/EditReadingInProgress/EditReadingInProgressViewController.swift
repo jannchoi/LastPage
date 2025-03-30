@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-class EditReadingInProgressViewController: BaseViewController {
+final class EditReadingInProgressViewController: BaseViewController {
 
     private let dateField = InfoFieldView(title: "Date")
     private let pageLabel : UILabel = {

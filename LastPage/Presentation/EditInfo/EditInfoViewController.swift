@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-class EditInfoViewController: BaseViewController {
+final class EditInfoViewController: BaseViewController {
     private let scrollView = UIScrollView()
     private let contentView = UIView()
     

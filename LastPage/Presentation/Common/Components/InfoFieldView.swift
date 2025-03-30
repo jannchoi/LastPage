@@ -153,7 +153,7 @@ final class InfoFieldView: UIView {
     }
 }
 extension InfoFieldView {
-    private class TagButton: UIButton {
+    private final class TagButton: UIButton {
         private let padding = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)
         private let imagePadding: CGFloat = 6
         private let imageSize: CGFloat = 13

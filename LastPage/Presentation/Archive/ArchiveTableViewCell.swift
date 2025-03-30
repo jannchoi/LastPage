@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ArchiveTableViewCell: UITableViewCell {
+final class ArchiveTableViewCell: UITableViewCell {
     // UI Components
     private let bookCoverImageView: UIImageView = {
         let imageView = UIImageView()

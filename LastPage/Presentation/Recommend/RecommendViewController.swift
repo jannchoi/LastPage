@@ -116,7 +116,7 @@ final class RecommendViewController: BaseViewController {
 }
 
 extension RecommendViewController {
-   private final class KeywordStackView: UIStackView {
+   private class KeywordStackView: UIStackView {
         private let isVertical: Bool
         
         init(isVertical: Bool = false) {
@@ -174,7 +174,7 @@ extension RecommendViewController {
         }
     }
 
-    private final class KeywordView: UIView {
+    private class KeywordView: UIView {
         private let label = UILabel()
         
         init(text: String) {

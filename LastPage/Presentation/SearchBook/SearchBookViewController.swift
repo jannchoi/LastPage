@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-class SearchBookViewController: BaseViewController {
+final class SearchBookViewController: BaseViewController {
     private let tableView = UITableView()
     private let searchBar = UISearchBar()
     let list = Array(0...10)

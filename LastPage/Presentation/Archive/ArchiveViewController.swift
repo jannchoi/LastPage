@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ArchiveViewController: BaseViewController {
+final class ArchiveViewController: BaseViewController {
     private let filterButton = UIButton()
     private let filterMenu = UIMenu()
     private let searchBar = UISearchBar()
