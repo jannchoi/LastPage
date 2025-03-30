@@ -59,3 +59,7 @@ APIKey.swift
 
 # Request
 URLRequest.swift
+
+# Mock
+gpt.json
+searchbook.json
