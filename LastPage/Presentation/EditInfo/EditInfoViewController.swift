@@ -132,7 +132,7 @@ final class EditInfoViewController: BaseViewController {
         titleField.setPlaceholder(TextResource.Placeholder.title.text)
         authorField.setPlaceholder(TextResource.Placeholder.author.text)
         shortMemoField.setPlaceholder(TextResource.Placeholder.memo.text)
-        genreField.setPlaceholder(TextResource.Placeholdercategory.text)
+        genreField.setPlaceholder(TextResource.Placeholder.category.text)
         feelingsField.setPlaceholder(TextResource.Placeholder.feelings.text)
         
         // 태그 관련 콜백 설정
