@@ -27,7 +27,7 @@ final class ReadingViewController: BaseViewController {
     
     private let infoEditButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Edit", for: .normal)
+        button.setTitle(TextResource.ButtonTitle.edit.text, for: .normal)
         button.setTitleColor(.blue, for: .normal)
         return button
     }()
@@ -73,7 +73,7 @@ final class ReadingViewController: BaseViewController {
     
     // Segment Control
     private let readingStatusSegmentControl: UISegmentedControl = {
-        let items = ["읽기 전", "읽는 중", "읽은 후"]
+        let items = [TextResource.ReadingStatus.before.text, TextResource.ReadingStatus.inProgress.text, TextResource.ReadingStatus.after.text]
         let segmentControl = UISegmentedControl(items: items)
         segmentControl.selectedSegmentIndex = 1 // Default to "읽는 중"
         return segmentControl
@@ -82,7 +82,7 @@ final class ReadingViewController: BaseViewController {
     // memoEdit button
     private let memoEditButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Edit", for: .normal)
+        button.setTitle(TextResource.ButtonTitle.edit.text, for: .normal)
         button.setTitleColor(.blue, for: .normal)
         return button
     }()

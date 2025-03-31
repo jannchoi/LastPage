@@ -10,13 +10,13 @@ import SnapKit
 
 final class EditReadingViewController: BaseViewController {
     
-    private let dateField = InfoFieldView(title: "Date")
+    private let dateField = InfoFieldView(title: TextResource.InfoTextView.date.text)
 
     private let containerScrollView = UIScrollView()
     private let textView = UITextView()
     private let helpButton : UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Help", for: .normal)
+        button.setTitle(TextResource.ButtonTitle.help.text, for: .normal)
         button.setTitleColor(.blue, for: .normal)
         return button
     }()
@@ -59,7 +59,7 @@ final class EditReadingViewController: BaseViewController {
         title = "Edit Reading"
         
         // Configure date field
-        dateField.setPlaceholder("Select Date")
+        dateField.setPlaceholder(TextResource.Placeholder.date.text)
         let datePicker = UIDatePicker()
         datePicker.datePickerMode = .date
         datePicker.preferredDatePickerStyle = .wheels

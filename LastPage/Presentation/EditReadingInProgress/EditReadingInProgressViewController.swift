@@ -10,17 +10,17 @@ import SnapKit
 
 final class EditReadingInProgressViewController: BaseViewController {
 
-    private let dateField = InfoFieldView(title: "Date")
+    private let dateField = InfoFieldView(title: TextResource.InfoTextView.date.text)
     private let pageLabel : UILabel = {
         let label = UILabel()
-        label.text = "Page"
+        label.text = TextResource.InfoTextView.page.text
         label.font = .systemFont(ofSize: 14)
         return label
     }()
     private let startPage = UITextField()
     let separatorLabel : UILabel = {
         let label = UILabel()
-        label.text = "~"
+        label.text = TextResource.InfoTextView.separator.text
         label.textAlignment = .center
         return label
     }()
@@ -100,7 +100,7 @@ final class EditReadingInProgressViewController: BaseViewController {
         title = "Edit Reading"
         
         // Configure date field
-        dateField.setPlaceholder("Select Date")
+        dateField.setPlaceholder(TextResource.Placeholder.date.text)
         let datePicker = UIDatePicker()
         datePicker.datePickerMode = .date
         datePicker.preferredDatePickerStyle = .wheels
@@ -115,12 +115,12 @@ final class EditReadingInProgressViewController: BaseViewController {
         dateField.textField.inputAccessoryView = toolbar
         
         // Configure page fields
-        startPage.placeholder = "Start"
+        startPage.placeholder = TextResource.Placeholder.page.text
         startPage.borderStyle = .roundedRect
         startPage.keyboardType = .numberPad
         startPage.font = .systemFont(ofSize: 14)
         
-        endPage.placeholder = "End"
+        endPage.placeholder = TextResource.Placeholder.page.text
         endPage.borderStyle = .roundedRect
         endPage.keyboardType = .numberPad
         endPage.font = .systemFont(ofSize: 14)

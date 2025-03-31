@@ -23,26 +23,26 @@ final class EditInfoViewController: BaseViewController {
     
     private let bookCoverLabel: UILabel = {
         let label = UILabel()
-        label.text = "Book Cover Image"
+        label.text = TextResource.Global.none.text
         label.textAlignment = .center
         label.font = .systemFont(ofSize: 14)
         label.textColor = .darkGray
         return label
     }()
    
-    private let titleField = InfoFieldView(title: "Title")
-    private let authorField = InfoFieldView(title: "Author")
+    private let titleField = InfoFieldView(title: TextResource.InfoTextView.title.text)
+    private let authorField = InfoFieldView(title: TextResource.InfoTextView.author.text)
     
     private let readingStatusSegmentControl: UISegmentedControl = {
-        let items = ["읽기 전", "읽는 중", "읽은 후"]
+        let items = [TextResource.ReadingStatus.before.text, TextResource.ReadingStatus.inProgress.text, TextResource.ReadingStatus.after.text]
         let segmentControl = UISegmentedControl(items: items)
         segmentControl.selectedSegmentIndex = 0
         return segmentControl
     }()
     
-    private let shortMemoField = InfoFieldView(title: "Short Memo")
-    private let genreField = InfoFieldView(title: "Genre/Category")
-    private let feelingsField = InfoFieldView(title: "Feelings")
+    private let shortMemoField = InfoFieldView(title: TextResource.InfoTextView.shortMemo.text)
+    private let genreField = InfoFieldView(title: TextResource.InfoTextView.categories.text)
+    private let feelingsField = InfoFieldView(title: TextResource.InfoTextView.feelings.text)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -129,11 +129,11 @@ final class EditInfoViewController: BaseViewController {
         feelingsField.setTags(["무서움", "짜릿함", "통쾌"])
 
         // 필드 placeholder 설정
-        titleField.setPlaceholder("Enter Title")
-        authorField.setPlaceholder("Enter author name")
-        shortMemoField.setPlaceholder("Enter Memo")
-        genreField.setPlaceholder("Enter genre with ','")
-        feelingsField.setPlaceholder("Enter feeling with ','")
+        titleField.setPlaceholder(TextResource.Placeholder.title.text)
+        authorField.setPlaceholder(TextResource.Placeholder.author.text)
+        shortMemoField.setPlaceholder(TextResource.Placeholder.memo.text)
+        genreField.setPlaceholder(TextResource.Placeholdercategory.text)
+        feelingsField.setPlaceholder(TextResource.Placeholder.feelings.text)
         
         // 태그 관련 콜백 설정
         genreField.onTagAdded = { tag in
