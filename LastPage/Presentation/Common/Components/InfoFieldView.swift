@@ -149,7 +149,7 @@ final class InfoFieldView: UIView {
             }
         }
         
-        sender.text = ""
+        sender.text = TextResource.Global.empty.text
     }
 }
 extension InfoFieldView {

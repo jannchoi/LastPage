@@ -24,7 +24,7 @@ final class RecommendViewController: BaseViewController {
     
     private let bookLabel: UILabel = {
         let label = UILabel()
-        label.text = "책 추천 키워드"
+        label.text = TextResource.SectionHeader.bookKeywrod.text
         label.font = .systemFont(ofSize: 16, weight: .bold)
         return label
     }()
@@ -33,7 +33,7 @@ final class RecommendViewController: BaseViewController {
     
     private let commonLabel: UILabel = {
         let label = UILabel()
-        label.text = "공통 주제"
+        label.text = TextResource.SectionHeader.commonKeyword.text
         label.font = .systemFont(ofSize: 16, weight: .bold)
         return label
     }()

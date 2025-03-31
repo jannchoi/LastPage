@@ -6,13 +6,17 @@
 //
 
 import Foundation
+import RealmSwift
 
 class DIContainer {
     static let shared = DIContainer()
     
-    private init() {}
+    private init() {
+        setupDatabaseDependencies()
+    }
     
-    // Lazy loading을 사용하여 한 번만 생성하도록 처리
+    // MARK: - 기존 네트워크 의존성
+    
     private lazy var bookRepository: BookRepositoryProtocol = {
         return BookRepository()
     }()
@@ -29,7 +33,64 @@ class DIContainer {
         return FetchKeywordUseCase(keywordRepository: keywordRepository)
     }()
     
-    // 의존성 주입된 객체들을 제공하는 프로퍼티들
+    // MARK: - 데이터베이스 의존성
+    
+    private lazy var realm: Realm = {
+        return try! Realm()
+    }()
+    
+    private lazy var bookMemoDataSource: BookMemoDataSourceProtocol = {
+        return BookMemoDataSource(realm: realm)
+    }()
+    
+    private lazy var bookMemoMapper: BookMemoMapperProtocol = {
+        return BookMemoMapper()
+    }()
+    
+    private lazy var bookLocalRepository: BookMemoRepositoryProtocol = {
+        return BookMemoRepository(dataSource: bookMemoDataSource, mapper: bookMemoMapper)
+    }()
+    
+    private lazy var getAllBooksUseCase: GetAllBooksUseCaseProtocol = {
+        return GetAllBooksUseCase(repository: bookLocalRepository)
+    }()
+    
+    private lazy var getBookUseCase: GetBookUseCaseProtocol = {
+        return GetBookUseCase(repository: bookLocalRepository)
+    }()
+    
+    private lazy var saveBookUseCase: SaveBookUseCaseProtocol = {
+        return SaveBookUseCase(repository: bookLocalRepository)
+    }()
+    
+    private lazy var updateBookUseCase: UpdateBookUseCaseProtocol = {
+        return UpdateBookUseCase(repository: bookLocalRepository)
+    }()
+    
+    private lazy var deleteBookUseCase: DeleteBookUseCaseProtocol = {
+        return DeleteBookUseCase(repository: bookLocalRepository)
+    }()
+    
+    private lazy var getBooksByStatusUseCase: GetBooksByStatusUseCaseProtocol = {
+        return GetBooksByStatusUseCase(repository: bookLocalRepository)
+    }()
+    
+    private lazy var getBooksByCategoryUseCase: GetBooksByCategoryUseCaseProtocol = {
+        return GetBooksByCategoryUseCase(repository: bookLocalRepository)
+    }()
+    
+    private lazy var getBooksByFeelingUseCase: GetBooksByFeelingUseCaseProtocol = {
+        return GetBooksByFeelingUseCase(repository: bookLocalRepository)
+    }()
+    
+    // MARK: - 데이터베이스 의존성 주입 설정
+    
+    private func setupDatabaseDependencies() {
+        // 필요한 경우 초기 설정 코드
+    }
+    
+    // MARK: - 네트워크 의존성 제공 (기존)
+    
     var getBookRepository: BookRepositoryProtocol {
         return bookRepository
     }
@@ -44,5 +105,43 @@ class DIContainer {
     
     var getFetchKeywordUseCase: FetchKeywordUseCaseProtocol {
         return fetchKeywordUseCase
+    }
+    
+    // MARK: - 데이터베이스 의존성 제공 (새로 추가)
+    
+    var getBookLocalRepository: BookMemoRepositoryProtocol {
+        return bookLocalRepository
+    }
+    
+    var getGetAllBooksUseCase: GetAllBooksUseCaseProtocol {
+        return getAllBooksUseCase
+    }
+    
+    var getGetBookUseCase: GetBookUseCaseProtocol {
+        return getBookUseCase
+    }
+    
+    var getSaveBookUseCase: SaveBookUseCaseProtocol {
+        return saveBookUseCase
+    }
+    
+    var getUpdateBookUseCase: UpdateBookUseCaseProtocol {
+        return updateBookUseCase
+    }
+    
+    var getDeleteBookUseCase: DeleteBookUseCaseProtocol {
+        return deleteBookUseCase
+    }
+    
+    var getGetBooksByStatusUseCase: GetBooksByStatusUseCaseProtocol {
+        return getBooksByStatusUseCase
+    }
+    
+    var getGetBooksByCategoryUseCase: GetBooksByCategoryUseCaseProtocol {
+        return getBooksByCategoryUseCase
+    }
+    
+    var getGetBooksByFeelingUseCase: GetBooksByFeelingUseCaseProtocol {
+        return getBooksByFeelingUseCase
     }
 }
