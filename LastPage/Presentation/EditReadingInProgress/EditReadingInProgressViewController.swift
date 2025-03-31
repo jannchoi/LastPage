@@ -9,7 +9,7 @@ import UIKit
 import SnapKit
 
 final class EditReadingInProgressViewController: BaseViewController {
-
+    var viewModel: EditReadingInProgressViewModel
     private let dateField = InfoFieldView(title: TextResource.InfoTextView.date.text)
     private let pageLabel : UILabel = {
         let label = UILabel()
@@ -28,7 +28,14 @@ final class EditReadingInProgressViewController: BaseViewController {
     private let endPage = UITextField()
     private let containerScrollView = UIScrollView()
     private let textView = UITextView()
+    init(viewModel: EditReadingInProgressViewModel) {
+            self.viewModel = viewModel
+            super.init(nibName: nil, bundle: nil)
+        }
     
+    @MainActor required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
 

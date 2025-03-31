@@ -9,7 +9,7 @@ import UIKit
 import SnapKit
 
 final class RecommendViewController: BaseViewController {
-    
+    var viewModel: RecommendViewModel
     private let scrollView = UIScrollView()
     private let contentView = UIView()
     private let bookRecommendView = UIView()
@@ -50,7 +50,14 @@ final class RecommendViewController: BaseViewController {
         "이 책으로부터 배운 점이 있다면?",
         "이 책을 읽고 난 후 내 삶의 변화가 있다면?",
     ]
+    init(viewModel: RecommendViewModel) {
+            self.viewModel = viewModel
+            super.init(nibName: nil, bundle: nil)
+        }
     
+    @MainActor required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground

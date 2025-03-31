@@ -8,11 +8,22 @@
 import UIKit
 
 final class ArchiveViewController: BaseViewController {
+    weak var coordinator: ArchiveCoordinator?
+    var viewModel: ArchiveViewModel
+    
     private let filterButton = UIButton()
     private let filterMenu = UIMenu()
     private let searchBar = UISearchBar()
     private let tableView = UITableView()
     let list = Array(0...10)
+    init(viewModel: ArchiveViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    @MainActor required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         temp()

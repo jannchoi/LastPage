@@ -9,7 +9,8 @@ import UIKit
 import SnapKit
 
 final class EditReadingViewController: BaseViewController {
-    
+    weak var coordinator: EditReadingCoordinator?
+    var viewModel: EditReadingViewModel
     private let dateField = InfoFieldView(title: TextResource.InfoTextView.date.text)
 
     private let containerScrollView = UIScrollView()
@@ -20,6 +21,14 @@ final class EditReadingViewController: BaseViewController {
         button.setTitleColor(.blue, for: .normal)
         return button
     }()
+    init(viewModel: EditReadingViewModel) {
+            self.viewModel = viewModel
+            super.init(nibName: nil, bundle: nil)
+        }
+    
+    @MainActor required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
 

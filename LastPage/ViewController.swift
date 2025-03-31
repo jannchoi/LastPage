@@ -9,6 +9,7 @@ import UIKit
 import SnapKit
 
 class ViewController: UIViewController {
+    var coordinator: MainCoordinator?
     let search = UIButton()
     let archive = UIButton()
     let statistics = UIButton()

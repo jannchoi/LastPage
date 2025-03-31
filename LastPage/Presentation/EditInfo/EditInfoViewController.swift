@@ -9,6 +9,7 @@ import UIKit
 import SnapKit
 
 final class EditInfoViewController: BaseViewController {
+    var viewModel: EditInfoViewModel
     private let scrollView = UIScrollView()
     private let contentView = UIView()
     
@@ -43,6 +44,15 @@ final class EditInfoViewController: BaseViewController {
     private let shortMemoField = InfoFieldView(title: TextResource.InfoTextView.shortMemo.text)
     private let genreField = InfoFieldView(title: TextResource.InfoTextView.categories.text)
     private let feelingsField = InfoFieldView(title: TextResource.InfoTextView.feelings.text)
+    
+    init(viewModel: EditInfoViewModel) {
+            self.viewModel = viewModel
+            super.init(nibName: nil, bundle: nil)
+        }
+    
+    @MainActor required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()

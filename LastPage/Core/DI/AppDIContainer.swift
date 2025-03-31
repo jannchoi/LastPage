@@ -7,12 +7,10 @@
 
 import Foundation
 final class AppDIContainer {
-    static let shared = AppDIContainer()
-
     private let networkDI = NetworkDIContainer.shared
     private let databaseDI = DatabaseDIContainer.shared
 
-    private init() {}
+    init() {}
 
     // UseCase 제공
     func makeFetchBookUseCase() -> FetchBookUseCaseProtocol {
@@ -34,4 +32,20 @@ final class AppDIContainer {
     func makeSaveBookUseCase() -> SaveBookUseCaseProtocol {
         return databaseDI.getSaveBookUseCase
     }
+    func makeUpdateBookUseCase() -> UpdateBookUseCaseProtocol {
+        return databaseDI.getUpdateBookUseCase
+    }
+    func makeDeleteBookUseCase() -> DeleteBookUseCaseProtocol {
+        return databaseDI.getDeleteBookUseCase
+    }
+    func makeGetBooksByStatusUseCase() -> GetBooksByStatusUseCaseProtocol {
+        return databaseDI.getGetBooksByStatusUseCase
+    }
+    func makeGetBooksByCategoryUseCase() -> GetBooksByCategoryUseCaseProtocol {
+        return databaseDI.getGetBooksByCategoryUseCase
+    }
+    func makeGetBooksByFeelingUseCase() -> GetBooksByFeelingUseCaseProtocol {
+        return databaseDI.getGetBooksByFeelingUseCase
+    }
+    
 }

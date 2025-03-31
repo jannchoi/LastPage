@@ -10,6 +10,8 @@ import SnapKit
 import Combine
 
 final class SearchBookViewController: BaseViewController {
+    weak var coordinator: SearchCoordinator?
+    var viewModel: SearchBookViewModel
     private let tableView = UITableView()
     private let searchBar = UISearchBar()
     
@@ -18,6 +20,14 @@ final class SearchBookViewController: BaseViewController {
     private let testkeywordUseCaae = FetchKeywordUseCase(keywordRepository: MockKeywordRepository())
     
     let list = Array(0...10)
+    init(viewModel: SearchBookViewModel) {
+            self.viewModel = viewModel
+            super.init(nibName: nil, bundle: nil)
+        }
+    
+    @MainActor required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         temp()

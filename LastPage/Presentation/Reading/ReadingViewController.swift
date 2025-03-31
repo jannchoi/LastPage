@@ -8,7 +8,8 @@ import UIKit
 import SnapKit
 
 final class ReadingViewController: BaseViewController {
-    
+    weak var coordinator: ReadingCoordinator?
+    var viewModel: ReadingViewModel
     private let topContainerView: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor.lightGray.withAlphaComponent(0.3)
@@ -98,7 +99,14 @@ final class ReadingViewController: BaseViewController {
         view.backgroundColor = .clear
         return view
     }()
+    init(viewModel: ReadingViewModel) {
+            self.viewModel = viewModel
+            super.init(nibName: nil, bundle: nil)
+        }
     
+    @MainActor required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
