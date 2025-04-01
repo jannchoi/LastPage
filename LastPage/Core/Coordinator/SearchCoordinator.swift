@@ -26,7 +26,7 @@ final class SearchCoordinator:Coordinator {
         navigationController.pushViewController(searchVC, animated: true)
     }
 
-    func showReading(bookId: String) {
+    func showReading() {
         let readingCoordinator = ReadingCoordinator(parentCoordinator: self,navigationController: navigationController, diContainer: diContainer)
         childCoordinators.append(readingCoordinator)
         readingCoordinator.start()
