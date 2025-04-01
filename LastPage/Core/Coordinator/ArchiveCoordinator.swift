@@ -7,21 +7,24 @@
 
 import UIKit
 
-final class ArchiveCoordinator {
+final class ArchiveCoordinator:Coordinator {
+    private weak var parentCoordinator: Coordinator?
+    var childCoordinators: [Coordinator] = []
     private let navigationController: UINavigationController
     private let diContainer: AppDIContainer
 
-    init(navigationController: UINavigationController, diContainer: AppDIContainer) {
+    init(parentCoordinator: Coordinator?, navigationController: UINavigationController, diContainer: AppDIContainer) {
+        self.parentCoordinator = parentCoordinator
         self.navigationController = navigationController
         self.diContainer = diContainer
     }
 
     func start() {
         let viewModel = ArchiveViewModel(
-            getAllBooksUseCase: diContainer.makeGetAllBooksUseCase,
-            getBooksByStatusUseCase: diContainer.makeGetBooksByStatusUseCase,
-            getBooksByCategoryUseCase: diContainer.makeGetBooksByCategoryUseCase,
-            getBooksByFeelingUseCase: diContainer.makeGetBooksByFeelingUseCase
+            getAllBooksUseCase: diContainer.makeGetAllBooksUseCase(),
+            getBooksByStatusUseCase: diContainer.makeGetBooksByStatusUseCase(),
+            getBooksByCategoryUseCase: diContainer.makeGetBooksByCategoryUseCase(),
+            getBooksByFeelingUseCase: diContainer.makeGetBooksByFeelingUseCase()
         )
         let archiveVC = ArchiveViewController(viewModel: viewModel)
         archiveVC.coordinator = self
@@ -29,8 +32,13 @@ final class ArchiveCoordinator {
     }
 
     func showReading(bookId: String) {
-        let readingCoordinator = ReadingCoordinator(navigationController: navigationController, diContainer: diContainer)
+        print(#function)
+        let readingCoordinator = ReadingCoordinator(parentCoordinator: self,navigationController: navigationController, diContainer: diContainer)
+        childCoordinators.append(readingCoordinator)
         readingCoordinator.start()
+    }
+    func popVC() {
+        parentCoordinator?.removeChildCoordinator(self)
     }
 
 }

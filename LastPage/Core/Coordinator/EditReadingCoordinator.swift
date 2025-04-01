@@ -7,10 +7,13 @@
 
 import UIKit
 
-final class EditReadingCoordinator {
+final class EditReadingCoordinator:Coordinator {
+    private weak var parentCoordinator: Coordinator?
+    var childCoordinators: [Coordinator] = []
     private let navigationController: UINavigationController
     private let diContainer: AppDIContainer
-    init(navigationController: UINavigationController, diContainer: AppDIContainer) {
+    init(parentCoordinator: Coordinator?, navigationController: UINavigationController, diContainer: AppDIContainer) {
+        self.parentCoordinator = parentCoordinator
         self.navigationController = navigationController
         self.diContainer = diContainer
     }
@@ -23,8 +26,11 @@ final class EditReadingCoordinator {
     }
 
     func showRecommend() {
-        let viewModel = RecommendViewModel(makeFetchKeywordUseCase: diContainer.makeFetchKeywordUseCase)
+        let viewModel = RecommendViewModel(makeFetchKeywordUseCase: diContainer.makeFetchKeywordUseCase())
         let recommendVC = RecommendViewController(viewModel: viewModel)
         navigationController.pushViewController(recommendVC, animated: true)
+    }
+    func popVC() {
+        parentCoordinator?.removeChildCoordinator(self)
     }
 }

@@ -6,7 +6,22 @@
 //
 
 import Foundation
+import Combine
 
-final class RecommendViewModel {
-    
+final class RecommendViewModel:BaseViewModel {
+    var cancellables = Set<AnyCancellable>()
+    let makeFetchKeywordUseCase: FetchKeywordUseCaseProtocol
+    struct Input {
+        
+    }
+    struct Output {
+        
+    }
+    init(makeFetchKeywordUseCase: FetchKeywordUseCaseProtocol) {
+        self.makeFetchKeywordUseCase = makeFetchKeywordUseCase
+    }
+    func transform(input: Input) -> Output {
+        //
+        return Output()
+    }
 }

@@ -7,7 +7,8 @@
 
 import UIKit
 
-final class MainCoordinator {
+final class MainCoordinator:Coordinator {
+    var childCoordinators: [Coordinator] = []
     private let navigationController: UINavigationController
     private let diContainer: AppDIContainer
 
@@ -23,12 +24,14 @@ final class MainCoordinator {
     }
 
     func showArchive() {
-        let archiveCoordinator = ArchiveCoordinator(navigationController: navigationController, diContainer: diContainer)
+        let archiveCoordinator = ArchiveCoordinator(parentCoordinator: self ,navigationController: navigationController, diContainer: diContainer)
+        childCoordinators.append(archiveCoordinator)
         archiveCoordinator.start()
     }
 
     func showSearch() {
-        let searchCoordinator = SearchCoordinator(navigationController: navigationController, diContainer: diContainer)
+        let searchCoordinator = SearchCoordinator(parentCoordinator: self,navigationController: navigationController, diContainer: diContainer)
+        childCoordinators.append(searchCoordinator)
         searchCoordinator.start()
     }
 }

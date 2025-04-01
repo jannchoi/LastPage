@@ -21,6 +21,9 @@ final class EditReadingViewController: BaseViewController {
         button.setTitleColor(.blue, for: .normal)
         return button
     }()
+    deinit {
+        coordinator?.popVC()
+    }
     init(viewModel: EditReadingViewModel) {
             self.viewModel = viewModel
             super.init(nibName: nil, bundle: nil)
@@ -109,8 +112,7 @@ final class EditReadingViewController: BaseViewController {
         view.endEditing(true)
     }
     @objc private func helpButtonTapped() {
-        let vc = RecommendViewController()
-        navigationController?.pushViewController(vc, animated: true)
+        coordinator?.showRecommend()
     }
  
     @objc private func keyboardWillShow(notification: NSNotification) {
@@ -125,11 +127,5 @@ final class EditReadingViewController: BaseViewController {
         containerScrollView.contentInset = .zero
         containerScrollView.scrollIndicatorInsets = .zero
     }
-
-    // Clean up
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-    
 
 }

@@ -7,7 +7,22 @@
 
 import UIKit
 
-final class AppCoordinator {
+protocol Coordinator: AnyObject {
+    var childCoordinators: [Coordinator] {get set}
+    func start()
+}
+extension Coordinator {
+   func removeChildCoordinator(_ child: Coordinator) {
+       for (index, coordinator) in childCoordinators.enumerated() {
+           if coordinator === child {
+               childCoordinators.remove(at: index)
+               break
+           }
+       }
+   }
+}
+final class AppCoordinator:Coordinator {
+    var childCoordinators: [Coordinator] = []
     private let window: UIWindow
     private let navigationController: UINavigationController
     private let diContainer: AppDIContainer
@@ -20,6 +35,7 @@ final class AppCoordinator {
 
     func start() {
         let mainCoordinator = MainCoordinator(navigationController: navigationController, diContainer: diContainer)
+        childCoordinators.append(mainCoordinator)
         mainCoordinator.start()
         window.rootViewController = navigationController
         window.makeKeyAndVisible()

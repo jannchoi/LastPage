@@ -21,12 +21,15 @@ final class SearchBookViewController: BaseViewController {
     
     let list = Array(0...10)
     init(viewModel: SearchBookViewModel) {
-            self.viewModel = viewModel
-            super.init(nibName: nil, bundle: nil)
-        }
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
     
     @MainActor required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    deinit {
+        coordinator?.popVC()
     }
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -101,7 +104,7 @@ extension SearchBookViewController: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        //
+        coordinator?.showReading(bookId: "")
     }
     
     

@@ -16,6 +16,10 @@ final class ArchiveViewController: BaseViewController {
     private let searchBar = UISearchBar()
     private let tableView = UITableView()
     let list = Array(0...10)
+    
+    deinit {
+        coordinator?.popVC()
+    }
     init(viewModel: ArchiveViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -75,8 +79,8 @@ extension ArchiveViewController: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let vc = ReadingViewController()
-        navigationController?.pushViewController(vc, animated: true)
+        print(coordinator)
+        coordinator?.showReading(bookId: "")
     }
     
     

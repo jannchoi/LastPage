@@ -7,18 +7,21 @@
 
 import UIKit
 
-final class ReadingCoordinator {
+final class ReadingCoordinator:Coordinator {
+    private weak var parentCoordinator: Coordinator?
+    var childCoordinators: [Coordinator] = []
     private let navigationController: UINavigationController
     private let diContainer: AppDIContainer
 
-    init(navigationController: UINavigationController, diContainer: AppDIContainer) {
+    init(parentCoordinator: Coordinator?, navigationController: UINavigationController, diContainer: AppDIContainer) {
+        self.parentCoordinator = parentCoordinator
         self.navigationController = navigationController
         self.diContainer = diContainer
     }
 
     func start() {
-        let viewModel = ReadingViewModel(getGetBookUseCase: diContainer.makeGetBookUseCase)
-        let readingVC = SearchViewController(viewModel: viewModel)
+        let viewModel = ReadingViewModel(getGetBookUseCase: diContainer.makeGetBookUseCase())
+        let readingVC = ReadingViewController(viewModel: viewModel)
         readingVC.coordinator = self
         navigationController.pushViewController(readingVC, animated: true)
     }
@@ -30,7 +33,8 @@ final class ReadingCoordinator {
     }
 
     func showEditReading() {
-        let editReadingCoordinator = EditReadingCoordinator(navigationController: navigationController, diContainer: diContainer)
+        let editReadingCoordinator = EditReadingCoordinator(parentCoordinator: self,navigationController: navigationController, diContainer: diContainer)
+        childCoordinators.append(editReadingCoordinator)
         editReadingCoordinator.start()
     }
     
@@ -38,6 +42,9 @@ final class ReadingCoordinator {
         let viewModel = EditReadingInProgressViewModel(makeGetBookUseCase: diContainer.makeGetBookUseCase())
         let editReadingInProgressVC = EditReadingInProgressViewController(viewModel: viewModel)
         navigationController.pushViewController(editReadingInProgressVC, animated: true)
+    }
+    func popVC() {
+        parentCoordinator?.removeChildCoordinator(self)
     }
 }
 

@@ -107,6 +107,9 @@ final class ReadingViewController: BaseViewController {
     @MainActor required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    deinit {
+        coordinator?.popVC()
+    }
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -268,20 +271,18 @@ final class ReadingViewController: BaseViewController {
     }
     
     @objc private func infoEditButtonTapped() {
-        let vc = EditInfoViewController()
-        navigationController?.pushViewController(vc, animated: true)
+        coordinator?.showEditInfo()
     }
     
     @objc private func memoEditButtonTapped() {
-        var vc: UIViewController
         switch readingStatusSegmentControl.selectedSegmentIndex {
-        case 0 : vc = EditReadingViewController()
-        case 1: vc = EditReadingInProgressViewController()
-        default : vc = EditReadingViewController()
+        case 0 : coordinator?.showEditReading()
+        case 1: coordinator?.showEditReadingInProgress()
+        default : coordinator?.showEditReading()
         }
-        navigationController?.pushViewController(vc, animated: true)
     }
 }
+// MARK: - ReadingView
 extension ReadingViewController {
     private class ReadingView: UIScrollView {
         private let highlightContainerView: UIView = {
@@ -355,6 +356,8 @@ extension ReadingViewController {
     }
 
 }
+
+// MARK: - InProgressView
 extension ReadingViewController {
     private class ReadingInProgressView: UIScrollView {
         private let highlightContainerView = createHighlightContainer()

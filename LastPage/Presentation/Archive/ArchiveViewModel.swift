@@ -6,7 +6,28 @@
 //
 
 import Foundation
+import Combine
 
-final class ArchiveViewModel {
-    
+final class ArchiveViewModel: BaseViewModel {
+    var cancellables = Set<AnyCancellable>()
+    let getAllBooksUseCase: GetAllBooksUseCaseProtocol
+    let getBooksByStatusUseCase: GetBooksByStatusUseCaseProtocol
+    let getBooksByCategoryUseCase: GetBooksByCategoryUseCaseProtocol
+    let getBooksByFeelingUseCase: GetBooksByFeelingUseCaseProtocol
+    struct Input {
+        
+    }
+    struct Output {
+        
+    }
+    init(getAllBooksUseCase: GetAllBooksUseCaseProtocol, getBooksByStatusUseCase: GetBooksByStatusUseCaseProtocol, getBooksByCategoryUseCase: GetBooksByCategoryUseCaseProtocol, getBooksByFeelingUseCase: GetBooksByFeelingUseCaseProtocol) {
+        self.getAllBooksUseCase = getAllBooksUseCase
+        self.getBooksByStatusUseCase = getBooksByStatusUseCase
+        self.getBooksByCategoryUseCase = getBooksByCategoryUseCase
+        self.getBooksByFeelingUseCase = getBooksByFeelingUseCase
+    }
+    func transform(input: Input) -> Output {
+        //
+        return Output()
+    }
 }

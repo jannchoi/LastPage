@@ -6,7 +6,21 @@
 //
 
 import Foundation
-
-final class EditInfoViewModel {
-    
+import Combine
+final class EditInfoViewModel:BaseViewModel {
+    var cancellables = Set<AnyCancellable>()
+    let makeGetBookUseCase: GetBookUseCaseProtocol
+    struct Input {
+        
+    }
+    struct Output {
+        
+    }
+    init(makeGetBookUseCase: GetBookUseCaseProtocol) {
+        self.makeGetBookUseCase = makeGetBookUseCase
+    }
+    func transform(input: Input) -> Output {
+        //
+        return Output()
+    }
 }

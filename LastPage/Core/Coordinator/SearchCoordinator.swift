@@ -7,27 +7,33 @@
 
 import UIKit
 
-final class SearchCoordinator {
+final class SearchCoordinator:Coordinator {
+    private weak var parentCoordinator: Coordinator?
+    var childCoordinators: [Coordinator] = []
     private let navigationController: UINavigationController
     private let diContainer: AppDIContainer
 
-    init(navigationController: UINavigationController, diContainer: AppDIContainer) {
+    init(parentCoordinator: Coordinator?, navigationController: UINavigationController, diContainer: AppDIContainer) {
+        self.parentCoordinator = parentCoordinator
         self.navigationController = navigationController
         self.diContainer = diContainer
     }
 
     func start() {
-        let viewModel = SearchViewModel(fetchBookUseCase: diContainer.makeFetchBookUseCase())
-        let searchVC = SearchViewController(viewModel: viewModel)
+        let viewModel = SearchBookViewModel(fetchBookUseCase: diContainer.makeFetchBookUseCase())
+        let searchVC = SearchBookViewController(viewModel: viewModel)
         searchVC.coordinator = self
         navigationController.pushViewController(searchVC, animated: true)
     }
 
     func showReading(bookId: String) {
-        let readingCoordinator = ReadingCoordinator(navigationController: navigationController, diContainer: diContainer)
+        let readingCoordinator = ReadingCoordinator(parentCoordinator: self,navigationController: navigationController, diContainer: diContainer)
+        childCoordinators.append(readingCoordinator)
         readingCoordinator.start()
     }
-
+    func popVC() {
+        parentCoordinator?.removeChildCoordinator(self)
+    }
 
 }
 

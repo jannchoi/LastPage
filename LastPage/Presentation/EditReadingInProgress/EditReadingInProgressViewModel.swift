@@ -6,7 +6,22 @@
 //
 
 import Foundation
+import Combine
 
-final class EditReadingInProgressViewModel {
-    
+final class EditReadingInProgressViewModel: BaseViewModel {
+    var cancellables = Set<AnyCancellable>()
+    let makeGetBookUseCase: GetBookUseCaseProtocol
+    struct Input {
+        
+    }
+    struct Output {
+        
+    }
+    init(makeGetBookUseCase: GetBookUseCaseProtocol) {
+        self.makeGetBookUseCase = makeGetBookUseCase
+    }
+    func transform(input: Input) -> Output {
+        //
+        return Output()
+    }
 }

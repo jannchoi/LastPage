@@ -6,7 +6,22 @@
 //
 
 import Foundation
+import Combine
 
-final class ReadingViewModel {
-    
+final class ReadingViewModel: BaseViewModel {
+    var cancellables = Set<AnyCancellable>()
+    let getGetBookUseCase: GetBookUseCaseProtocol
+    struct Input {
+        
+    }
+    struct Output {
+        
+    }
+    init(getGetBookUseCase: GetBookUseCaseProtocol) {
+        self.getGetBookUseCase = getGetBookUseCase
+    }
+    func transform(input: Input) -> Output {
+        //
+        return Output()
+    }
 }

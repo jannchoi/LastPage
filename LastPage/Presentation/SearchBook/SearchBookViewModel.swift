@@ -8,6 +8,22 @@
 import Foundation
 import Combine
 
-final class SearchBookViewModel {
+final class SearchBookViewModel:BaseViewModel {
+
+    var cancellables = Set<AnyCancellable>()
+    let fetchBookUseCase: FetchBookUseCaseProtocol
+    struct Input {
+        
+    }
+    struct Output {
+        
+    }
+    init(fetchBookUseCase: FetchBookUseCaseProtocol) {
+        self.fetchBookUseCase = fetchBookUseCase
+    }
+    func transform(input: Input) -> Output {
+        //
+        return Output()
+    }
     
 }
