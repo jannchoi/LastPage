@@ -8,22 +8,9 @@
 import Foundation
 struct BookEntity {
     let id: String?
-    let imagePath: String
-    let title: String
-    let author: String
-    let status: ReadingStatusEntity
-    let categories: [String]
-    let feelings: [String]
-    let beforeMemo: MemoEntity?
-    let inProgressMemo: [ProgressMemoEntity]
-    let afterMemo: MemoEntity?
+    var bookDetail: BookDetailEntity
+    var beforeMemo: MemoEntity?
+    var inProgressMemo: [ProgressMemoEntity]
+    var afterMemo: MemoEntity?
 }
-struct BookDetailEntity {
-    let imagePath: String
-    let title: String
-    let author: String
-    let status: ReadingStatusEntity
-    let shortMemo: String
-    let categories: [String]
-    let feelings: [String]
-}
+

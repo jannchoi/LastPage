@@ -10,7 +10,7 @@ import RealmSwift
 class ProgressMemo: Object {
     @Persisted var startPage: Int
     @Persisted var endPage: Int
-    @Persisted var date: Date
+    @Persisted var date: Date?
     @Persisted var memo: String
 
     convenience init(startPage: Int, endPage: Int, date: Date, memo: String) {

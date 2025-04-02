@@ -63,7 +63,7 @@ class BookMemoDataSource: BookMemoDataSourceProtocol {
             }
         }.eraseToAnyPublisher()
     }
-    
+   
     func deleteBook(with id: ObjectId) -> AnyPublisher<Void, Error> {
         return Future<Void, Error> { promise in
             do {

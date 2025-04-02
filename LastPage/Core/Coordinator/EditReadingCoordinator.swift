@@ -22,8 +22,8 @@ final class EditReadingCoordinator:Coordinator {
         self.diContainer = diContainer
     }
 
-    func start(bookId: String? = nil, status: ReadingStatusEntity? = nil) {
-        let viewModel = EditReadingViewModel(bookId: bookId, status: status, getBookUseCase: diContainer.makeGetBookUseCase())
+    func start(bookId: String? = nil, status: UpdateTarget? = nil) {
+        let viewModel = EditReadingViewModel(bookId: bookId, status: status, getBookUseCase: diContainer.makeGetBookUseCase(), updateBookUsecase: diContainer.makeUpdateBookUseCase())
         let editReadingVC = EditReadingViewController(viewModel: viewModel)
         editReadingVC.coordinator = self
         navigationController.pushViewController(editReadingVC, animated: true)

@@ -39,12 +39,29 @@ class BookMemoRepository: BookMemoRepositoryProtocol {
         let realmModel = mapper.mapToRealm(domainModel: book)
         return dataSource.saveBook(realmModel)
     }
-    
-    func updateBook(_ book: BookEntity) -> AnyPublisher<Void, Error> {
-        let realmModel = mapper.mapToRealm(domainModel: book)
-        return dataSource.updateBook(realmModel)
+
+    func updateBook<T>(bookId: String, field: UpdateTarget, newValue: T) -> AnyPublisher<Void, Error> {
+        return dataSource.getBook(with: try! ObjectId(string: bookId))
+            .flatMap { existingMemo -> AnyPublisher<Void, Error> in
+                guard let existingMemo = existingMemo else {
+                    return Fail(error: NSError(domain: "BookMemoRepository", code: 404, userInfo: [NSLocalizedDescriptionKey: "Book not found"]))
+                        .eraseToAnyPublisher()
+                }
+
+                // BookMemo -> BookEntity 변환
+                let existingEntity = self.mapper.mapToDomain(realmModel: existingMemo)
+
+                // BookEntity 업데이트
+                let updatedEntity = self.mapper.updateBookEntity(existing: existingEntity, newValue: newValue, field: field)
+
+                // BookEntity -> BookMemo 변환 후 Realm 저장
+                let updatedMemo = self.mapper.mapToRealm(domainModel: updatedEntity)
+
+                return self.dataSource.updateBook(updatedMemo)
+            }
+            .eraseToAnyPublisher()
     }
-    
+
     func deleteBook(with id: String) -> AnyPublisher<Void, Error> {
         let objectId = try! ObjectId(string: id)
         return dataSource.deleteBook(with: objectId)

@@ -10,19 +10,22 @@ import Combine
 final class EditReadingViewModel:BaseViewModel {
     var cancellables = Set<AnyCancellable>()
     let getBookUseCase: GetBookUseCaseProtocol
-    let saveBookUsecase: SaveBookUseCaseProtocol
+    let updateBookUsecase: UpdateBookUseCaseProtocol
     
     @Published var bookDetail: MemoEntity?
-    
+    let bookId : String?
+    let status : UpdateTarget?
     struct Input {
         
     }
     struct Output {
         
     }
-    init(bookId: String? = nil, status: ReadingStatusEntity? = nil, getBookUseCase: GetBookUseCaseProtocol, saveBookUsecase: SaveBookUseCaseProtocol) {
+    init(bookId: String? = nil, status: UpdateTarget? = nil, getBookUseCase: GetBookUseCaseProtocol, updateBookUsecase: UpdateBookUseCaseProtocol) {
         self.getBookUseCase = getBookUseCase
-        self.saveBookUsecase = saveBookUsecase
+        self.updateBookUsecase = updateBookUsecase
+        self.bookId = bookId
+        self.status = status
         if let bookId = bookId, let status = status {
             self.fetchBook(itemId: bookId, status: status)
         }
@@ -31,10 +34,13 @@ final class EditReadingViewModel:BaseViewModel {
         //
         return Output()
     }
-    private func saveBook() {
-        
+    func saveBook<T>(newValue: T) {
+        print(#function)
+//        if let bookId = bookId, let status = status {
+//            updateBookUsecase.execute(bookId: bookId, field: status, newValue: newValue)
+//        }
     }
-    private func fetchBook(itemId: String, status: ReadingStatusEntity) {
+    private func fetchBook(itemId: String, status: UpdateTarget) {
         getBookUseCase.execute(with: itemId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
@@ -49,6 +55,8 @@ final class EditReadingViewModel:BaseViewModel {
                     return
                 case .completed:
                     self.bookDetail = book.afterMemo
+                case .detail:
+                    return
                 }
             }
             .store(in: &cancellables)

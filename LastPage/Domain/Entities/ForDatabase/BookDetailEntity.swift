@@ -6,3 +6,13 @@
 //
 
 import Foundation
+
+struct BookDetailEntity {
+    let imagePath: String?
+    let title: String
+    let author: String
+    let status: ReadingStatusEntity
+    let shortMemo: String
+    let categories: [String]
+    let feelings: [String]
+}

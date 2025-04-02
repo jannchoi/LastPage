@@ -57,7 +57,7 @@ final class HighlightTableViewCell: UITableViewCell {
     
     func configure(item: ProgressMemoEntity) {
         pageRangeLabel.text = "\(item.startPage) ~ \(item.endPage)"
-        dateLabel.text = item.date.formatted()
+        dateLabel.text = item.date
         memoLabel.text = item.memo
     }
 

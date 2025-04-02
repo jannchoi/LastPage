@@ -39,13 +39,13 @@ final class ReadingCoordinator:Coordinator {
     }
     
 
-    func showEditInfo() {
-        let viewModel = EditInfoViewModel(makeGetBookUseCase: diContainer.makeGetBookUseCase())
+    func showEditInfo(bookId: String? = nil) {
+        let viewModel = EditInfoViewModel(bookId: bookId,getBookUseCase: diContainer.makeGetBookUseCase(),updateBookUsecase: diContainer.makeUpdateBookUseCase(),saveBookUsecase: diContainer.makeSaveBookUseCase() )
         let editInfoVC = EditInfoViewController(viewModel: viewModel)
         navigationController.pushViewController(editInfoVC, animated: true)
     }
 
-    func showEditReading(bookId: String? = nil, status: ReadingStatusEntity? = nil) {
+    func showEditReading(bookId: String? = nil, status: UpdateTarget? = nil) {
         let editReadingCoordinator = EditReadingCoordinator(parentCoordinator: self,navigationController: navigationController, diContainer: diContainer)
         childCoordinators.append(editReadingCoordinator)
         editReadingCoordinator.start(bookId: bookId, status: status)

@@ -23,29 +23,22 @@ class BookMemoMapper: BookMemoMapperProtocol {
         default:
             statusEntity = .unread
         }
-        return BookEntity(
-            id: realmModel.id.stringValue,
-            imagePath: realmModel.imagePath,
-            title: realmModel.title,
-            author: realmModel.author,
-            status: statusEntity,
-            categories: Array(realmModel.categories),
-            feelings: Array(realmModel.feelings),
-            beforeMemo: realmModel.beforeMemo.map {
-                MemoEntity(date: $0.date, memo: $0.memo)
-            },
-            inProgressMemo: realmModel.inProgressMemo.map {
-                ProgressMemoEntity(
-                    startPage: $0.startPage,
-                    endPage: $0.endPage,
-                    date: $0.date,
-                    memo: $0.memo
-                )
-            },
-            afterMemo: realmModel.afterMemo.map {
-                MemoEntity(date: $0.date, memo: $0.memo)
-            }
-        )
+        return BookEntity(id: realmModel.id.stringValue, bookDetail:             BookDetailEntity(imagePath: realmModel.imagePath,
+                title: realmModel.title,author: realmModel.author,status: statusEntity,shortMemo: realmModel.shortMemo,categories: Array(realmModel.categories),feelings: Array(realmModel.feelings)),beforeMemo: realmModel.beforeMemo.map {
+            MemoEntity(date: DateFormattManager.shared.dateToStr($0.date), memo: $0.memo)
+        },
+        inProgressMemo: realmModel.inProgressMemo.map {
+            ProgressMemoEntity(
+                startPage: $0.startPage,
+                endPage: $0.endPage,
+                date: DateFormattManager.shared.dateToStr($0.date),
+                memo: $0.memo
+            )
+        },
+        afterMemo: realmModel.afterMemo.map {
+            MemoEntity(date: DateFormattManager.shared.dateToStr($0.date), memo: $0.memo)
+        })
+
     }
     
     func mapToRealm(domainModel: BookEntity) -> BookMemo {
@@ -55,23 +48,23 @@ class BookMemoMapper: BookMemoMapperProtocol {
         } else {
             bookMemo.id = ObjectId.generate()
         }
-        bookMemo.imagePath = domainModel.imagePath
-        bookMemo.title = domainModel.title
-        bookMemo.author = domainModel.author
-        bookMemo.status = domainModel.status.rawValue
+        bookMemo.imagePath = domainModel.bookDetail.imagePath
+        bookMemo.title = domainModel.bookDetail.title
+        bookMemo.author = domainModel.bookDetail.author
+        bookMemo.status = domainModel.bookDetail.status.rawValue
         
         // 카테고리 설정
         bookMemo.categories.removeAll()
-        bookMemo.categories.append(objectsIn: domainModel.categories)
+        bookMemo.categories.append(objectsIn: domainModel.bookDetail.categories)
         
         // 감정 설정
         bookMemo.feelings.removeAll()
-        bookMemo.feelings.append(objectsIn: domainModel.feelings)
+        bookMemo.feelings.append(objectsIn: domainModel.bookDetail.feelings)
         
         // 읽기 전 메모 설정
         if let beforeMemo = domainModel.beforeMemo {
             let memo = Memo()
-            memo.date = beforeMemo.date
+            memo.date = DateFormattManager.shared.strToDate(beforeMemo.date)
             memo.memo = beforeMemo.memo
             bookMemo.beforeMemo = memo
         } else {
@@ -84,7 +77,7 @@ class BookMemoMapper: BookMemoMapperProtocol {
             let progressMemo = ProgressMemo()
             progressMemo.startPage = item.startPage
             progressMemo.endPage = item.endPage
-            progressMemo.date = item.date
+            progressMemo.date = DateFormattManager.shared.strToDate(item.date)
             progressMemo.memo = item.memo
             bookMemo.inProgressMemo.append(progressMemo)
         }
@@ -92,7 +85,7 @@ class BookMemoMapper: BookMemoMapperProtocol {
         // 읽은 후 메모 설정
         if let afterMemo = domainModel.afterMemo {
             let memo = Memo()
-            memo.date = afterMemo.date
+            memo.date = DateFormattManager.shared.strToDate(afterMemo.date)
             memo.memo = afterMemo.memo
             bookMemo.afterMemo = memo
         } else {
@@ -101,4 +94,29 @@ class BookMemoMapper: BookMemoMapperProtocol {
         
         return bookMemo
     }
+    func updateBookEntity<T>(existing: BookEntity, newValue: T, field: UpdateTarget) -> BookEntity {
+        var updatedBook = existing
+        
+        switch field {
+        case .unread:
+            if let newMemo = newValue as? MemoEntity {
+                updatedBook.beforeMemo = newMemo
+            }
+        case .reading:
+            if let newProgressMemos = newValue as? [ProgressMemoEntity] {
+                updatedBook.inProgressMemo = newProgressMemos
+            }
+        case .completed:
+            if let newMemo = newValue as? MemoEntity {
+                updatedBook.afterMemo = newMemo
+            }
+        case .detail:
+            if let newDetail = newValue as? BookDetailEntity {
+                updatedBook.bookDetail = newDetail
+            }
+        }
+
+        return updatedBook
+    }
+
 }

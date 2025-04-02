@@ -9,7 +9,7 @@ import Foundation
 import RealmSwift
 
 class Memo: Object {
-    @Persisted var date: Date
+    @Persisted var date: Date?
     @Persisted var memo: String
 
     convenience init(date: Date, memo: String) {

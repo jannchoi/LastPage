@@ -17,7 +17,7 @@ final class ReadingViewModel: BaseViewModel {
     //@Published var error:
     
     struct Input {
-        
+
     }
     struct Output {
         

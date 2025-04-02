@@ -122,6 +122,13 @@ final class ReadingViewController: BaseViewController {
         // Set initial view based on default segment
         updateContentForSelectedSegment()
     }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setMemoEditIsAvailable()
+    }
+    private func setMemoEditIsAvailable() {
+        memoEditButton.isEnabled = viewModel.bookDetail?.id != nil
+    }
     override func bind() {
         viewModel.$bookDetail.sink {[weak self] bookEntity in
             guard let self = self, let bookEntity = bookEntity else {return}
@@ -129,11 +136,12 @@ final class ReadingViewController: BaseViewController {
         }.store(in: &cancellables)
     }
     func setupUI(item: BookEntity) {
-        let url = URL(string: item.imagePath)
+        let imgPath = item.bookDetail.imagePath ?? TextResource.Global.empty.text
+        let url = URL(string: imgPath)
         bookCoverImageView.kf.setImage(with: url,placeholder: UIImage(systemName: "person"))
-        titleLabel.text = item.title
-        authorLabel.text = item.author
-        statusLabel.text = item.status.rawValue
+        titleLabel.text = item.bookDetail.title
+        authorLabel.text = item.bookDetail.author
+        statusLabel.text = item.bookDetail.status.rawValue
         beforeReadingView.updateMemo(item: item.beforeMemo)
         afterReadingView.updateMemo(item: item.afterMemo)
     }
@@ -195,6 +203,7 @@ final class ReadingViewController: BaseViewController {
         memoEditButton.showsMenuAsPrimaryAction = false
     }
     @objc private func memoEditButtonTapped() {
+        
         // Check if we're in delete mode
         if readingInProgressView.isDeleteMode {
             exitDeleteMode()

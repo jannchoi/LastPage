@@ -90,7 +90,9 @@ final class InfoFieldView: UIView {
         updateTagsView()
         onTagAdded?(tag)
     }
-    
+    func getTag() -> [String] {
+        return tags
+    }
     func removeTag(_ tag: String) {
         guard let index = tags.firstIndex(of: tag) else { return }
         

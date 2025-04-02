@@ -51,10 +51,12 @@ final class EditReadingViewController: BaseViewController {
         }.store(in: &cancellables)
     }
     @objc private func saveButtonTapped() {
-        //
+        guard let newMemo = textView.text else {return}
+        let newValue = MemoEntity(date: dateField.textField.text, memo: newMemo)
+        viewModel.saveBook(newValue: newValue)
     }
     private func setupUI(item: MemoEntity) {
-        dateField.textField.text = item.date.formatted()
+        dateField.textField.text = item.date
         textView.text = item.memo
     }
     override func configureHierarchy() {
