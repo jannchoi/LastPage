@@ -139,7 +139,8 @@ final class EditReadingViewController: BaseViewController {
         view.endEditing(true)
     }
     @objc private func helpButtonTapped() {
-        coordinator?.showRecommend()
+        guard let bookId = viewModel.bookId else {return}
+        coordinator?.showRecommend(bookId: bookId)
     }
  
     @objc private func keyboardWillShow(notification: NSNotification) {
