@@ -9,6 +9,6 @@ import Foundation
 import Combine
 
 protocol UpdateBookUseCaseProtocol {
-    func execute<T>(bookId: String, field: UpdateTarget, newValue: T) -> AnyPublisher<Void, Error>
+    func execute<T>(bookId: String, field: UpdateTarget, newValue: T, index: Int?) -> AnyPublisher<Void, Error>
 }
 

@@ -17,6 +17,7 @@ class ReadingInProgressView: UIView{
     
     private let tableView = UITableView()
     private var memoList = [ProgressMemoEntity]()
+    weak var delegate: ReadingInProgressViewDelegate?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -75,7 +76,9 @@ class ReadingInProgressView: UIView{
 }
 // MARK: - TableView Delegate & DataSource
 extension ReadingInProgressView: UITableViewDelegate, UITableViewDataSource {
-
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        delegate?.readingInProgressView(self, didSelectItemAt: indexPath.row)
+    }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return memoList.count
     }
@@ -109,8 +112,11 @@ extension ReadingInProgressView: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return true
     }
+   
 
 }
-
+protocol ReadingInProgressViewDelegate: AnyObject {
+    func readingInProgressView(_ view: ReadingInProgressView, didSelectItemAt index: Int)
+}
 
 

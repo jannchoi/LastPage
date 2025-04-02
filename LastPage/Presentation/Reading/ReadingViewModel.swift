@@ -11,7 +11,7 @@ import Combine
 final class ReadingViewModel: BaseViewModel {
     var cancellables = Set<AnyCancellable>()
     let getBookUseCase: GetBookUseCaseProtocol
-    
+    let viewWillAppearTrigger = PassthroughSubject<Void, Never>()
     @Published var bookDetail: BookEntity?
     @Published var isLoading: Bool = false
     //@Published var error:
@@ -39,7 +39,12 @@ final class ReadingViewModel: BaseViewModel {
         }
     }
     func transform(input: Input) -> Output {
-        //
+        
+        viewWillAppearTrigger.sink { [weak self]_ in
+            guard let self = self, let book = self.bookDetail, let id = book.id else {return}
+            self.fetchBook(itemId: id)
+        }.store(in: &cancellables)
+        
         return Output()
     }
     private func fetchBook(itemId: String) {

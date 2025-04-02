@@ -51,8 +51,8 @@ final class ReadingCoordinator:Coordinator {
         editReadingCoordinator.start(bookId: bookId, status: status)
     }
     
-    func showEditReadingInProgress() {
-        let viewModel = EditReadingInProgressViewModel(makeGetBookUseCase: diContainer.makeGetBookUseCase())
+    func showEditReadingInProgress(bookId: String? = nil, index: Int? = nil) {
+        let viewModel = EditReadingInProgressViewModel(bookId: bookId,index: index ,getBookUseCase: diContainer.makeGetBookUseCase(),updateBookUsecase : diContainer.makeUpdateBookUseCase())
         let editReadingInProgressVC = EditReadingInProgressViewController(viewModel: viewModel)
         navigationController.pushViewController(editReadingInProgressVC, animated: true)
     }

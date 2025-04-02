@@ -7,8 +7,8 @@
 
 import Foundation
 struct ProgressMemoEntity {
-    let startPage: Int
-    let endPage: Int
+    let startPage: String?
+    let endPage: String?
     let date: String?
     let memo: String
 }

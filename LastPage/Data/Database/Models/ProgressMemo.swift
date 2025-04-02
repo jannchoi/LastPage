@@ -8,8 +8,8 @@
 import Foundation
 import RealmSwift
 class ProgressMemo: Object {
-    @Persisted var startPage: Int
-    @Persisted var endPage: Int
+    @Persisted var startPage: Int?
+    @Persisted var endPage: Int?
     @Persisted var date: Date?
     @Persisted var memo: String
 

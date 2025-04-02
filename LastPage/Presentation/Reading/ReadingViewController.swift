@@ -124,6 +124,7 @@ final class ReadingViewController: BaseViewController {
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        viewModel.viewWillAppearTrigger.send(())
         setMemoEditIsAvailable()
     }
     private func setMemoEditIsAvailable() {
@@ -142,6 +143,7 @@ final class ReadingViewController: BaseViewController {
         titleLabel.text = item.bookDetail.title
         authorLabel.text = item.bookDetail.author
         statusLabel.text = item.bookDetail.status.rawValue
+        readingInProgressView.updateData(data: item.inProgressMemo)
         beforeReadingView.updateMemo(item: item.beforeMemo)
         afterReadingView.updateMemo(item: item.afterMemo)
     }
@@ -156,6 +158,7 @@ final class ReadingViewController: BaseViewController {
         beforeReadingView.isHidden = true
         readingInProgressView.isHidden = true
         afterReadingView.isHidden = true
+        readingInProgressView.delegate = self
     }
     private func updateContentForSelectedSegment() {
         // Hide all views first
@@ -233,7 +236,7 @@ final class ReadingViewController: BaseViewController {
     private func showEditMenu() {
         // Create menu actions
         let addAction = UIAction(title: "Add", image: UIImage(systemName: "plus")) { [weak self] _ in
-            self?.coordinator?.showEditReadingInProgress()
+            self?.coordinator?.showEditReadingInProgress(bookId: self?.viewModel.bookDetail?.id)
         }
         
         let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash")) { [weak self] _ in
@@ -402,5 +405,12 @@ final class ReadingViewController: BaseViewController {
             }
         }
     }
+    
+}
+extension ReadingViewController: ReadingInProgressViewDelegate {
+    func readingInProgressView(_ view: ReadingInProgressView, didSelectItemAt index: Int) {
+        coordinator?.showEditReadingInProgress(bookId: viewModel.bookDetail?.id, index: index)
+    }
+    
     
 }

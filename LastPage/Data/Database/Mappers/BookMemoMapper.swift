@@ -29,8 +29,8 @@ class BookMemoMapper: BookMemoMapperProtocol {
         },
         inProgressMemo: realmModel.inProgressMemo.map {
             ProgressMemoEntity(
-                startPage: $0.startPage,
-                endPage: $0.endPage,
+                startPage: "\($0.startPage)",
+                endPage: "\($0.endPage)",
                 date: DateFormattManager.shared.dateToStr($0.date),
                 memo: $0.memo
             )
@@ -75,8 +75,9 @@ class BookMemoMapper: BookMemoMapperProtocol {
         bookMemo.inProgressMemo.removeAll()
         domainModel.inProgressMemo.forEach { item in
             let progressMemo = ProgressMemo()
-            progressMemo.startPage = item.startPage
-            progressMemo.endPage = item.endPage
+
+            progressMemo.startPage = Int(item.startPage ?? TextResource.Global.none.text)
+            progressMemo.endPage = Int(item.endPage ?? TextResource.Global.none.text)
             progressMemo.date = DateFormattManager.shared.strToDate(item.date)
             progressMemo.memo = item.memo
             bookMemo.inProgressMemo.append(progressMemo)
@@ -94,7 +95,7 @@ class BookMemoMapper: BookMemoMapperProtocol {
         
         return bookMemo
     }
-    func updateBookEntity<T>(existing: BookEntity, newValue: T, field: UpdateTarget) -> BookEntity {
+    func updateBookEntity<T>(existing: BookEntity, newValue: T, field: UpdateTarget, index: Int? = nil) -> BookEntity {
         var updatedBook = existing
         
         switch field {
@@ -103,8 +104,12 @@ class BookMemoMapper: BookMemoMapperProtocol {
                 updatedBook.beforeMemo = newMemo
             }
         case .reading:
-            if let newProgressMemos = newValue as? [ProgressMemoEntity] {
-                updatedBook.inProgressMemo = newProgressMemos
+            if let newProgressMemos = newValue as? ProgressMemoEntity, let index = index {
+                if index <  updatedBook.inProgressMemo.count{
+                    updatedBook.inProgressMemo[index] = newProgressMemos
+                } else {
+                    updatedBook.inProgressMemo.append(newProgressMemos)
+                }
             }
         case .completed:
             if let newMemo = newValue as? MemoEntity {

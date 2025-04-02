@@ -37,7 +37,7 @@ final class EditInfoViewModel:BaseViewModel {
     func saveBook(newValue: BookDetailEntity) {
         print(#function)
         if let bookId = bookId {
-            updateBookUsecase.execute(bookId: bookId, field: .detail, newValue: newValue)
+            updateBookUsecase.execute(bookId: bookId, field: .detail, newValue: newValue, index: nil)
         } else {
             let newBook = BookEntity(id: nil, bookDetail: newValue, inProgressMemo: [])
             saveBookUsecase.execute(newBook)
