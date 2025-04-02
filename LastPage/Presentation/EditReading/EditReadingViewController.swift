@@ -6,11 +6,13 @@
 //
 
 import UIKit
+import Combine
 import SnapKit
 
 final class EditReadingViewController: BaseViewController {
     weak var coordinator: EditReadingCoordinator?
     var viewModel: EditReadingViewModel
+    private var cancellables: Set<AnyCancellable> = []
     private let dateField = InfoFieldView(title: TextResource.InfoTextView.date.text)
 
     private let containerScrollView = UIScrollView()
@@ -18,6 +20,12 @@ final class EditReadingViewController: BaseViewController {
     private let helpButton : UIButton = {
         let button = UIButton(type: .system)
         button.setTitle(TextResource.ButtonTitle.help.text, for: .normal)
+        button.setTitleColor(.blue, for: .normal)
+        return button
+    }()
+    private let saveButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle(TextResource.ButtonTitle.save.text, for: .normal)
         button.setTitleColor(.blue, for: .normal)
         return button
     }()
@@ -35,6 +43,19 @@ final class EditReadingViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+    }
+    override func bind() {
+        viewModel.$bookDetail.sink {[weak self] memoDetail in
+            guard let self = self, let memoDetail = memoDetail else {return}
+            self.setupUI(item: memoDetail)
+        }.store(in: &cancellables)
+    }
+    @objc private func saveButtonTapped() {
+        //
+    }
+    private func setupUI(item: MemoEntity) {
+        dateField.textField.text = item.date.formatted()
+        textView.text = item.memo
     }
     override func configureHierarchy() {
         view.addSubview(dateField)
@@ -100,7 +121,11 @@ final class EditReadingViewController: BaseViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         helpButton.addTarget(self, action: #selector(helpButtonTapped), for: .touchUpInside)
-        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
+        saveButton.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
+        let helpBtn = UIBarButtonItem(customView: helpButton)
+        let saveBtn = UIBarButtonItem(customView: saveButton)
+        
+        navigationItem.rightBarButtonItems = [saveBtn, helpBtn]
     }
 
     @objc private func doneButtonTapped() {

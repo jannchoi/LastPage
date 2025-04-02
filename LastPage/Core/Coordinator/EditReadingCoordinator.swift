@@ -8,6 +8,10 @@
 import UIKit
 
 final class EditReadingCoordinator:Coordinator {
+    func start() {
+        //
+    }
+    
     private weak var parentCoordinator: Coordinator?
     var childCoordinators: [Coordinator] = []
     private let navigationController: UINavigationController
@@ -18,8 +22,8 @@ final class EditReadingCoordinator:Coordinator {
         self.diContainer = diContainer
     }
 
-    func start() {
-        let viewModel = EditReadingViewModel(makeGetBookUseCase: diContainer.makeGetBookUseCase())
+    func start(bookId: String? = nil, status: ReadingStatusEntity? = nil) {
+        let viewModel = EditReadingViewModel(bookId: bookId, status: status, getBookUseCase: diContainer.makeGetBookUseCase())
         let editReadingVC = EditReadingViewController(viewModel: viewModel)
         editReadingVC.coordinator = self
         navigationController.pushViewController(editReadingVC, animated: true)

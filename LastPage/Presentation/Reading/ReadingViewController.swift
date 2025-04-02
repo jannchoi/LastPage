@@ -203,19 +203,20 @@ final class ReadingViewController: BaseViewController {
         
         // Get current segment index
         let currentSegmentIndex = readingStatusSegmentControl.selectedSegmentIndex
-        
+        guard let bookDetail = viewModel.bookDetail else {return}
+        let bookId = bookDetail.id
         // Handle based on segment
         switch currentSegmentIndex {
         case 0:
             // Clear any menu before navigation
             clearButtonMenu()
-            coordinator?.showEditReading()
+            coordinator?.showEditReading(bookId: bookId, status: .unread)
         case 1:
             showEditMenu()
         default:
             // Clear any menu before navigation
             clearButtonMenu()
-            coordinator?.showEditReading()
+            coordinator?.showEditReading(bookId: bookId, status: .completed)
         }
     }
 

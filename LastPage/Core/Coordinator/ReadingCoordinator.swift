@@ -45,10 +45,10 @@ final class ReadingCoordinator:Coordinator {
         navigationController.pushViewController(editInfoVC, animated: true)
     }
 
-    func showEditReading() {
+    func showEditReading(bookId: String? = nil, status: ReadingStatusEntity? = nil) {
         let editReadingCoordinator = EditReadingCoordinator(parentCoordinator: self,navigationController: navigationController, diContainer: diContainer)
         childCoordinators.append(editReadingCoordinator)
-        editReadingCoordinator.start()
+        editReadingCoordinator.start(bookId: bookId, status: status)
     }
     
     func showEditReadingInProgress() {
