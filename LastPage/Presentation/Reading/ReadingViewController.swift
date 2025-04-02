@@ -5,11 +5,14 @@
 //  Created by 최정안 on 3/29/25.
 //
 import UIKit
+import Combine
 import SnapKit
+import Kingfisher
 
 final class ReadingViewController: BaseViewController {
     weak var coordinator: ReadingCoordinator?
     var viewModel: ReadingViewModel
+    private var cancellables: Set<AnyCancellable> = []
     private let topContainerView: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor.lightGray.withAlphaComponent(0.3)
@@ -33,14 +36,14 @@ final class ReadingViewController: BaseViewController {
         return button
     }()
     
-    private let authorLabel: UILabel = {
+    private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "인간 실격"
         label.font = .systemFont(ofSize: 16, weight: .bold)
         return label
     }()
     
-    private let writerLabel: UILabel = {
+    private let authorLabel: UILabel = {
         let label = UILabel()
         label.text = "다자이 오사무"
         label.font = .systemFont(ofSize: 14)
@@ -115,11 +118,168 @@ final class ReadingViewController: BaseViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupActions()
-        
+        bind()
         // Set initial view based on default segment
         updateContentForSelectedSegment()
     }
-    
+    override func bind() {
+        viewModel.$bookDetail.sink {[weak self] bookEntity in
+            guard let self = self, let bookEntity = bookEntity else {return}
+            self.setupUI(item: bookEntity)
+        }.store(in: &cancellables)
+    }
+    func setupUI(item: BookEntity) {
+        let url = URL(string: item.imagePath)
+        bookCoverImageView.kf.setImage(with: url,placeholder: UIImage(systemName: "person"))
+        titleLabel.text = item.title
+        authorLabel.text = item.author
+        statusLabel.text = item.status.rawValue
+        beforeReadingView.updateMemo(item: item.beforeMemo)
+        afterReadingView.updateMemo(item: item.afterMemo)
+    }
+    // MARK: - Actions
+    private func setupActions() {
+        readingStatusSegmentControl.addTarget(self, action: #selector(segmentControlValueChanged), for: .valueChanged)
+        infoEditButton.addTarget(self, action: #selector(infoEditButtonTapped), for: .touchUpInside)
+        memoEditButton.addTarget(self, action: #selector(memoEditButtonTapped), for: .touchUpInside)
+        
+    }
+    override func configureView() {
+        beforeReadingView.isHidden = true
+        readingInProgressView.isHidden = true
+        afterReadingView.isHidden = true
+    }
+    private func updateContentForSelectedSegment() {
+        // Hide all views first
+        beforeReadingView.isHidden = true
+        readingInProgressView.isHidden = true
+        afterReadingView.isHidden = true
+        
+        // Show the appropriate view based on selected segment
+        switch readingStatusSegmentControl.selectedSegmentIndex {
+        case 0: // 읽기 전
+            beforeReadingView.isHidden = false
+            clearButtonMenu() // Clear menu
+        case 1: // 읽는 중
+            readingInProgressView.isHidden = false
+            configureMenuForEditButton() // Set up menu in advance
+        case 2: // 읽은 후
+            afterReadingView.isHidden = false
+            clearButtonMenu() // Clear menu
+        default:
+            break
+        }
+    }
+
+    // Pre-configure the menu for the edit button
+    private func configureMenuForEditButton() {
+        let addAction = UIAction(title: "Add", image: UIImage(systemName: "plus")) { [weak self] _ in
+            self?.coordinator?.showEditReadingInProgress()
+        }
+        
+        let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash")) { [weak self] _ in
+            self?.enterDeleteMode()
+        }
+        
+        let menu = UIMenu(title: "메뉴", children: [addAction, deleteAction])
+        
+        memoEditButton.showsMenuAsPrimaryAction = true
+        memoEditButton.menu = menu
+    }
+
+    @objc private func infoEditButtonTapped() {
+        coordinator?.showEditInfo()
+    }
+    private func clearButtonMenu() {
+        memoEditButton.menu = nil
+        memoEditButton.showsMenuAsPrimaryAction = false
+    }
+    @objc private func memoEditButtonTapped() {
+        // Check if we're in delete mode
+        if readingInProgressView.isDeleteMode {
+            exitDeleteMode()
+            return
+        }
+        
+        // Get current segment index
+        let currentSegmentIndex = readingStatusSegmentControl.selectedSegmentIndex
+        
+        // Handle based on segment
+        switch currentSegmentIndex {
+        case 0:
+            // Clear any menu before navigation
+            clearButtonMenu()
+            coordinator?.showEditReading()
+        case 1:
+            showEditMenu()
+        default:
+            // Clear any menu before navigation
+            clearButtonMenu()
+            coordinator?.showEditReading()
+        }
+    }
+
+    // Show the edit menu
+    private func showEditMenu() {
+        // Create menu actions
+        let addAction = UIAction(title: "Add", image: UIImage(systemName: "plus")) { [weak self] _ in
+            self?.coordinator?.showEditReadingInProgress()
+        }
+        
+        let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash")) { [weak self] _ in
+            self?.enterDeleteMode()
+        }
+        
+        // Create and present the menu
+        let menu = UIMenu(title: "메뉴", children: [addAction, deleteAction])
+        
+        // First set showsMenuAsPrimaryAction to true
+        memoEditButton.showsMenuAsPrimaryAction = true
+        // Then set the menu
+        memoEditButton.menu = menu
+        
+        // Force present the menu programmatically on first tap
+        if #available(iOS 14.0, *) {
+            memoEditButton.sendActions(for: .menuActionTriggered)
+        }
+    }
+    // Enter delete mode
+    private func enterDeleteMode() {
+        // Enable delete mode
+        readingInProgressView.isDeleteMode = true
+        
+        clearButtonMenu()
+           memoEditButton.setTitle("Done", for: .normal)
+           
+           // Refresh table view to show delete buttons
+        readingInProgressView.refreshTableViewForDeleteMode()
+    }
+
+    // Exit delete mode
+    private func exitDeleteMode() {
+        
+        // Disable delete mode
+        readingInProgressView.isDeleteMode = false
+        
+        // Restore button appearance
+        memoEditButton.setTitle("Edit", for: .normal)
+        
+        // Refresh table view
+        readingInProgressView.refreshTableViewForDeleteMode()
+    }
+    @objc private func segmentControlValueChanged() {
+        // Clear any menu when segment changes
+        clearButtonMenu()
+        
+        // Reset delete mode if active
+        if readingInProgressView.isDeleteMode {
+            readingInProgressView.isDeleteMode = false
+            memoEditButton.setTitle("Edit", for: .normal)
+        }
+        
+        // Update UI based on selected segment
+        updateContentForSelectedSegment()
+    }
     // MARK: - UI Setup
     override func configureHierarchy() {
         // Add subviews
@@ -128,8 +288,8 @@ final class ReadingViewController: BaseViewController {
         
         topContainerView.addSubview(bookCoverImageView)
         topContainerView.addSubview(infoEditButton)
+        topContainerView.addSubview(titleLabel)
         topContainerView.addSubview(authorLabel)
-        topContainerView.addSubview(writerLabel)
         topContainerView.addSubview(statusLabel)
         topContainerView.addSubview(shortMemoLabel)
         
@@ -141,8 +301,6 @@ final class ReadingViewController: BaseViewController {
         segmentContentView.addSubview(beforeReadingView)
         segmentContentView.addSubview(readingInProgressView)
         segmentContentView.addSubview(afterReadingView)
-        
-
 
     }
     
@@ -170,22 +328,22 @@ final class ReadingViewController: BaseViewController {
         }
         
         // Author Label
-        authorLabel.snp.makeConstraints { make in
+        titleLabel.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(16)
             make.leading.equalTo(bookCoverImageView.snp.trailing).offset(16)
             make.trailing.lessThanOrEqualTo(infoEditButton.snp.leading).offset(-8)
         }
         
         // Writer Label
-        writerLabel.snp.makeConstraints { make in
-            make.top.equalTo(authorLabel.snp.bottom).offset(8)
+        authorLabel.snp.makeConstraints { make in
+            make.top.equalTo(titleLabel.snp.bottom).offset(8)
             make.leading.equalTo(bookCoverImageView.snp.trailing).offset(16)
             make.trailing.equalToSuperview().offset(-16)
         }
         
         // Date Label
         statusLabel.snp.makeConstraints { make in
-            make.top.equalTo(writerLabel.snp.bottom).offset(8)
+            make.top.equalTo(authorLabel.snp.bottom).offset(8)
             make.leading.equalTo(bookCoverImageView.snp.trailing).offset(16)
             make.trailing.equalToSuperview().offset(-16)
         }
@@ -235,216 +393,4 @@ final class ReadingViewController: BaseViewController {
         }
     }
     
-    // MARK: - Actions
-    private func setupActions() {
-        readingStatusSegmentControl.addTarget(self, action: #selector(segmentControlValueChanged), for: .valueChanged)
-        infoEditButton.addTarget(self, action: #selector(infoEditButtonTapped), for: .touchUpInside)
-        memoEditButton.addTarget(self, action: #selector(memoEditButtonTapped), for: .touchUpInside)
-        
-    }
-    override func configureView() {
-        beforeReadingView.isHidden = true
-        readingInProgressView.isHidden = true
-        afterReadingView.isHidden = true
-    }
-    @objc private func segmentControlValueChanged() {
-        updateContentForSelectedSegment()
-    }
-    
-    private func updateContentForSelectedSegment() {
-        // Hide all views first
-        beforeReadingView.isHidden = true
-        readingInProgressView.isHidden = true
-        afterReadingView.isHidden = true
-        
-        // Show the appropriate view based on selected segment
-        switch readingStatusSegmentControl.selectedSegmentIndex {
-        case 0: // 읽기 전
-            beforeReadingView.isHidden = false
-        case 1: // 읽는 중
-            readingInProgressView.isHidden = false
-        case 2: // 읽은 후
-            afterReadingView.isHidden = false
-        default:
-            break
-        }
-    }
-    
-    @objc private func infoEditButtonTapped() {
-        coordinator?.showEditInfo()
-    }
-    
-    @objc private func memoEditButtonTapped() {
-        switch readingStatusSegmentControl.selectedSegmentIndex {
-        case 0 : coordinator?.showEditReading()
-        case 1: coordinator?.showEditReadingInProgress()
-        default : coordinator?.showEditReading()
-        }
-    }
-}
-// MARK: - ReadingView
-extension ReadingViewController {
-    private class ReadingView: UIScrollView {
-        private let highlightContainerView: UIView = {
-            let view = UIView()
-            view.backgroundColor = .systemBlue.withAlphaComponent(0.2)
-            view.layer.cornerRadius = 8
-            return view
-        }()
-        
-        private let dateLabel: UILabel = {
-            let label = UILabel()
-            label.text = "2025.01.01"
-            label.font = .systemFont(ofSize: 14)
-            label.textAlignment = .right
-            return label
-        }()
-        
-        private let memoLabel: UILabel = {
-            let label = UILabel()
-            label.text = "class BeforeReadingView: UIScrollView {     private let highlightContainerView: UIView = {         let view = UIView()         view.backgroundColor = .systemBlue.withAlphaComponent(0.2)         view.layer.cornerRadius = 8         return view     }()          private let editButton: UIButton = {         let button = UIButton(type: .system)         button.setTitle(, for: .normal)         button.setTitleColor(.blue, for: .normal)         return button     }()          private let dateLabel: UILabel = {         let label = UILabel()         label.text =          label.font = .systemFont(ofSize: 14)         label.textAlignment = .right         return label     }()          private let memoLabel: UILabel = {         let label = UILabel()         label.text = label.font = .systemFont(ofSize: 14)         label.numberOfLines = 0         return label     }()     override init(frame: CGRect) {         super.init(frame: frame)         configureHierachy()         configureLayout()     }          @available(*, unavailable)     required init?(coder: NSCoder) {           private func configureHierachy() {         backgroundColor = .clear         addSubview(highlightContainerView)         addSubview(editButton)         highlightContainerView.addSubview(dateLabel)         highlightContainerView.addSubview(memoLabel)      }          private func configureLayout() {         // Edit Button         editButton.snp.makeConstraints { make in             make.top.equalToSuperview().offset(8)             make.trailing.equalToSuperview().offset(-16)             make.height.equalTo(30)         }                  // Highlight Container         highlightContainerView.snp.makeConstraints { make in             make.top.equalToSuperview().offset(8)             make.leading.trailing.equalToSuperview().inset(16)             make.height.equalTo(120)             make.bottom.lessThanOrEqualToSuperview().offset(-16) // Allow scrolling if needed         }                  // Date Label         dateLabel.snp.makeConstraints { make in             make.top.trailing.equalToSuperview().inset(16)         }                  // Memo Label         memoLabel.snp.makeConstraints { make in             make.top.equalTo(dateLabel.snp.bottom).offset(8)             make.leading.trailing.equalToSuperview().inset(16)             make.bottom.lessThanOrEqualToSuperview().offset(-16)         }     } } 메모 길이에 따라 수직으로 스크롤 되도록 해줘"
-            label.font = .systemFont(ofSize: 14)
-            label.numberOfLines = 0
-            return label
-        }()
-
-        
-        override init(frame: CGRect) {
-            super.init(frame: frame)
-            configureView()
-            configureHierachy()
-            configureLayout()
-        }
-        
-        @available(*, unavailable)
-        required init?(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
-        }
-        private func configureView() {
-            backgroundColor = .darkGray
-            isScrollEnabled = true
-        }
-        private func configureHierachy() {
-            
-            
-            addSubview(highlightContainerView)
-            
-            highlightContainerView.addSubview(dateLabel)
-            highlightContainerView.addSubview(memoLabel)
-        }
-        
-        private func configureLayout() {
-
-            highlightContainerView.snp.makeConstraints { make in
-                make.top.equalTo(contentLayoutGuide).offset(8)
-                make.centerX.equalToSuperview()
-                make.width.equalToSuperview().inset(16)
-                make.bottom.equalTo(contentLayoutGuide).offset(-16)
-            }
-            
-            dateLabel.snp.makeConstraints { make in
-                make.top.equalToSuperview().offset(16)
-                make.trailing.equalToSuperview().offset(-16)
-            }
-            
-            memoLabel.snp.makeConstraints { make in
-                make.top.equalTo(dateLabel.snp.bottom).offset(8)
-                make.leading.trailing.equalToSuperview().inset(16)
-                make.bottom.equalToSuperview().offset(-16)
-            }
-        }
-    }
-
-}
-
-// MARK: - InProgressView
-extension ReadingViewController {
-    private class ReadingInProgressView: UIScrollView {
-        private let highlightContainerView = createHighlightContainer()
-        private let secondHighlightContainerView = createHighlightContainer()
-        
-        private let pageRangeLabel = createLabel(text: "18쪽 ~ 23쪽", fontWeight: .medium)
-        private let dateLabel = createLabel(text: "2025.01.01")
-        private let memoLabel = createMemoLabel()
-
-        override init(frame: CGRect) {
-            super.init(frame: frame)
-            configureHierachy()
-            configureLayout()
-        }
-        
-        @available(*, unavailable)
-        required init?(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
-        }
-        
-        private func configureHierachy() {
-            backgroundColor = .darkGray
-            isScrollEnabled = true
-            showsVerticalScrollIndicator = true
-            
-            addSubview(highlightContainerView)
-            addSubview(secondHighlightContainerView)
-            
-            highlightContainerView.addSubview(pageRangeLabel)
-            highlightContainerView.addSubview(dateLabel)
-            highlightContainerView.addSubview(memoLabel)
-            
-        }
-        
-        private func configureLayout() {
-
-            highlightContainerView.snp.makeConstraints { make in
-                make.top.equalTo(contentLayoutGuide).offset(8)
-                make.centerX.equalToSuperview()
-                make.width.equalToSuperview().inset(16)
-            }
-            
-            pageRangeLabel.snp.makeConstraints { make in
-                make.top.leading.equalToSuperview().offset(16)
-            }
-            
-            dateLabel.snp.makeConstraints { make in
-                make.top.equalToSuperview().offset(16)
-                make.trailing.equalToSuperview().offset(-16)
-            }
-            
-            memoLabel.snp.makeConstraints { make in
-                make.top.equalTo(pageRangeLabel.snp.bottom).offset(8)
-                make.leading.trailing.equalToSuperview().inset(16)
-                make.bottom.equalToSuperview().offset(-16)
-            }
-            
-            secondHighlightContainerView.snp.makeConstraints { make in
-                make.top.equalTo(highlightContainerView.snp.bottom).offset(16)
-                make.leading.trailing.equalToSuperview().inset(16)
-                make.bottom.equalTo(contentLayoutGuide).offset(-16)
-            }
-
-        }
-        
-        // UI Helper Functions
-        private static func createHighlightContainer() -> UIView {
-            let view = UIView()
-            view.backgroundColor = .systemBlue.withAlphaComponent(0.2)
-            view.layer.cornerRadius = 8
-            return view
-        }
-        
-        private static func createLabel(text: String, fontWeight: UIFont.Weight = .regular) -> UILabel {
-            let label = UILabel()
-            label.text = text
-            label.font = .systemFont(ofSize: 14, weight: fontWeight)
-            return label
-        }
-        
-        private static func createMemoLabel() -> UILabel {
-            let label = UILabel()
-            label.text = " init?(coder: NSCoder) {           private func configureHierachy() {         backgroundColor = .clear         addSubview(highlightContainerView)         addSubview(editButton)         highlightContainerView.addSubview(dateLabel)         highlightContainerView.addSubview(memoLabel)      }          private func configureLayout() {         // Edit Button         editButton.snp.makeConstraints { make in             make.top.equalToSuperview().offset(8)             make.trailing.equalToSuperview().offset(-16)             make.height.equalTo(30)         }                  // Highlight Container         highlightContainerView.snp.makeConstraints { make in             make.top.equalToSuperview().offset(8)             make.leading.trailing.equalToSuperview().inset(16)             make.height.equalTo(120)             make.bottom.lessThanOrEqualToSuperview().offset(-16) // Allow scrolling if needed         }                  // Date Label         dateLabel.snp.makeConstraints { make in             make.top.trailing.equalToSuperview().inset(16)         }                  // Memo Label         memoLabel.snp.makeConstraints { make in             make.top.equalTo(dateLabel.snp.bottom).offset(8)             make.leading.trailing.equalToSuperview().inset(16)             make.bottom.lessThanOrEqualToSuperview().offset(-16)         }     } } 메모 길이에 따라 수직으로 스크롤 되도록 해줘"
-            label.font = .systemFont(ofSize: 14)
-            label.numberOfLines = 0
-            return label
-        }
-    }
-
 }

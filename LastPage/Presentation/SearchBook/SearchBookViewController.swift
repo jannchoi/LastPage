@@ -34,7 +34,9 @@ final class SearchBookViewController: BaseViewController {
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-        bind()
+        //bind()
+        let mockItem = BookDetail(title: "걸리버 여행기 (완역본)", link: "http://www.aladin.co.kr/shop/wproduct.aspx?ItemId=361171269&amp;copyPaper=1&amp;ttbkey=ttbgongjo36951633001&amp;start=api", author: "조너선 스위프트 지음, 강경숙 옮김", description: "", itemId: 361171269, cover: "https://image.aladin.co.kr/product/36117/12/coversum/k552038160_1.jpg", categoryName: "국내도서>소설/시/희곡>세계의 소설>아일랜드소설")
+        coordinator?.showReading(bookDetail: mockItem)
 
     }
     override func configureHierarchy() {
@@ -103,16 +105,15 @@ extension SearchBookViewController: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        //let id = viewModel.bookList.item[indexPath.row].itemId
-        let id = [361171269,359351068, 357282342,356477075,350953568,341659486,341573186,338885232].randomElement()!
-        print(id)
-        coordinator?.showReading()
+        //let item = viewModel.bookList.item[indexPath.row]
+        let mockItem = BookDetail(title: "걸리버 여행기 (완역본)", link: "http://www.aladin.co.kr/shop/wproduct.aspx?ItemId=361171269&amp;copyPaper=1&amp;ttbkey=ttbgongjo36951633001&amp;start=api", author: "조너선 스위프트 지음, 강경숙 옮김", description: "", itemId: 361171269, cover: "https://image.aladin.co.kr/product/36117/12/coversum/k552038160_1.jpg", categoryName: "국내도서>소설/시/희곡>세계의 소설>아일랜드소설")
+        coordinator?.showReading(bookDetail: mockItem)
     }
     
     
 }
 /*
-
+ let id = [361171269,359351068, 357282342,356477075,350953568,341659486,341573186,338885232].randomElement()!
  testkeywordUseCaae.execute(prompt: "인간실격")
      .sink(receiveCompletion: { completion in
          switch completion {

@@ -31,6 +31,11 @@ final class SearchCoordinator:Coordinator {
         childCoordinators.append(readingCoordinator)
         readingCoordinator.start()
     }
+    func showReading(bookDetail: BookDetail) {
+        let readingCoordinator = ReadingCoordinator(parentCoordinator: self,navigationController: navigationController, diContainer: diContainer)
+        childCoordinators.append(readingCoordinator)
+        readingCoordinator.start(bookDetail: bookDetail)
+    }
     func popVC() {
         parentCoordinator?.removeChildCoordinator(self)
     }

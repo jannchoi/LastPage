@@ -20,11 +20,24 @@ final class ReadingCoordinator:Coordinator {
     }
 
     func start() {
-        let viewModel = ReadingViewModel(getGetBookUseCase: diContainer.makeGetBookUseCase())
+        let viewModel = ReadingViewModel(getBookUseCase: diContainer.makeGetBookUseCase())
         let readingVC = ReadingViewController(viewModel: viewModel)
         readingVC.coordinator = self
         navigationController.pushViewController(readingVC, animated: true)
     }
+    func start(bookId: String) {
+        let viewModel = ReadingViewModel(bookId: bookId, getBookUseCase: diContainer.makeGetBookUseCase())
+        let readingVC = ReadingViewController(viewModel: viewModel)
+        readingVC.coordinator = self
+        navigationController.pushViewController(readingVC, animated: true)
+    }
+    func start(bookDetail: BookDetail) {
+        let viewModel = ReadingViewModel(bookDetail: bookDetail,getBookUseCase: diContainer.makeGetBookUseCase())
+        let readingVC = ReadingViewController(viewModel: viewModel)
+        readingVC.coordinator = self
+        navigationController.pushViewController(readingVC, animated: true)
+    }
+    
 
     func showEditInfo() {
         let viewModel = EditInfoViewModel(makeGetBookUseCase: diContainer.makeGetBookUseCase())

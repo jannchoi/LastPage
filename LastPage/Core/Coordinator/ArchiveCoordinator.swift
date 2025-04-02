@@ -32,10 +32,9 @@ final class ArchiveCoordinator:Coordinator {
     }
 
     func showReading(bookId: String) {
-        print(#function)
         let readingCoordinator = ReadingCoordinator(parentCoordinator: self,navigationController: navigationController, diContainer: diContainer)
         childCoordinators.append(readingCoordinator)
-        readingCoordinator.start()
+        readingCoordinator.start(bookId: bookId)
     }
     func popVC() {
         parentCoordinator?.removeChildCoordinator(self)
