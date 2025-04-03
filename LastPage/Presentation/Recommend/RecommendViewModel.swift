@@ -13,6 +13,7 @@ final class RecommendViewModel:BaseViewModel {
     let makeFetchKeywordUseCase: FetchKeywordUseCaseProtocol
     let getBookUseCase: GetBookUseCaseProtocol
     @Published var keywordData: [String]?
+    @Published private(set) var error: NetworkError?
     struct Input {
         
     }
@@ -44,15 +45,16 @@ final class RecommendViewModel:BaseViewModel {
     }
     private func fetchKeyword(query: String) {
         makeFetchKeywordUseCase.execute(prompt: query).receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { completion in
+            .sink(receiveCompletion: {[weak self] completion in
             switch completion {
             case .failure(let error):
-                // 에러 처리
-                print("Error fetching books: \(error.localizedDescription)")
+                guard let self = self else {return}
+                self.error = error
             case .finished:
                 break
             }
-        }, receiveValue: { result in
+        }, receiveValue: {[weak self] result in
+            guard let self = self else {return}
             self.keywordData = result.keywords
         })
         .store(in: &cancellables)

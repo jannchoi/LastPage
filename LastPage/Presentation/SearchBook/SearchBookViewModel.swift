@@ -7,16 +7,7 @@
 
 import Foundation
 import Combine
-/*
- class - Protocol
- Observable - Pubisher
- Observer - Subscriber
- Subscribe - sink
- Disposable - AnyCancellable/ Cancellable
- dispose - store
- PublishSubject - PassthroughSubject
- BehaviorSubject - CurrentValueSubject
- */
+
 final class SearchBookViewModel:BaseViewModel {
     private let internalData : InternalData
     var cancellables = Set<AnyCancellable>()
