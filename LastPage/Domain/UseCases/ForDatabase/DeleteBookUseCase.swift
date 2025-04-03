@@ -18,4 +18,7 @@ class DeleteBookUseCase: DeleteBookUseCaseProtocol {
     func execute(with id: String) -> AnyPublisher<Void, Error> {
         return repository.deleteBook(with: id)
     }
+    func execute() -> AnyPublisher<Void, Error> {
+        return repository.resetBooks()
+    }
 }

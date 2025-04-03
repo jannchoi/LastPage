@@ -14,6 +14,10 @@ class NetworkManager {
     private init() {}
 
     func callRequest<T: Decodable>(target: NetworkRouter, model: T.Type) -> AnyPublisher<T, NetworkError> {
+        guard NetworkMonitor.shared.isConnected else {  // ✅ 동기적으로 현재 상태 확인
+            return Fail(error: NetworkError.customError(code: -1009, message: "인터넷 연결이 끊어졌습니다.")).eraseToAnyPublisher()
+        }
+        
         let request = target.asURLRequest()
         
         return URLSession.shared.dataTaskPublisher(for: request)
@@ -24,15 +28,7 @@ class NetworkManager {
                 guard 200..<300 ~= httpResponse.statusCode else {
                     throw self?.getError(code: httpResponse.statusCode) ?? .customError(code: 500, message: "Unknown error")
                 }
-                var modifiedData = data
-
-                if let stringData = String(data: data, encoding: .utf8),
-                   stringData.hasSuffix(";") {
-                    // 세미콜론을 제거한 새로운 Data 생성
-                    let modifiedString = stringData.dropLast() 
-                    modifiedData = Data(modifiedString.utf8)
-                }
-                return modifiedData
+                return data
             }
             .decode(type: T.self, decoder: JSONDecoder())
             .mapError { error in
@@ -44,6 +40,8 @@ class NetworkManager {
             }
             .eraseToAnyPublisher()
     }
+
+
     
     private func getError(code: Int) -> NetworkError {
         switch code {
@@ -51,6 +49,14 @@ class NetworkManager {
             return .badRequest
         case 401:
             return .unauthorized
+        case 403:
+            return .forbidden
+        case 404:
+            return .notFound
+        case 429:
+            return .rateLimited
+        case 500, 503:
+            return .serverError
         default:
             return .customError(code: code, message: "\(code) error")
         }

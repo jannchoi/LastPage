@@ -134,6 +134,11 @@ final class ReadingViewController: BaseViewController {
             guard let self = self, let bookEntity = bookEntity else {return}
             self.setupUI(item: bookEntity)
         }.store(in: &cancellables)
+        viewModel.$fetchError.compactMap{$0}
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] errorMessage in
+                self?.showAlert(text: errorMessage)
+            }.store(in: &cancellables)
     }
     func setupUI(item: BookEntity) {
         let imgPath = item.bookDetail.imagePath ?? TextResource.Global.empty.text

@@ -15,7 +15,7 @@ final class ArchiveViewModel: BaseViewModel {
     let getBooksByStatusUseCase: GetBooksByStatusUseCaseProtocol
     let getBooksByCategoryUseCase: GetBooksByCategoryUseCaseProtocol
     let getBooksByFeelingUseCase: GetBooksByFeelingUseCaseProtocol
-    
+    @Published private(set) var fetchError: String = ""
     
     @Published var bookList: [BookEntity] = []
     
@@ -40,14 +40,21 @@ final class ArchiveViewModel: BaseViewModel {
     }
     func deleteBook(index: Int) {
         guard let targetId = bookList[index].id else {return}
-        deleteBookUsecase.execute(with: targetId)
+        deleteBookUsecase.execute(with: targetId).sink { [weak self] completion in
+            if case .failure(let error) = completion {
+                self?.fetchError = TextResource.DataError.deleteError.text
+            }
+        } receiveValue: {
+
+        }
+        .store(in: &cancellables)
         getAllBooks()
         
     }
     private func getAllBooks() {
         getAllBooksUseCase.execute().sink { [weak self] completion in
             if case .failure(let error) = completion {
-                print("fetch error")
+                self?.fetchError = TextResource.DataError.fetchError.text
             }
         } receiveValue: { [weak self] books in
             guard let self = self else {return}

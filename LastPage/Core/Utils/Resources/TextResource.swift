@@ -15,6 +15,7 @@ enum TextResource {
         case empty
         case customError(code: Int)
         case emptyData
+        case alert
         
         var text: String {
             switch self {
@@ -28,6 +29,23 @@ enum TextResource {
                 "알 수 없는 오류가 발생했습니다. (코드: \(code))"
             case .emptyData:
                 "검색 결과가 없습니다."
+            case .alert :
+                "알림"
+            }
+        }
+    }
+    enum DataError {
+        case fetchError
+        case updateError
+        case deleteError
+        var text: String {
+            switch self {
+            case .fetchError:
+                "데이터를 가져오는 데 실패했습니다."
+            case .updateError:
+                "데이터를 업데이트 하는 데 실패했습니다."
+            case .deleteError:
+                "데이터를 삭제하는 데 실패했습니다."
             }
         }
     }

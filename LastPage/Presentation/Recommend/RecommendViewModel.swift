@@ -12,7 +12,9 @@ final class RecommendViewModel:BaseViewModel {
     var cancellables = Set<AnyCancellable>()
     let makeFetchKeywordUseCase: FetchKeywordUseCaseProtocol
     let getBookUseCase: GetBookUseCaseProtocol
+    @Published private(set) var fetchError: String = ""
     @Published var keywordData: [String]?
+    @Published private(set) var error: NetworkError?
     struct Input {
         
     }
@@ -33,7 +35,7 @@ final class RecommendViewModel:BaseViewModel {
         getBookUseCase.execute(with: itemId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
-                    print("fetch error")
+                    self?.fetchError = TextResource.DataError.fetchError.text
                 }
             } receiveValue: { [weak self] book in
                 guard let self = self, let book = book else {return}
@@ -44,15 +46,16 @@ final class RecommendViewModel:BaseViewModel {
     }
     private func fetchKeyword(query: String) {
         makeFetchKeywordUseCase.execute(prompt: query).receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { completion in
+            .sink(receiveCompletion: {[weak self] completion in
             switch completion {
             case .failure(let error):
-                // 에러 처리
-                print("Error fetching books: \(error.localizedDescription)")
+                guard let self = self else {return}
+                self.error = error
             case .finished:
                 break
             }
-        }, receiveValue: { result in
+        }, receiveValue: {[weak self] result in
+            guard let self = self else {return}
             self.keywordData = result.keywords
         })
         .store(in: &cancellables)

@@ -86,8 +86,8 @@ final class SearchBookViewController: BaseViewController {
             .store(in: &cancellables)
         viewModel.$error.compactMap{$0}
             .receive(on: DispatchQueue.main)
-            .sink { networkError in
-                print(networkError.errorMessage)
+            .sink { [weak self] networkError in
+                self?.showAlert(text: networkError.errorMessage)
             }.store(in: &cancellables)
     }
 

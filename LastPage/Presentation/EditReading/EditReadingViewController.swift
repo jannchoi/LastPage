@@ -49,6 +49,11 @@ final class EditReadingViewController: BaseViewController {
             guard let self = self, let memoDetail = memoDetail else {return}
             self.setupUI(item: memoDetail)
         }.store(in: &cancellables)
+        viewModel.$fetchError.compactMap{$0}
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] errorMessage in
+                self?.showAlert(text: errorMessage)
+            }.store(in: &cancellables)
     }
     @objc private func saveButtonTapped() {
         guard let newMemo = textView.text else {return}

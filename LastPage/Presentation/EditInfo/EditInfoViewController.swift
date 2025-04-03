@@ -88,6 +88,11 @@ final class EditInfoViewController: BaseViewController {
             guard let self = self, let bookDetail = bookDetail else {return}
             self.setupUI(item: bookDetail)
         }.store(in: &cancellables)
+        viewModel.$fetchError.compactMap{$0}
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] errorMessage in
+                self?.showAlert(text: errorMessage)
+            }.store(in: &cancellables)
     }
     func setupUI(item: BookDetailEntity) {
         originalImagePath = item.imagePath

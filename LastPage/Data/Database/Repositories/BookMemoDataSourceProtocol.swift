@@ -19,4 +19,5 @@ protocol BookMemoDataSourceProtocol {
     func getBooks(withStatus status: ReadingStatus) -> AnyPublisher<[BookMemo], Error>
     func getBooks(withCategory category: String) -> AnyPublisher<[BookMemo], Error>
     func getBooks(withFeeling feeling: String) -> AnyPublisher<[BookMemo], Error>
+    func resetBooks() -> AnyPublisher<Void, Error>
 }

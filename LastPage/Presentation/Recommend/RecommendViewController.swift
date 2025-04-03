@@ -64,6 +64,17 @@ final class RecommendViewController: BaseViewController {
             guard let self = self else {return}
             self.bookKeywordStackView.configure(with: keywords ?? [])
         }.store(in: &cancellables)
+        viewModel.$error.compactMap{$0}
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] networkError in
+                self?.showAlert(text: networkError.errorMessage)
+            }.store(in: &cancellables)
+        
+        viewModel.$fetchError.compactMap{$0}
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] errorMessage in
+                self?.showAlert(text: errorMessage)
+            }.store(in: &cancellables)
     }
     override func configureHierarchy() {
         view.addSubview(scrollView)
