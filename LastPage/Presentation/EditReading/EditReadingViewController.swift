@@ -6,10 +6,13 @@
 //
 
 import UIKit
+import Combine
 import SnapKit
 
 final class EditReadingViewController: BaseViewController {
-    
+    weak var coordinator: EditReadingCoordinator?
+    var viewModel: EditReadingViewModel
+    private var cancellables: Set<AnyCancellable> = []
     private let dateField = InfoFieldView(title: TextResource.InfoTextView.date.text)
 
     private let containerScrollView = UIScrollView()
@@ -20,9 +23,41 @@ final class EditReadingViewController: BaseViewController {
         button.setTitleColor(.blue, for: .normal)
         return button
     }()
+    private let saveButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle(TextResource.ButtonTitle.save.text, for: .normal)
+        button.setTitleColor(.blue, for: .normal)
+        return button
+    }()
+    deinit {
+        coordinator?.popVC()
+    }
+    init(viewModel: EditReadingViewModel) {
+            self.viewModel = viewModel
+            super.init(nibName: nil, bundle: nil)
+        }
+    
+    @MainActor required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
 
+    }
+    override func bind() {
+        viewModel.$bookDetail.sink {[weak self] memoDetail in
+            guard let self = self, let memoDetail = memoDetail else {return}
+            self.setupUI(item: memoDetail)
+        }.store(in: &cancellables)
+    }
+    @objc private func saveButtonTapped() {
+        guard let newMemo = textView.text else {return}
+        let newValue = MemoEntity(date: dateField.textField.text, memo: newMemo)
+        viewModel.saveBook(newValue: newValue)
+    }
+    private func setupUI(item: MemoEntity) {
+        dateField.textField.text = item.date
+        textView.text = item.memo
     }
     override func configureHierarchy() {
         view.addSubview(dateField)
@@ -88,7 +123,11 @@ final class EditReadingViewController: BaseViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         helpButton.addTarget(self, action: #selector(helpButtonTapped), for: .touchUpInside)
-        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
+        saveButton.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
+        let helpBtn = UIBarButtonItem(customView: helpButton)
+        let saveBtn = UIBarButtonItem(customView: saveButton)
+        
+        navigationItem.rightBarButtonItems = [saveBtn, helpBtn]
     }
 
     @objc private func doneButtonTapped() {
@@ -100,8 +139,8 @@ final class EditReadingViewController: BaseViewController {
         view.endEditing(true)
     }
     @objc private func helpButtonTapped() {
-        let vc = RecommendViewController()
-        navigationController?.pushViewController(vc, animated: true)
+        guard let bookId = viewModel.bookId else {return}
+        coordinator?.showRecommend(bookId: bookId)
     }
  
     @objc private func keyboardWillShow(notification: NSNotification) {
@@ -116,11 +155,5 @@ final class EditReadingViewController: BaseViewController {
         containerScrollView.contentInset = .zero
         containerScrollView.scrollIndicatorInsets = .zero
     }
-
-    // Clean up
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-    
 
 }

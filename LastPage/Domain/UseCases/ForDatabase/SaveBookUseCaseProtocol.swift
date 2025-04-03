@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 protocol SaveBookUseCaseProtocol {
-    func execute(_ book: BookEntity) -> AnyPublisher<Void, Error>
+    func execute(_ book: BookEntity) -> AnyPublisher<String, Error>
 }
 
 

@@ -6,21 +6,16 @@
 //
 
 import UIKit
+import Combine
 import SnapKit
 
 final class RecommendViewController: BaseViewController {
-    
+    var viewModel: RecommendViewModel
+    private var cancellables: Set<AnyCancellable> = []
     private let scrollView = UIScrollView()
     private let contentView = UIView()
     private let bookRecommendView = UIView()
-    private var bookKeywordMockData = [
-        "우리는 불완전함 속에서 존재의 의미를 어떻게 찾을 수 있을까?",
-        "왜 우리는 극단적인 고통을 묘사하는 소설을 통해 위로를 느끼는 걸까?",
-        "역사", "비극적 아름다움", "예술", "비즈니스", "여행",
-        "내가 느끼는 사회적 소외감", "철학",
-        "왜 우리는 극단적인 고통을 묘사하는 소설을 통해 위로를 느끼는 걸까?",
-        "죽음에 대한 관점이 변하면, 그 사람의 삶의 태도도 달라질까요?"
-    ]
+
     
     private let bookLabel: UILabel = {
         let label = UILabel()
@@ -50,13 +45,26 @@ final class RecommendViewController: BaseViewController {
         "이 책으로부터 배운 점이 있다면?",
         "이 책을 읽고 난 후 내 삶의 변화가 있다면?",
     ]
+    init(viewModel: RecommendViewModel) {
+            self.viewModel = viewModel
+            super.init(nibName: nil, bundle: nil)
+        }
     
+    @MainActor required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         configureKeywords()
     }
-    
+    override func bind() {
+        viewModel.$keywordData.receive(on: DispatchQueue.main)
+            .sink { [weak self] keywords in
+            guard let self = self else {return}
+            self.bookKeywordStackView.configure(with: keywords ?? [])
+        }.store(in: &cancellables)
+    }
     override func configureHierarchy() {
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
@@ -110,7 +118,6 @@ final class RecommendViewController: BaseViewController {
     }
     
     private func configureKeywords() {
-        bookKeywordStackView.configure(with: bookKeywordMockData)
         commonKeywordStackView.configure(with: commonKeywordMockData)
     }
 }

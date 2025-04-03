@@ -10,6 +10,7 @@
 		CE0A73202D956FE400CFA9E9 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = CE0A731F2D956FE400CFA9E9 /* .gitignore */; };
 		CE0A75292D96FEFE00CFA9E9 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = CE0A75282D96FEFE00CFA9E9 /* SnapKit */; };
 		CE2C22AB2D9AEBB900211B65 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = CE2C22AA2D9AEBB900211B65 /* RealmSwift */; };
+		CE2C25822D9BF80C00211B65 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = CE2C25812D9BF80C00211B65 /* Kingfisher */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,6 +44,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CE2C25822D9BF80C00211B65 /* Kingfisher in Frameworks */,
 				CE2C22AB2D9AEBB900211B65 /* RealmSwift in Frameworks */,
 				CE0A75292D96FEFE00CFA9E9 /* SnapKit in Frameworks */,
 			);
@@ -90,6 +92,7 @@
 			packageProductDependencies = (
 				CE0A75282D96FEFE00CFA9E9 /* SnapKit */,
 				CE2C22AA2D9AEBB900211B65 /* RealmSwift */,
+				CE2C25812D9BF80C00211B65 /* Kingfisher */,
 			);
 			productName = LastPage;
 			productReference = CE0A72832D9540C400CFA9E9 /* LastPage.app */;
@@ -122,6 +125,7 @@
 			packageReferences = (
 				CE0A75272D96FEFE00CFA9E9 /* XCRemoteSwiftPackageReference "SnapKit" */,
 				CE2C22A92D9AEBB900211B65 /* XCRemoteSwiftPackageReference "realm-swift" */,
+				CE2C25802D9BF80C00211B65 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = CE0A72842D9540C400CFA9E9 /* Products */;
@@ -376,6 +380,14 @@
 				version = 20.0.1;
 			};
 		};
+		CE2C25802D9BF80C00211B65 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.3.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -388,6 +400,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CE2C22A92D9AEBB900211B65 /* XCRemoteSwiftPackageReference "realm-swift" */;
 			productName = RealmSwift;
+		};
+		CE2C25812D9BF80C00211B65 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CE2C25802D9BF80C00211B65 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

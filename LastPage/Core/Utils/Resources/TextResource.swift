@@ -35,6 +35,7 @@ enum TextResource {
         case edit
         case add
         case help
+        case save
         
         var text: String {
             switch self {
@@ -44,6 +45,8 @@ enum TextResource {
                 "Add"
             case .help:
                 "Help"
+            case .save :
+                "Save"
             }
         }
     }

@@ -14,7 +14,7 @@ class SaveBookUseCase: SaveBookUseCaseProtocol {
         self.repository = repository
     }
     
-    func execute(_ book: BookEntity) -> AnyPublisher<Void, Error> {
+    func execute(_ book: BookEntity) -> AnyPublisher<String, Error> {
         return repository.saveBook(book)
     }
 }

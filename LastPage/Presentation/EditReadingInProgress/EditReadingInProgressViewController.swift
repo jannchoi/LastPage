@@ -6,10 +6,18 @@
 //
 
 import UIKit
+import Combine
 import SnapKit
 
 final class EditReadingInProgressViewController: BaseViewController {
-
+    var viewModel: EditReadingInProgressViewModel
+    private var cancellables: Set<AnyCancellable> = []
+    private let saveButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle(TextResource.ButtonTitle.save.text, for: .normal)
+        button.setTitleColor(.blue, for: .normal)
+        return button
+    }()
     private let dateField = InfoFieldView(title: TextResource.InfoTextView.date.text)
     private let pageLabel : UILabel = {
         let label = UILabel()
@@ -28,10 +36,34 @@ final class EditReadingInProgressViewController: BaseViewController {
     private let endPage = UITextField()
     private let containerScrollView = UIScrollView()
     private let textView = UITextView()
+    init(viewModel: EditReadingInProgressViewModel) {
+            self.viewModel = viewModel
+            super.init(nibName: nil, bundle: nil)
+        }
     
+    @MainActor required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
 
+    }
+    override func bind() {
+        viewModel.$bookDetail.sink {[weak self] memoDetail in
+            guard let self = self, let memoDetail = memoDetail else {return}
+            self.setupUI(item: memoDetail)
+        }.store(in: &cancellables)
+    }
+    private func setupUI(item: ProgressMemoEntity) {
+        dateField.textField.text = item.date
+        startPage.text = item.startPage
+        endPage.text = item.endPage
+        textView.text = item.memo
+    }
+    @objc private func saveButtonTapped() {
+        guard let newMemo = textView.text else {return}
+        let newValue = ProgressMemoEntity(startPage: startPage.text, endPage: endPage.text, date: dateField.textField.text, memo: newMemo)
+        viewModel.saveBook(newValue: newValue)
     }
     override func configureHierarchy() {
         view.addSubview(dateField)
@@ -141,6 +173,8 @@ final class EditReadingInProgressViewController: BaseViewController {
         // Add keyboard notifications
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        saveButton.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: saveButton)
     }
 
     // MARK: - Actions and Helpers

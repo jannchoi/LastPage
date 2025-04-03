@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import Kingfisher
 
 final class SearchBookTableViewCell: UITableViewCell {
     // UI Components
@@ -36,10 +37,11 @@ final class SearchBookTableViewCell: UITableViewCell {
         configureView()
         
     }
-    func configure(title: String, content: String, date: String) {
-        titleLabel.text = "title"
-        authorLabel.text = "author"
-        bookCoverImageView.image = UIImage(systemName: "star")
+    func configure(item: BookDetail) {
+        titleLabel.text = item.title
+        authorLabel.text = item.author
+        let url = URL(string: item.cover)
+        bookCoverImageView.kf.setImage(with: url, placeholder: UIImage(systemName: "star"))
     }
     override func prepareForReuse() {
         super.prepareForReuse()

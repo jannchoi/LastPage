@@ -14,7 +14,7 @@ class UpdateBookUseCase: UpdateBookUseCaseProtocol {
         self.repository = repository
     }
     
-    func execute(_ book: BookEntity) -> AnyPublisher<Void, Error> {
-        return repository.updateBook(book)
-    }
+    func execute<T>(bookId: String, field: UpdateTarget, newValue: T?, index: Int? = nil) -> AnyPublisher<Void, Error> {
+        return repository.updateBook(bookId: bookId, field: field, newValue: newValue, index: index)
+      }
 }
