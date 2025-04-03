@@ -49,16 +49,12 @@ class BookMemoRepository: BookMemoRepositoryProtocol {
                     return Fail(error: NSError(domain: "BookMemoRepository", code: 404, userInfo: [NSLocalizedDescriptionKey: "Book not found"]))
                         .eraseToAnyPublisher()
                 }
-
                 // BookMemo -> BookEntity 변환
                 let existingEntity = self.mapper.mapToDomain(realmModel: existingMemo)
-
                 // BookEntity 업데이트
                 let updatedEntity = self.mapper.updateBookEntity(existing: existingEntity, newValue: newValue, field: field, index: index)
-
                 // BookEntity -> BookMemo 변환 후 Realm 저장
                 let updatedMemo = self.mapper.mapToRealm(domainModel: updatedEntity)
-
                 return self.dataSource.updateBook(updatedMemo)
             }
             .eraseToAnyPublisher()

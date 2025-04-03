@@ -25,6 +25,7 @@ class NetworkManager {
                     throw self?.getError(code: httpResponse.statusCode) ?? .customError(code: 500, message: "Unknown error")
                 }
                 var modifiedData = data
+
                 if let stringData = String(data: data, encoding: .utf8),
                    stringData.hasSuffix(";") {
                     // 세미콜론을 제거한 새로운 Data 생성

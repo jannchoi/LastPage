@@ -15,6 +15,9 @@ final class EditReadingViewModel:BaseViewModel {
     @Published var bookDetail: MemoEntity?
     let bookId : String?
     let status : UpdateTarget?
+    
+    var bookAdded = PassthroughSubject<String, Never>()
+    
     struct Input {
         
     }
@@ -29,6 +32,7 @@ final class EditReadingViewModel:BaseViewModel {
         if let bookId = bookId, let status = status {
             self.fetchBook(itemId: bookId, status: status)
         }
+        
     }
     func transform(input: Input) -> Output {
         //
@@ -36,7 +40,22 @@ final class EditReadingViewModel:BaseViewModel {
     }
     func saveBook<T>(newValue: T) {
         if let bookId = bookId, let status = status {
-            updateBookUsecase.execute(bookId: bookId, field: status, newValue: newValue, index: nil)
+            updateBookUsecase.execute(bookId: bookId, field: status, newValue: newValue, index: nil).sink(
+                receiveCompletion: { completion in
+                    switch completion {
+                    case .finished:
+                        print("Update completed successfully")
+                    case .failure(let error):
+                        print("Update failed with error: \(error)")
+                    }
+                },
+                receiveValue: {
+                    [weak self] _ in
+                        guard let self = self else {return}
+                    self.bookAdded.send(bookId)
+                }
+            )
+            .store(in: &cancellables)
         }
     }
     private func fetchBook(itemId: String, status: UpdateTarget) {

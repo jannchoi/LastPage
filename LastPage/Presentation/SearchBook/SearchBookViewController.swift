@@ -16,7 +16,12 @@ final class SearchBookViewController: BaseViewController {
     var viewModel: SearchBookViewModel
     private let tableView = UITableView()
     private let searchBar = UISearchBar()
-    
+    private let plusButton : UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "plus"), for: .normal)
+        button.setTitleColor(.blue, for: .normal)
+        return button
+    }()
     private var cancellables: Set<AnyCancellable> = []
     private let testBookUseCase = FetchBookUseCase(bookRepository: MockBookRepository())
     private let testkeywordUseCaae = FetchKeywordUseCase(keywordRepository: MockKeywordRepository())
@@ -65,10 +70,14 @@ final class SearchBookViewController: BaseViewController {
         searchBar.backgroundColor = .blue
         tableView.backgroundColor = .yellow
         tableView.register(SearchBookTableViewCell.self, forCellReuseIdentifier: SearchBookTableViewCell.identifier)
+        plusButton.addTarget(self, action: #selector(plusButtonTapped), for: .touchUpInside)
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: plusButton)
+    }
+    @objc private func plusButtonTapped() {
+        coordinator?.showReading()
     }
     override func bind() {
         let input = SearchBookViewModel.Input(query: querySubject)
-        let output = viewModel.transform(input: input)
         viewModel.$bookList
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
@@ -80,7 +89,6 @@ final class SearchBookViewController: BaseViewController {
             .sink { networkError in
                 print(networkError.errorMessage)
             }.store(in: &cancellables)
-        
     }
 
 }
@@ -112,7 +120,6 @@ extension SearchBookViewController: UITableViewDelegate, UITableViewDataSource {
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let item = viewModel.bookList.item[indexPath.row]
-//        let mockItem = BookDetail(title: "걸리버 여행기 (완역본)", link: "http://www.aladin.co.kr/shop/wproduct.aspx?ItemId=361171269&amp;copyPaper=1&amp;ttbkey=ttbgongjo36951633001&amp;start=api", author: "조너선 스위프트 지음, 강경숙 옮김", description: "", itemId: 361171269, cover: "https://image.aladin.co.kr/product/36117/12/coversum/k552038160_1.jpg", categoryName: "국내도서>소설/시/희곡>세계의 소설>아일랜드소설")
         coordinator?.showReading(bookDetail: item)
     }
     

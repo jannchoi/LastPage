@@ -53,13 +53,18 @@ final class ReadingCoordinator:Coordinator {
     }
 
     func showEditReading(bookId: String? = nil, status: UpdateTarget? = nil) {
-        let editReadingCoordinator = EditReadingCoordinator(parentCoordinator: self,navigationController: navigationController, diContainer: diContainer)
+        let editReadingCoordinator = EditReadingCoordinator(parentCoordinator: self,navigationController: navigationController, diContainer: diContainer, bookAddedSubject: bookAddedSubject)
         childCoordinators.append(editReadingCoordinator)
         editReadingCoordinator.start(bookId: bookId, status: status)
     }
     
-    func showEditReadingInProgress(bookId: String? = nil, index: Int? = nil) {
+    func showEditReadingInProgress(bookId: String?, index: Int? = nil) {
         let viewModel = EditReadingInProgressViewModel(bookId: bookId,index: index ,getBookUseCase: diContainer.makeGetBookUseCase(),updateBookUsecase : diContainer.makeUpdateBookUseCase())
+        viewModel.bookAdded.sink { [weak self] bookId in
+            guard let self = self else {return}
+            self.bookAddedSubject.send(bookId)
+        }
+        .store(in: &viewModel.cancellables)
         let editReadingInProgressVC = EditReadingInProgressViewController(viewModel: viewModel)
         navigationController.pushViewController(editReadingInProgressVC, animated: true)
     }

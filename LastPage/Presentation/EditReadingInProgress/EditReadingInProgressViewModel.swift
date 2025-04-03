@@ -15,6 +15,9 @@ final class EditReadingInProgressViewModel: BaseViewModel {
     @Published var bookDetail: ProgressMemoEntity?
     let bookId : String?
     let index : Int?
+    
+    var bookAdded = PassthroughSubject<String, Never>()
+    
     struct Input {
         
     }
@@ -34,10 +37,24 @@ final class EditReadingInProgressViewModel: BaseViewModel {
         //
         return Output()
     }
-    func saveBook<T>(newValue: T) {
-        print(#function)
+    func saveBook(newValue: ProgressMemoEntity) {
         if let bookId = bookId{
-            updateBookUsecase.execute(bookId: bookId, field: .reading, newValue: newValue, index: index)
+            updateBookUsecase.execute(bookId: bookId, field: .reading, newValue: newValue, index: index) .sink(
+                receiveCompletion: { completion in
+                    switch completion {
+                    case .finished:
+                        print("Update completed successfully")
+                    case .failure(let error):
+                        print("Update failed with error: \(error)")
+                    }
+                },
+                receiveValue: {
+                    [weak self] _ in
+                        guard let self = self else {return}
+                    self.bookAdded.send(bookId)
+                }
+            )
+            .store(in: &cancellables)
         }
     }
     private func fetchBook(itemId: String, index: Int) {
@@ -48,7 +65,12 @@ final class EditReadingInProgressViewModel: BaseViewModel {
                 }
             } receiveValue: { [weak self] book in
                 guard let self = self, let book = book else {return}
-                self.bookDetail = book.inProgressMemo[index]
+                if index < book.inProgressMemo.count {
+                    self.bookDetail = book.inProgressMemo[index]
+                } else {
+                    self.bookDetail = nil
+                }
+                
             }
             .store(in: &cancellables)
     }

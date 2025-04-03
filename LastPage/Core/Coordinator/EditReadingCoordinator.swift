@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Combine
 
 final class EditReadingCoordinator:Coordinator {
     func start() {
@@ -16,14 +17,21 @@ final class EditReadingCoordinator:Coordinator {
     var childCoordinators: [Coordinator] = []
     private let navigationController: UINavigationController
     private let diContainer: AppDIContainer
-    init(parentCoordinator: Coordinator?, navigationController: UINavigationController, diContainer: AppDIContainer) {
+    let bookAddedSubject : PassthroughSubject<String, Never>
+    init(parentCoordinator: Coordinator?, navigationController: UINavigationController, diContainer: AppDIContainer, bookAddedSubject: PassthroughSubject<String, Never>) {
         self.parentCoordinator = parentCoordinator
         self.navigationController = navigationController
         self.diContainer = diContainer
+        self.bookAddedSubject = bookAddedSubject
     }
 
     func start(bookId: String? = nil, status: UpdateTarget? = nil) {
         let viewModel = EditReadingViewModel(bookId: bookId, status: status, getBookUseCase: diContainer.makeGetBookUseCase(), updateBookUsecase: diContainer.makeUpdateBookUseCase())
+        viewModel.bookAdded.sink { [weak self] bookId in
+            guard let self = self else {return}
+            self.bookAddedSubject.send(bookId)
+        }
+        .store(in: &viewModel.cancellables)
         let editReadingVC = EditReadingViewController(viewModel: viewModel)
         editReadingVC.coordinator = self
         navigationController.pushViewController(editReadingVC, animated: true)

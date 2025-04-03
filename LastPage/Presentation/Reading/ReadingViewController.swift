@@ -38,14 +38,14 @@ final class ReadingViewController: BaseViewController {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "인간 실격"
+        label.text = "Title"
         label.font = .systemFont(ofSize: 16, weight: .bold)
         return label
     }()
     
     private let authorLabel: UILabel = {
         let label = UILabel()
-        label.text = "다자이 오사무"
+        label.text = "Author"
         label.font = .systemFont(ofSize: 14)
         label.textColor = .darkGray
         return label
@@ -61,7 +61,6 @@ final class ReadingViewController: BaseViewController {
     
     private let shortMemoLabel: UILabel = {
         let label = UILabel()
-        label.text = "불완전한 나는 불안과 고통을 어떻게 이해하고 극복해 나갈 수 있을까?"
         label.font = .systemFont(ofSize: 14)
         label.numberOfLines = 0
         return label
@@ -103,9 +102,9 @@ final class ReadingViewController: BaseViewController {
         return view
     }()
     init(viewModel: ReadingViewModel) {
-            self.viewModel = viewModel
-            super.init(nibName: nil, bundle: nil)
-        }
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
     
     @MainActor required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -119,11 +118,12 @@ final class ReadingViewController: BaseViewController {
         view.backgroundColor = .white
         setupActions()
         bind()
-        // Set initial view based on default segment
+        
         updateContentForSelectedSegment()
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
         setMemoEditIsAvailable()
     }
     private func setMemoEditIsAvailable() {
@@ -138,7 +138,7 @@ final class ReadingViewController: BaseViewController {
     func setupUI(item: BookEntity) {
         let imgPath = item.bookDetail.imagePath ?? TextResource.Global.empty.text
         let url = URL(string: imgPath)
-        bookCoverImageView.kf.setImage(with: url,placeholder: UIImage(systemName: "person"))
+        bookCoverImageView.kf.setImage(with: url)
         titleLabel.text = item.bookDetail.title
         authorLabel.text = item.bookDetail.author
         statusLabel.text = item.bookDetail.status.rawValue
@@ -184,7 +184,8 @@ final class ReadingViewController: BaseViewController {
     // Pre-configure the menu for the edit button
     private func configureMenuForEditButton() {
         let addAction = UIAction(title: "Add", image: UIImage(systemName: "plus")) { [weak self] _ in
-            self?.coordinator?.showEditReadingInProgress()
+            let indexToAppend = (self?.viewModel.bookDetail?.inProgressMemo.count ?? 0) + 1
+            self?.coordinator?.showEditReadingInProgress(bookId: self?.viewModel.bookId, index: indexToAppend)
         }
         
         let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash")) { [weak self] _ in
@@ -204,57 +205,39 @@ final class ReadingViewController: BaseViewController {
         memoEditButton.menu = nil
         memoEditButton.showsMenuAsPrimaryAction = false
     }
+    // memoEditButtonTapped() 메서드 간소화
     @objc private func memoEditButtonTapped() {
-        
-        // Check if we're in delete mode
+
+        // 삭제 모드 체크
         if readingInProgressView.isDeleteMode {
             exitDeleteMode()
             return
         }
         
-        // Get current segment index
+        // 현재 세그먼트 확인
         let currentSegmentIndex = readingStatusSegmentControl.selectedSegmentIndex
-        guard let bookDetail = viewModel.bookDetail else {return}
-        let bookId = bookDetail.id
-        // Handle based on segment
+        guard let bookId = viewModel.bookDetail?.id else { return }
+        
+        // 세그먼트에 따른 처리
         switch currentSegmentIndex {
-        case 0:
-            // Clear any menu before navigation
+        case 0: // 읽기 전
             clearButtonMenu()
             coordinator?.showEditReading(bookId: bookId, status: .unread)
-        case 1:
-            showEditMenu()
-        default:
-            // Clear any menu before navigation
+        case 1: // 읽는 중
+            // 기존 showEditMenu() 대신 configureMenuForEditButton() 사용
+            configureMenuForEditButton()
+            // 메뉴 트리거
+            if #available(iOS 14.0, *) {
+                memoEditButton.sendActions(for: .menuActionTriggered)
+            }
+        case 2: // 읽은 후
             clearButtonMenu()
             coordinator?.showEditReading(bookId: bookId, status: .completed)
+        default:
+            break
         }
     }
 
-    // Show the edit menu
-    private func showEditMenu() {
-        // Create menu actions
-        let addAction = UIAction(title: "Add", image: UIImage(systemName: "plus")) { [weak self] _ in
-            self?.coordinator?.showEditReadingInProgress(bookId: self?.viewModel.bookDetail?.id)
-        }
-        
-        let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash")) { [weak self] _ in
-            self?.enterDeleteMode()
-        }
-        
-        // Create and present the menu
-        let menu = UIMenu(title: "메뉴", children: [addAction, deleteAction])
-        
-        // First set showsMenuAsPrimaryAction to true
-        memoEditButton.showsMenuAsPrimaryAction = true
-        // Then set the menu
-        memoEditButton.menu = menu
-        
-        // Force present the menu programmatically on first tap
-        if #available(iOS 14.0, *) {
-            memoEditButton.sendActions(for: .menuActionTriggered)
-        }
-    }
     // Enter delete mode
     private func enterDeleteMode() {
         // Enable delete mode

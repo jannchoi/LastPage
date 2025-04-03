@@ -59,7 +59,8 @@ final class RecommendViewController: BaseViewController {
         configureKeywords()
     }
     override func bind() {
-        viewModel.$keywordData.sink { [weak self] keywords in
+        viewModel.$keywordData.receive(on: DispatchQueue.main)
+            .sink { [weak self] keywords in
             guard let self = self else {return}
             self.bookKeywordStackView.configure(with: keywords ?? [])
         }.store(in: &cancellables)

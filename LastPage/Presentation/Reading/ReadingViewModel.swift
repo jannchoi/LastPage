@@ -15,7 +15,7 @@ final class ReadingViewModel: BaseViewModel {
     @Published var bookDetail: BookEntity?
     @Published var isLoading: Bool = false
     //@Published var error:
-    
+    var bookId : String?
     struct Input {
 
     }
@@ -25,6 +25,7 @@ final class ReadingViewModel: BaseViewModel {
     init(bookAddedSubject: PassthroughSubject<String, Never>, bookId: String? = nil, bookDetail: BookDetail? = nil, getBookUseCase: GetBookUseCaseProtocol, updateBookUsecase: UpdateBookUseCaseProtocol) {
         self.getBookUseCase = getBookUseCase
         self.updateBookUsecase = updateBookUsecase
+        self.bookId = bookId
         bookAddedSubject.sink { newId in
             self.bookDetail?.id = newId
             self.fetchBook(itemId: newId)

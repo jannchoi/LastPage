@@ -43,7 +43,8 @@ final class RecommendViewModel:BaseViewModel {
             .store(in: &cancellables)
     }
     private func fetchKeyword(query: String) {
-        makeFetchKeywordUseCase.execute(prompt: query).sink(receiveCompletion: { completion in
+        makeFetchKeywordUseCase.execute(prompt: query).receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { completion in
             switch completion {
             case .failure(let error):
                 // 에러 처리
@@ -52,15 +53,6 @@ final class RecommendViewModel:BaseViewModel {
                 break
             }
         }, receiveValue: { result in
-//            let bookKeywordMockData = [
-//                "우리는 불완전함 속에서 존재의 의미를 어떻게 찾을 수 있을까?",
-//                "왜 우리는 극단적인 고통을 묘사하는 소설을 통해 위로를 느끼는 걸까?",
-//                "역사", "비극적 아름다움", "예술", "비즈니스", "여행",
-//                "내가 느끼는 사회적 소외감", "철학",
-//                "왜 우리는 극단적인 고통을 묘사하는 소설을 통해 위로를 느끼는 걸까?",
-//                "죽음에 대한 관점이 변하면, 그 사람의 삶의 태도도 달라질까요?"
-//            ]
-//            self.keywordData = bookKeywordMockData
             self.keywordData = result.keywords
         })
         .store(in: &cancellables)
