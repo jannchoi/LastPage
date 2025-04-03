@@ -111,4 +111,18 @@ class BookMemoDataSource: BookMemoDataSourceProtocol {
             }
         }.eraseToAnyPublisher()
     }
+    
+    func resetBooks() -> AnyPublisher<Void, Error> {
+        return Future<Void, Error> { promise in
+            do {
+                let realm = try Realm()
+                try realm.write {
+                    realm.deleteAll()
+                }
+                promise(.success(()))
+            } catch {
+                promise(.failure(error))
+            }
+        }.eraseToAnyPublisher()
+    }
 }

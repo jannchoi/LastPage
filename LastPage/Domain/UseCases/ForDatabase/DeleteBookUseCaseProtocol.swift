@@ -9,5 +9,6 @@ import Foundation
 import Combine
 protocol DeleteBookUseCaseProtocol {
     func execute(with id: String) -> AnyPublisher<Void, Error>
+    func execute() -> AnyPublisher<Void, Error>
 }
 

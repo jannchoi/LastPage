@@ -18,5 +18,6 @@ protocol BookMemoRepositoryProtocol {
     func getBooks(withStatus status: ReadingStatusEntity) -> AnyPublisher<[BookEntity], Error>
     func getBooks(withCategory category: String) -> AnyPublisher<[BookEntity], Error>
     func getBooks(withFeeling feeling: String) -> AnyPublisher<[BookEntity], Error>
+    func resetBooks() -> AnyPublisher<Void, Error>
 }
 

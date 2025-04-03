@@ -89,4 +89,7 @@ class BookMemoRepository: BookMemoRepositoryProtocol {
             }
             .eraseToAnyPublisher()
     }
+    func resetBooks() -> AnyPublisher<Void, Error> {
+        return dataSource.resetBooks()
+    }
 }
