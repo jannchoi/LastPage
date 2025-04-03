@@ -124,7 +124,6 @@ final class ReadingViewController: BaseViewController {
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        viewModel.viewWillAppearTrigger.send(())
         setMemoEditIsAvailable()
     }
     private func setMemoEditIsAvailable() {
@@ -199,7 +198,7 @@ final class ReadingViewController: BaseViewController {
     }
 
     @objc private func infoEditButtonTapped() {
-        coordinator?.showEditInfo()
+        coordinator?.showEditInfo(passedBook: viewModel.bookDetail?.bookDetail, bookId: viewModel.bookDetail?.id)
     }
     private func clearButtonMenu() {
         memoEditButton.menu = nil
@@ -408,9 +407,13 @@ final class ReadingViewController: BaseViewController {
     
 }
 extension ReadingViewController: ReadingInProgressViewDelegate {
-    func readingInProgressView(_ view: ReadingInProgressView, didSelectItemAt index: Int) {
-        coordinator?.showEditReadingInProgress(bookId: viewModel.bookDetail?.id, index: index)
+    func readingInProgressView(_ view: ReadingInProgressView, didSelectItemAt index: Int, isDelete: Bool) {
+        if isDelete {
+            viewModel.deleteBook(targetIdx: index)
+        }
+        else {
+            coordinator?.showEditReadingInProgress(bookId: viewModel.bookDetail?.id, index: index)
+        }
     }
-    
-    
+
 }

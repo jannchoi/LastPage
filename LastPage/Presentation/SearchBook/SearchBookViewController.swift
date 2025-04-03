@@ -9,6 +9,8 @@ import UIKit
 import SnapKit
 import Combine
 
+import RealmSwift
+
 final class SearchBookViewController: BaseViewController {
     weak var coordinator: SearchCoordinator?
     var viewModel: SearchBookViewModel
@@ -34,9 +36,13 @@ final class SearchBookViewController: BaseViewController {
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-        //bind()
-        let mockItem = BookDetail(title: "걸리버 여행기 (완역본)", link: "http://www.aladin.co.kr/shop/wproduct.aspx?ItemId=361171269&amp;copyPaper=1&amp;ttbkey=ttbgongjo36951633001&amp;start=api", author: "조너선 스위프트 지음, 강경숙 옮김", description: "", itemId: 361171269, cover: "https://image.aladin.co.kr/product/36117/12/coversum/k552038160_1.jpg", categoryName: "국내도서>소설/시/희곡>세계의 소설>아일랜드소설")
-        coordinator?.showReading(bookDetail: mockItem)
+//        let realm = try! Realm()
+//        
+//        func getFileURL() {
+//            print(realm.configuration.fileURL ?? "파일 경로를 찾을 수 없습니다.")
+//        }
+//        getFileURL()
+        bind()
 
     }
     override func configureHierarchy() {
@@ -105,40 +111,10 @@ extension SearchBookViewController: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        //let item = viewModel.bookList.item[indexPath.row]
-        let mockItem = BookDetail(title: "걸리버 여행기 (완역본)", link: "http://www.aladin.co.kr/shop/wproduct.aspx?ItemId=361171269&amp;copyPaper=1&amp;ttbkey=ttbgongjo36951633001&amp;start=api", author: "조너선 스위프트 지음, 강경숙 옮김", description: "", itemId: 361171269, cover: "https://image.aladin.co.kr/product/36117/12/coversum/k552038160_1.jpg", categoryName: "국내도서>소설/시/희곡>세계의 소설>아일랜드소설")
-        coordinator?.showReading(bookDetail: mockItem)
+        let item = viewModel.bookList.item[indexPath.row]
+//        let mockItem = BookDetail(title: "걸리버 여행기 (완역본)", link: "http://www.aladin.co.kr/shop/wproduct.aspx?ItemId=361171269&amp;copyPaper=1&amp;ttbkey=ttbgongjo36951633001&amp;start=api", author: "조너선 스위프트 지음, 강경숙 옮김", description: "", itemId: 361171269, cover: "https://image.aladin.co.kr/product/36117/12/coversum/k552038160_1.jpg", categoryName: "국내도서>소설/시/희곡>세계의 소설>아일랜드소설")
+        coordinator?.showReading(bookDetail: item)
     }
     
     
 }
-/*
- let id = [361171269,359351068, 357282342,356477075,350953568,341659486,341573186,338885232].randomElement()!
- testkeywordUseCaae.execute(prompt: "인간실격")
-     .sink(receiveCompletion: { completion in
-         switch completion {
-         case .failure(let error):
-             // 에러 처리
-             print("Error fetching books: \(error.localizedDescription)")
-         case .finished:
-             break
-         }
-     }, receiveValue: { result in
-         print(result.keywords)
-     })
-     .store(in: &cancellables)
- 
- testBookUseCase.execute(query: "swift")
-     .sink(receiveCompletion: { completion in
-         switch completion {
-         case .failure(let error):
-             // 에러 처리
-             print("Error fetching books: \(error.localizedDescription)")
-         case .finished:
-             break
-         }
-     }, receiveValue: {books in
-         print(books.item.count)
-     })
-     .store(in: &cancellables)
- */

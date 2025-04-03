@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class ArchiveTableViewCell: UITableViewCell {
     // UI Components
@@ -36,7 +37,7 @@ final class ArchiveTableViewCell: UITableViewCell {
         label.textColor = .darkGray
         return label
     }()
-    private let genrelabel: UILabel = {
+    private let categoryLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14)
         label.textColor = .darkGray
@@ -53,13 +54,15 @@ final class ArchiveTableViewCell: UITableViewCell {
         configureView()
         
     }
-    func configure(title: String, content: String, date: String) {
-        titleLabel.text = "title"
-        authorLabel.text = "author"
-        statusLabel.text = "status"
-        genrelabel.text = "genre"
-        prologueLabel.text = "prologueLabel"
-        bookCoverImageView.image = UIImage(systemName: "star")
+    func configure(item: BookEntity) {
+        titleLabel.text = item.bookDetail.title
+        authorLabel.text = item.bookDetail.author
+        statusLabel.text = item.bookDetail.status.rawValue
+        categoryLabel.text = item.bookDetail.categories.first
+        prologueLabel.text = item.bookDetail.shortMemo
+        let imgPath = item.bookDetail.imagePath ?? TextResource.Global.empty.text
+        let url = URL(string: imgPath)
+        bookCoverImageView.kf.setImage(with: url, placeholder: UIImage(systemName: "person"))
     }
     override func prepareForReuse() {
         super.prepareForReuse()
@@ -67,7 +70,7 @@ final class ArchiveTableViewCell: UITableViewCell {
         authorLabel.text = nil
         bookCoverImageView.image = nil
         statusLabel.text = nil
-        genrelabel.text = nil
+        categoryLabel.text = nil
         prologueLabel.text = nil
     }
     private func configureView() {
@@ -75,7 +78,7 @@ final class ArchiveTableViewCell: UITableViewCell {
         contentView.addSubview(titleLabel)
         contentView.addSubview(authorLabel)
         contentView.addSubview(statusLabel)
-        contentView.addSubview(genrelabel)
+        contentView.addSubview(categoryLabel)
         contentView.addSubview(prologueLabel)
         
         bookCoverImageView.snp.makeConstraints { make in
@@ -101,13 +104,13 @@ final class ArchiveTableViewCell: UITableViewCell {
             make.leading.equalTo(bookCoverImageView.snp.trailing).offset(16)
             make.trailing.equalToSuperview().offset(-16)
         }
-        genrelabel.snp.makeConstraints { make in
+        categoryLabel.snp.makeConstraints { make in
             make.top.equalTo(statusLabel.snp.bottom).offset(8)
             make.leading.equalTo(bookCoverImageView.snp.trailing).offset(16)
             make.trailing.equalToSuperview().offset(-16)
         }
         prologueLabel.snp.makeConstraints { make in
-            make.top.equalTo(genrelabel.snp.bottom).offset(8)
+            make.top.equalTo(categoryLabel.snp.bottom).offset(8)
             make.leading.equalTo(bookCoverImageView.snp.trailing).offset(16)
             make.trailing.equalToSuperview().offset(-16)
         }

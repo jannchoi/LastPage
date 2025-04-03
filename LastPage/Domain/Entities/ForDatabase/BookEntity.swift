@@ -7,7 +7,7 @@
 
 import Foundation
 struct BookEntity {
-    let id: String?
+    var id: String?
     var bookDetail: BookDetailEntity
     var beforeMemo: MemoEntity?
     var inProgressMemo: [ProgressMemoEntity]

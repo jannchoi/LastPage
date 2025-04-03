@@ -35,12 +35,14 @@ class BookMemoRepository: BookMemoRepositoryProtocol {
             .eraseToAnyPublisher()
     }
     
-    func saveBook(_ book: BookEntity) -> AnyPublisher<Void, Error> {
+    func saveBook(_ book: BookEntity) -> AnyPublisher<String, Error> {
         let realmModel = mapper.mapToRealm(domainModel: book)
         return dataSource.saveBook(realmModel)
+            .map { objectId in objectId.stringValue } 
+            .eraseToAnyPublisher()
     }
 
-    func updateBook<T>(bookId: String, field: UpdateTarget, newValue: T, index: Int? = nil) -> AnyPublisher<Void, Error> {
+    func updateBook<T>(bookId: String, field: UpdateTarget, newValue: T?, index: Int? = nil) -> AnyPublisher<Void, Error> {
         return dataSource.getBook(with: try! ObjectId(string: bookId))
             .flatMap { existingMemo -> AnyPublisher<Void, Error> in
                 guard let existingMemo = existingMemo else {

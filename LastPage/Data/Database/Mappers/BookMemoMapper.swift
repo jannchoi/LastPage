@@ -95,7 +95,7 @@ class BookMemoMapper: BookMemoMapperProtocol {
         
         return bookMemo
     }
-    func updateBookEntity<T>(existing: BookEntity, newValue: T, field: UpdateTarget, index: Int? = nil) -> BookEntity {
+    func updateBookEntity<T>(existing: BookEntity, newValue: T?, field: UpdateTarget, index: Int? = nil) -> BookEntity {
         var updatedBook = existing
         
         switch field {
@@ -104,11 +104,17 @@ class BookMemoMapper: BookMemoMapperProtocol {
                 updatedBook.beforeMemo = newMemo
             }
         case .reading:
-            if let newProgressMemos = newValue as? ProgressMemoEntity, let index = index {
-                if index <  updatedBook.inProgressMemo.count{
-                    updatedBook.inProgressMemo[index] = newProgressMemos
+            if let index = index {
+                if newValue != nil {
+                    if let newProgressMemo = newValue as? ProgressMemoEntity {
+                        if index <  updatedBook.inProgressMemo.count{
+                            updatedBook.inProgressMemo[index] = newProgressMemo
+                        } else {
+                            updatedBook.inProgressMemo.append(newProgressMemo)
+                        }
+                    }
                 } else {
-                    updatedBook.inProgressMemo.append(newProgressMemos)
+                    updatedBook.inProgressMemo.remove(at: index)
                 }
             }
         case .completed:

@@ -6,11 +6,12 @@
 //
 
 import UIKit
+import Combine
 
 final class ArchiveViewController: BaseViewController {
     weak var coordinator: ArchiveCoordinator?
     var viewModel: ArchiveViewModel
-    
+    private var cancellables: Set<AnyCancellable> = []
     private let filterButton = UIButton()
     private let filterMenu = UIMenu()
     private let searchBar = UISearchBar()
@@ -30,7 +31,14 @@ final class ArchiveViewController: BaseViewController {
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-        temp()
+    }
+    override func bind() {
+        viewModel.$bookList
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.tableView.reloadData()
+            }
+            .store(in: &cancellables)
     }
     override func configureHierarchy() {
         view.addSubview(searchBar)
@@ -57,11 +65,10 @@ final class ArchiveViewController: BaseViewController {
         tableView.register(ArchiveTableViewCell.self, forCellReuseIdentifier: ArchiveTableViewCell.identifier)
         filterButton.setTitle("filterBy", for: .normal)
         filterButton.backgroundColor = .systemMint
-    }
-    func temp() {
         tableView.delegate = self
         tableView.dataSource = self
     }
+
 
 }
 extension ArchiveViewController: UITableViewDelegate, UITableViewDataSource {
@@ -69,18 +76,19 @@ extension ArchiveViewController: UITableViewDelegate, UITableViewDataSource {
         return 152
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return list.count
+        return viewModel.bookList.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: ArchiveTableViewCell.identifier, for: indexPath) as! ArchiveTableViewCell
-        cell.configure(title: "", content: "", date: "")
+        let item = viewModel.bookList[indexPath.row]
+        cell.configure(item: item)
         
         return cell
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print(coordinator)
-        coordinator?.showReading(bookId: "")
+        let targetId = viewModel.bookList[indexPath.row].id
+        coordinator?.showReading(bookId: targetId)
     }
     
     

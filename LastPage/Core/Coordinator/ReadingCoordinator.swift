@@ -6,12 +6,14 @@
 //
 
 import UIKit
-
+import Combine
 final class ReadingCoordinator:Coordinator {
     private weak var parentCoordinator: Coordinator?
     var childCoordinators: [Coordinator] = []
     private let navigationController: UINavigationController
     private let diContainer: AppDIContainer
+    
+    let bookAddedSubject = PassthroughSubject<String, Never>()
 
     init(parentCoordinator: Coordinator?, navigationController: UINavigationController, diContainer: AppDIContainer) {
         self.parentCoordinator = parentCoordinator
@@ -20,27 +22,32 @@ final class ReadingCoordinator:Coordinator {
     }
 
     func start() {
-        let viewModel = ReadingViewModel(getBookUseCase: diContainer.makeGetBookUseCase())
+        let viewModel = ReadingViewModel(bookAddedSubject: bookAddedSubject, getBookUseCase: diContainer.makeGetBookUseCase(), updateBookUsecase: diContainer.makeUpdateBookUseCase())
         let readingVC = ReadingViewController(viewModel: viewModel)
         readingVC.coordinator = self
         navigationController.pushViewController(readingVC, animated: true)
     }
-    func start(bookId: String) {
-        let viewModel = ReadingViewModel(bookId: bookId, getBookUseCase: diContainer.makeGetBookUseCase())
+    func start(bookId: String?) {
+        let viewModel = ReadingViewModel(bookAddedSubject: bookAddedSubject, bookId: bookId, getBookUseCase: diContainer.makeGetBookUseCase(), updateBookUsecase: diContainer.makeUpdateBookUseCase())
         let readingVC = ReadingViewController(viewModel: viewModel)
         readingVC.coordinator = self
         navigationController.pushViewController(readingVC, animated: true)
     }
     func start(bookDetail: BookDetail) {
-        let viewModel = ReadingViewModel(bookDetail: bookDetail,getBookUseCase: diContainer.makeGetBookUseCase())
+        let viewModel = ReadingViewModel(bookAddedSubject: bookAddedSubject, bookDetail: bookDetail,getBookUseCase: diContainer.makeGetBookUseCase(), updateBookUsecase: diContainer.makeUpdateBookUseCase())
         let readingVC = ReadingViewController(viewModel: viewModel)
         readingVC.coordinator = self
         navigationController.pushViewController(readingVC, animated: true)
     }
     
 
-    func showEditInfo(bookId: String? = nil) {
-        let viewModel = EditInfoViewModel(bookId: bookId,getBookUseCase: diContainer.makeGetBookUseCase(),updateBookUsecase: diContainer.makeUpdateBookUseCase(),saveBookUsecase: diContainer.makeSaveBookUseCase() )
+    func showEditInfo(passedBook: BookDetailEntity? = nil, bookId: String? = nil) {
+        let viewModel = EditInfoViewModel(passedBook: passedBook ,bookId: bookId,getBookUseCase: diContainer.makeGetBookUseCase(),updateBookUsecase: diContainer.makeUpdateBookUseCase(),saveBookUsecase: diContainer.makeSaveBookUseCase() )
+        viewModel.bookAdded.sink { [weak self] bookId in
+            guard let self = self else {return}
+            self.bookAddedSubject.send(bookId)
+        }
+        .store(in: &viewModel.cancellables)
         let editInfoVC = EditInfoViewController(viewModel: viewModel)
         navigationController.pushViewController(editInfoVC, animated: true)
     }

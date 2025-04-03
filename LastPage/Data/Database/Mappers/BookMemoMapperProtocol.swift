@@ -10,6 +10,6 @@ import Foundation
 protocol BookMemoMapperProtocol {
     func mapToDomain(realmModel: BookMemo) -> BookEntity
     func mapToRealm(domainModel: BookEntity) -> BookMemo
-    func updateBookEntity<T>(existing: BookEntity, newValue: T, field: UpdateTarget, index: Int?) -> BookEntity
+    func updateBookEntity<T>(existing: BookEntity, newValue: T?, field: UpdateTarget, index: Int?) -> BookEntity
     
 }

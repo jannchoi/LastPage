@@ -58,8 +58,8 @@ final class EditInfoViewController: BaseViewController {
     }()
     
     private let shortMemoField = InfoFieldView(title: TextResource.InfoTextView.shortMemo.text)
-    private let categoryField = InfoFieldView(title: TextResource.InfoTextView.categories.text)
-    private let feelingsField = InfoFieldView(title: TextResource.InfoTextView.feelings.text)
+    private let categoryField = InfoFieldView(title: TextResource.InfoTextView.categories.text, isTaggable: true)
+    private let feelingsField = InfoFieldView(title: TextResource.InfoTextView.feelings.text, isTaggable: true)
     
     private let saveButton: UIButton = {
         let button = UIButton(type: .system)

@@ -77,7 +77,7 @@ class ReadingInProgressView: UIView{
 // MARK: - TableView Delegate & DataSource
 extension ReadingInProgressView: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        delegate?.readingInProgressView(self, didSelectItemAt: indexPath.row)
+        delegate?.readingInProgressView(self, didSelectItemAt: indexPath.row, isDelete: false)
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return memoList.count
@@ -102,7 +102,7 @@ extension ReadingInProgressView: UITableViewDelegate, UITableViewDataSource {
         if editingStyle == .delete {
             // Remove the item from data source
             memoList.remove(at: indexPath.row)
-            
+            delegate?.readingInProgressView(self, didSelectItemAt: indexPath.row, isDelete: true)
             // Delete the row from the table
             tableView.deleteRows(at: [indexPath], with: .fade)
         }
@@ -116,7 +116,7 @@ extension ReadingInProgressView: UITableViewDelegate, UITableViewDataSource {
 
 }
 protocol ReadingInProgressViewDelegate: AnyObject {
-    func readingInProgressView(_ view: ReadingInProgressView, didSelectItemAt index: Int)
+    func readingInProgressView(_ view: ReadingInProgressView, didSelectItemAt index: Int, isDelete: Bool)
 }
 
 

@@ -13,21 +13,25 @@ final class EditInfoViewModel:BaseViewModel {
     let updateBookUsecase: UpdateBookUseCaseProtocol
     let saveBookUsecase: SaveBookUseCaseProtocol
     
+    var bookAdded = PassthroughSubject<String, Never>()
+    
     @Published var bookDetail: BookDetailEntity?
-    let bookId : String?
+    var bookId : String?
     struct Input {
         
     }
     struct Output {
         
     }
-    init(bookId: String? = nil, getBookUseCase: GetBookUseCaseProtocol, updateBookUsecase: UpdateBookUseCaseProtocol, saveBookUsecase: SaveBookUseCaseProtocol) {
+    init(passedBook: BookDetailEntity? = nil, bookId: String? = nil, getBookUseCase: GetBookUseCaseProtocol, updateBookUsecase: UpdateBookUseCaseProtocol, saveBookUsecase: SaveBookUseCaseProtocol) {
         self.getBookUseCase = getBookUseCase
         self.updateBookUsecase = updateBookUsecase
         self.saveBookUsecase = saveBookUsecase
         self.bookId = bookId
         if let bookId = bookId {
             self.fetchBook(itemId: bookId)
+        } else {
+            self.bookDetail = passedBook
         }
     }
     func transform(input: Input) -> Output {
@@ -35,12 +39,19 @@ final class EditInfoViewModel:BaseViewModel {
         return Output()
     }
     func saveBook(newValue: BookDetailEntity) {
-        print(#function)
         if let bookId = bookId {
             updateBookUsecase.execute(bookId: bookId, field: .detail, newValue: newValue, index: nil)
         } else {
             let newBook = BookEntity(id: nil, bookDetail: newValue, inProgressMemo: [])
-            saveBookUsecase.execute(newBook)
+            saveBookUsecase.execute(newBook).sink { [weak self] completion in
+            if case .failure(let error) = completion {
+                print("fetch error")
+            }
+            } receiveValue: {[weak self] newId in
+                guard let self = self else {return}
+                self.bookAdded.send(newId)
+            }.store(in: &cancellables)
+
         }
         
     }

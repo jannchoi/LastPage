@@ -38,13 +38,13 @@ class BookMemoDataSource: BookMemoDataSourceProtocol {
         }.eraseToAnyPublisher()
     }
     
-    func saveBook(_ book: BookMemo) -> AnyPublisher<Void, Error> {
-        return Future<Void, Error> { promise in
+    func saveBook(_ book: BookMemo) -> AnyPublisher<ObjectId, Error> {
+        return Future<ObjectId, Error> { promise in
             do {
                 try self.realm.write {
                     self.realm.add(book)
                 }
-                promise(.success(()))
+                promise(.success(book.id)) // 저장된 객체의 id 반환
             } catch {
                 promise(.failure(error))
             }

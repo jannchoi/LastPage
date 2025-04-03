@@ -11,7 +11,7 @@ import Combine
 final class ReadingViewModel: BaseViewModel {
     var cancellables = Set<AnyCancellable>()
     let getBookUseCase: GetBookUseCaseProtocol
-    let viewWillAppearTrigger = PassthroughSubject<Void, Never>()
+    let updateBookUsecase: UpdateBookUseCaseProtocol
     @Published var bookDetail: BookEntity?
     @Published var isLoading: Bool = false
     //@Published var error:
@@ -22,8 +22,13 @@ final class ReadingViewModel: BaseViewModel {
     struct Output {
         
     }
-    init(bookId: String? = nil, bookDetail: BookDetail? = nil, getBookUseCase: GetBookUseCaseProtocol) {
+    init(bookAddedSubject: PassthroughSubject<String, Never>, bookId: String? = nil, bookDetail: BookDetail? = nil, getBookUseCase: GetBookUseCaseProtocol, updateBookUsecase: UpdateBookUseCaseProtocol) {
         self.getBookUseCase = getBookUseCase
+        self.updateBookUsecase = updateBookUsecase
+        bookAddedSubject.sink { newId in
+            self.bookDetail?.id = newId
+            self.fetchBook(itemId: newId)
+        }.store(in: &cancellables)
         
         // bookId가 전달된 경우, ID로 데이터를 불러옴
         if let bookId = bookId {
@@ -39,13 +44,12 @@ final class ReadingViewModel: BaseViewModel {
         }
     }
     func transform(input: Input) -> Output {
-        
-        viewWillAppearTrigger.sink { [weak self]_ in
-            guard let self = self, let book = self.bookDetail, let id = book.id else {return}
-            self.fetchBook(itemId: id)
-        }.store(in: &cancellables)
-        
+
         return Output()
+    }
+    func deleteBook(targetIdx: Int) {
+        guard let bookDetail = bookDetail, let id = bookDetail.id else {return}
+        updateBookUsecase.execute(bookId: id, field: .reading, newValue:  Optional<ProgressMemoEntity>.none, index: targetIdx)
     }
     private func fetchBook(itemId: String) {
         getBookUseCase.execute(with: itemId)

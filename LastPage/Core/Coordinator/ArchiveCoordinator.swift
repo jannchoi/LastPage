@@ -31,7 +31,7 @@ final class ArchiveCoordinator:Coordinator {
         navigationController.pushViewController(archiveVC, animated: true)
     }
 
-    func showReading(bookId: String) {
+    func showReading(bookId: String?) {
         let readingCoordinator = ReadingCoordinator(parentCoordinator: self,navigationController: navigationController, diContainer: diContainer)
         childCoordinators.append(readingCoordinator)
         readingCoordinator.start(bookId: bookId)

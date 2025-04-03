@@ -35,10 +35,9 @@ final class EditReadingViewModel:BaseViewModel {
         return Output()
     }
     func saveBook<T>(newValue: T) {
-        print(#function)
-//        if let bookId = bookId, let status = status {
-//            updateBookUsecase.execute(bookId: bookId, field: status, newValue: newValue)
-//        }
+        if let bookId = bookId, let status = status {
+            updateBookUsecase.execute(bookId: bookId, field: status, newValue: newValue, index: nil)
+        }
     }
     private func fetchBook(itemId: String, status: UpdateTarget) {
         getBookUseCase.execute(with: itemId)

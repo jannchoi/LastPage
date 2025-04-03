@@ -11,6 +11,7 @@ import SnapKit
 final class InfoFieldView: UIView {
     private let infoLabel = UILabel()
     var textField = UITextField()
+    var isTaggable = false
     private let tagsScrollView = UIScrollView()
     private let tagsStackView = UIStackView()
     
@@ -26,9 +27,13 @@ final class InfoFieldView: UIView {
         isUserInteractionEnabled = true
     }
     
-    init(title: String) {
+    init(title: String, isTaggable: Bool = false) {
         super.init(frame: .zero)
         infoLabel.text = title
+        self.isTaggable = isTaggable
+        if !isTaggable {
+            tagsScrollView.isHidden = true
+        }
         configureView()
     }
     
@@ -151,7 +156,7 @@ final class InfoFieldView: UIView {
             }
         }
         
-        sender.text = TextResource.Global.empty.text
+        
     }
 }
 extension InfoFieldView {
