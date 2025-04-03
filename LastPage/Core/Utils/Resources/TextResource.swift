@@ -34,6 +34,21 @@ enum TextResource {
             }
         }
     }
+    enum DataError {
+        case fetchError
+        case updateError
+        case deleteError
+        var text: String {
+            switch self {
+            case .fetchError:
+                "데이터를 가져오는 데 실패했습니다."
+            case .updateError:
+                "데이터를 업데이트 하는 데 실패했습니다."
+            case .deleteError:
+                "데이터를 삭제하는 데 실패했습니다."
+            }
+        }
+    }
     enum ButtonTitle {
         case edit
         case add

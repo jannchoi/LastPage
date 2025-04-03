@@ -12,6 +12,7 @@ final class RecommendViewModel:BaseViewModel {
     var cancellables = Set<AnyCancellable>()
     let makeFetchKeywordUseCase: FetchKeywordUseCaseProtocol
     let getBookUseCase: GetBookUseCaseProtocol
+    @Published private(set) var fetchError: String = ""
     @Published var keywordData: [String]?
     @Published private(set) var error: NetworkError?
     struct Input {
@@ -34,7 +35,7 @@ final class RecommendViewModel:BaseViewModel {
         getBookUseCase.execute(with: itemId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
-                    print("fetch error")
+                    self?.fetchError = TextResource.DataError.fetchError.text
                 }
             } receiveValue: { [weak self] book in
                 guard let self = self, let book = book else {return}

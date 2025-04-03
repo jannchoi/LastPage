@@ -53,6 +53,11 @@ final class EditReadingInProgressViewController: BaseViewController {
             guard let self = self, let memoDetail = memoDetail else {return}
             self.setupUI(item: memoDetail)
         }.store(in: &cancellables)
+        viewModel.$fetchError.compactMap{$0}
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] errorMessage in
+                self?.showAlert(text: errorMessage)
+            }.store(in: &cancellables)
     }
     private func setupUI(item: ProgressMemoEntity) {
         dateField.textField.text = item.date

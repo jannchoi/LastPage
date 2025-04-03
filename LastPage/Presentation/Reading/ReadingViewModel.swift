@@ -14,7 +14,7 @@ final class ReadingViewModel: BaseViewModel {
     let updateBookUsecase: UpdateBookUseCaseProtocol
     @Published var bookDetail: BookEntity?
     @Published var isLoading: Bool = false
-    //@Published var error:
+    @Published private(set) var fetchError: String = ""
     var bookId : String?
     struct Input {
 
@@ -50,13 +50,27 @@ final class ReadingViewModel: BaseViewModel {
     }
     func deleteBook(targetIdx: Int) {
         guard let bookDetail = bookDetail, let id = bookDetail.id else {return}
-        updateBookUsecase.execute(bookId: id, field: .reading, newValue:  Optional<ProgressMemoEntity>.none, index: targetIdx)
+        updateBookUsecase.execute(bookId: id, field: .reading, newValue:  Optional<ProgressMemoEntity>.none, index: targetIdx).sink(
+            receiveCompletion: {[weak self] completion in
+                guard let self = self else {return}
+                switch completion {
+                case .finished:
+                    print("Update completed successfully")
+                case .failure(let error):
+                    self.fetchError = TextResource.DataError.updateError.text
+                }
+            },
+            receiveValue: {
+
+            }
+        )
+        .store(in: &cancellables)
     }
     private func fetchBook(itemId: String) {
         getBookUseCase.execute(with: itemId)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
-                    print("fetch error")
+                    self?.fetchError = TextResource.DataError.fetchError.text
                 }
             } receiveValue: { [weak self] book in
                 guard let self = self, let book = book else {return}
