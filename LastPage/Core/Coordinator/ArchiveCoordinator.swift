@@ -21,7 +21,7 @@ final class ArchiveCoordinator:Coordinator {
 
     func start() {
         let viewModel = ArchiveViewModel(
-            getAllBooksUseCase: diContainer.makeGetAllBooksUseCase(),
+            getAllBooksUseCase: diContainer.makeGetAllBooksUseCase(), deleteBookUsecase: diContainer.makeDeleteBookUseCase(),
             getBooksByStatusUseCase: diContainer.makeGetBooksByStatusUseCase(),
             getBooksByCategoryUseCase: diContainer.makeGetBooksByCategoryUseCase(),
             getBooksByFeelingUseCase: diContainer.makeGetBooksByFeelingUseCase()

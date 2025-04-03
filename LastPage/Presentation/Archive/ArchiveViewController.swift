@@ -11,12 +11,22 @@ import Combine
 final class ArchiveViewController: BaseViewController {
     weak var coordinator: ArchiveCoordinator?
     var viewModel: ArchiveViewModel
+    let deleteButton : UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("edit", for: .normal)
+        button.setTitleColor(.blue, for: .normal)
+        return button
+    }()
+    var isDeleteMode: Bool {
+            get { return tableView.isEditing }
+            set { tableView.setEditing(newValue, animated: true) }
+        }
+    //weak var delegate: ?
     private var cancellables: Set<AnyCancellable> = []
     private let filterButton = UIButton()
     private let filterMenu = UIMenu()
     private let searchBar = UISearchBar()
     private let tableView = UITableView()
-    let list = Array(0...10)
     
     deinit {
         coordinator?.popVC()
@@ -67,6 +77,20 @@ final class ArchiveViewController: BaseViewController {
         filterButton.backgroundColor = .systemMint
         tableView.delegate = self
         tableView.dataSource = self
+        
+        deleteButton.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: deleteButton)
+    }
+    @objc private func deleteButtonTapped() {
+        if isDeleteMode {
+            isDeleteMode = false
+            deleteButton.setTitle("Edit", for: .normal)
+            
+        } else {
+            isDeleteMode = true
+            deleteButton.setTitle("Done", for: .normal)
+            tableView.reloadData()
+        }
     }
 
 
@@ -90,6 +114,20 @@ extension ArchiveViewController: UITableViewDelegate, UITableViewDataSource {
         let targetId = viewModel.bookList[indexPath.row].id
         coordinator?.showReading(bookId: targetId)
     }
+    // Add to UITableViewDataSource implementation
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            // Remove the item from data source
+
+            viewModel.deleteBook(index: indexPath.row)
+            // Delete the row from the table
+            tableView.deleteRows(at: [indexPath], with: .fade)
+        }
+    }
     
+    // Add to UITableViewDataSource implementation
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
     
 }

@@ -11,9 +11,11 @@ import Combine
 final class ArchiveViewModel: BaseViewModel {
     var cancellables = Set<AnyCancellable>()
     let getAllBooksUseCase: GetAllBooksUseCaseProtocol
+    let deleteBookUsecase: DeleteBookUseCaseProtocol
     let getBooksByStatusUseCase: GetBooksByStatusUseCaseProtocol
     let getBooksByCategoryUseCase: GetBooksByCategoryUseCaseProtocol
     let getBooksByFeelingUseCase: GetBooksByFeelingUseCaseProtocol
+    
     
     @Published var bookList: [BookEntity] = []
     
@@ -23,8 +25,9 @@ final class ArchiveViewModel: BaseViewModel {
     struct Output {
         
     }
-    init(getAllBooksUseCase: GetAllBooksUseCaseProtocol, getBooksByStatusUseCase: GetBooksByStatusUseCaseProtocol, getBooksByCategoryUseCase: GetBooksByCategoryUseCaseProtocol, getBooksByFeelingUseCase: GetBooksByFeelingUseCaseProtocol) {
+    init(getAllBooksUseCase: GetAllBooksUseCaseProtocol,deleteBookUsecase: DeleteBookUseCaseProtocol, getBooksByStatusUseCase: GetBooksByStatusUseCaseProtocol, getBooksByCategoryUseCase: GetBooksByCategoryUseCaseProtocol, getBooksByFeelingUseCase: GetBooksByFeelingUseCaseProtocol) {
         self.getAllBooksUseCase = getAllBooksUseCase
+        self.deleteBookUsecase = deleteBookUsecase
         self.getBooksByStatusUseCase = getBooksByStatusUseCase
         self.getBooksByCategoryUseCase = getBooksByCategoryUseCase
         self.getBooksByFeelingUseCase = getBooksByFeelingUseCase
@@ -34,6 +37,12 @@ final class ArchiveViewModel: BaseViewModel {
     func transform(input: Input) -> Output {
         //
         return Output()
+    }
+    func deleteBook(index: Int) {
+        guard let targetId = bookList[index].id else {return}
+        deleteBookUsecase.execute(with: targetId)
+        getAllBooks()
+        
     }
     private func getAllBooks() {
         getAllBooksUseCase.execute().sink { [weak self] completion in
