@@ -11,7 +11,7 @@ import SnapKit
 class ReadingView: UIScrollView {
     private let highlightContainerView: UIView = {
         let view = UIView()
-        view.backgroundColor = .systemBlue.withAlphaComponent(0.2)
+        view.backgroundColor = .white
         view.layer.cornerRadius = 8
         return view
     }()
@@ -48,8 +48,15 @@ class ReadingView: UIScrollView {
         memoLabel.text = item.memo
     }
     private func configureView() {
-        backgroundColor = .darkGray
+        backgroundColor = .white
         isScrollEnabled = true
+        highlightContainerView.backgroundColor = .white
+        highlightContainerView.layer.cornerRadius = 12
+        highlightContainerView.layer.shadowColor = UIColor.black.withAlphaComponent(0.1).cgColor
+        highlightContainerView.layer.shadowOffset = CGSize(width: 0, height: 1)
+        highlightContainerView.layer.shadowOpacity = 1
+        highlightContainerView.layer.shadowRadius = 3
+        
     }
     private func configureHierachy() {
         addSubview(highlightContainerView)

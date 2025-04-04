@@ -30,17 +30,19 @@ final class SearchBookViewModel:BaseViewModel {
     }
     
     func transform(input: Input) -> Output {
+        
         input.query
             .debounce(for: .milliseconds(300) , scheduler: DispatchQueue.main)
             .removeDuplicates()
             .sink{ [weak self] query in
                 guard let self = self else {return}
                 self.getBookData(query: query)
-                
+                print(query)
             }.store(in: &cancellables)
         return Output()
     }
     private func getBookData(query: String) {
+        print(query)
         fetchBookUseCase.execute(query: query).sink(receiveCompletion: { [weak self] completion in
             if case .failure(let error) = completion {
                 guard let self = self else {return}
@@ -50,6 +52,7 @@ final class SearchBookViewModel:BaseViewModel {
         },receiveValue: { [weak self] books in
             guard let self = self else {return}
             self.bookList = books
+            print(bookList.item.count)
         }
         )
         .store(in: &cancellables)

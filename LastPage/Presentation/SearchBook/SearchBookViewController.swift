@@ -23,9 +23,6 @@ final class SearchBookViewController: BaseViewController {
         return button
     }()
     private var cancellables: Set<AnyCancellable> = []
-    private let testBookUseCase = FetchBookUseCase(bookRepository: MockBookRepository())
-    private let testkeywordUseCaae = FetchKeywordUseCase(keywordRepository: MockKeywordRepository())
-    
     private var querySubject = PassthroughSubject<String, Never>()
 
     init(viewModel: SearchBookViewModel) {
@@ -67,8 +64,8 @@ final class SearchBookViewController: BaseViewController {
         searchBar.delegate = self
         tableView.delegate = self
         tableView.dataSource = self
-        searchBar.backgroundColor = .blue
-        tableView.backgroundColor = .yellow
+        searchBar.backgroundColor = .white
+        tableView.backgroundColor = .white
         tableView.register(SearchBookTableViewCell.self, forCellReuseIdentifier: SearchBookTableViewCell.identifier)
         plusButton.addTarget(self, action: #selector(plusButtonTapped), for: .touchUpInside)
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: plusButton)
@@ -78,6 +75,7 @@ final class SearchBookViewController: BaseViewController {
     }
     override func bind() {
         let input = SearchBookViewModel.Input(query: querySubject)
+        let output = viewModel.transform(input: input)
         viewModel.$bookList
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in

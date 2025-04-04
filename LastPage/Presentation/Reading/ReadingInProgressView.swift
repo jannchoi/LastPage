@@ -9,7 +9,8 @@ import UIKit
 import SnapKit
 
 // MARK: - InProgressView
-class ReadingInProgressView: UIView{
+final class ReadingInProgressView: UIView {
+    
     var isDeleteMode: Bool {
             get { return tableView.isEditing }
             set { tableView.setEditing(newValue, animated: true) }
@@ -18,7 +19,7 @@ class ReadingInProgressView: UIView{
     private let tableView = UITableView()
     private var memoList = [ProgressMemoEntity]()
     weak var delegate: ReadingInProgressViewDelegate?
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureHierarchy()
@@ -36,7 +37,7 @@ class ReadingInProgressView: UIView{
         tableView.reloadData()
     }
     private func configureHierarchy() {
-        backgroundColor = .darkGray
+        backgroundColor = .systemGray6
         addSubview(tableView)
     }
     
@@ -50,7 +51,7 @@ class ReadingInProgressView: UIView{
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(HighlightTableViewCell.self, forCellReuseIdentifier: HighlightTableViewCell.identifier)
-        tableView.backgroundColor = .darkGray
+        tableView.backgroundColor = .white
         tableView.separatorStyle = .none
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 200
@@ -62,9 +63,7 @@ class ReadingInProgressView: UIView{
         }
     
     private func loadSampleData() {
-        memoList = [
-          
-        ]
+
         tableView.reloadData()
     }
     
@@ -76,9 +75,6 @@ class ReadingInProgressView: UIView{
 }
 // MARK: - TableView Delegate & DataSource
 extension ReadingInProgressView: UITableViewDelegate, UITableViewDataSource {
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        delegate?.readingInProgressView(self, didSelectItemAt: indexPath.row, isDelete: false)
-    }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return memoList.count
     }
@@ -87,9 +83,10 @@ extension ReadingInProgressView: UITableViewDelegate, UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: HighlightTableViewCell.identifier, for: indexPath) as? HighlightTableViewCell else {
             return UITableViewCell()
         }
-        
+        cell.delegate = self
         let item = memoList[indexPath.row]
-        cell.configure(item: item)
+        
+        cell.configure(item: item, index: indexPath.row)
         return cell
     }
     
@@ -102,7 +99,7 @@ extension ReadingInProgressView: UITableViewDelegate, UITableViewDataSource {
         if editingStyle == .delete {
             // Remove the item from data source
             memoList.remove(at: indexPath.row)
-            delegate?.readingInProgressView(self, didSelectItemAt: indexPath.row, isDelete: true)
+            delegate?.deleteReadingCell(self, didSelectItemAt: indexPath.row)
             // Delete the row from the table
             tableView.deleteRows(at: [indexPath], with: .fade)
         }
@@ -112,11 +109,15 @@ extension ReadingInProgressView: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return true
     }
-   
-
 }
+
 protocol ReadingInProgressViewDelegate: AnyObject {
-    func readingInProgressView(_ view: ReadingInProgressView, didSelectItemAt index: Int, isDelete: Bool)
+    func editReadingCell(_ view: HighlightTableViewCell, didSelectItemAt index: Int)
+    func deleteReadingCell(_ view: ReadingInProgressView, didSelectItemAt index: Int)
 }
 
-
+extension ReadingInProgressView: HighlightTableViewCellDelegate {
+    func editReadingCell(_ view: HighlightTableViewCell, didSelectItemAt index: Int) {
+        delegate?.editReadingCell(view, didSelectItemAt: index)
+    }
+}
