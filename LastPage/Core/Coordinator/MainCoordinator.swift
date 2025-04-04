@@ -7,31 +7,42 @@
 
 import UIKit
 
-final class MainCoordinator:Coordinator {
+final class MainCoordinator: Coordinator {
     var childCoordinators: [Coordinator] = []
-    private let navigationController: UINavigationController
+    private let window: UIWindow
     private let diContainer: AppDIContainer
-
-    init(navigationController: UINavigationController, diContainer: AppDIContainer) {
-        self.navigationController = navigationController
+    
+    init(window: UIWindow, diContainer: AppDIContainer) {
+        self.window = window
         self.diContainer = diContainer
     }
 
     func start() {
-        let mainVC = ViewController()
-        mainVC.coordinator = self
-        navigationController.pushViewController(mainVC, animated: false)
-    }
+        let tabBarController = MainTabBarController()
+        tabBarController.coordinator = self
 
-    func showArchive() {
-        let archiveCoordinator = ArchiveCoordinator(parentCoordinator: self ,navigationController: navigationController, diContainer: diContainer)
-        childCoordinators.append(archiveCoordinator)
+        // 하위 Coordinator 연결
+        let homeCoordinator = HomeCoordinator(navigationController: UINavigationController(), diContainer: diContainer)
+        let archiveCoordinator = ArchiveCoordinator(parentCoordinator: self ,navigationController: UINavigationController(), diContainer: diContainer)
+        let statsCoordinator = StatsCoordinator(parentCoordinator: self ,navigationController: UINavigationController(), diContainer: diContainer)
+        let settingsCoordinator = SettingsCoordinator(parentCoordinator: self ,navigationController: UINavigationController(), diContainer: diContainer)
+
+        childCoordinators = [homeCoordinator, archiveCoordinator, statsCoordinator, settingsCoordinator]
+
+        // start() 호출로 각 루트 VC 준비
+        homeCoordinator.start()
         archiveCoordinator.start()
-    }
+        statsCoordinator.start()
+        settingsCoordinator.start()
 
-    func showSearch() {
-        let searchCoordinator = SearchCoordinator(parentCoordinator: self,navigationController: navigationController, diContainer: diContainer)
-        childCoordinators.append(searchCoordinator)
-        searchCoordinator.start()
+        tabBarController.setViewControllers([
+            homeCoordinator.navigationController,
+            archiveCoordinator.navigationController,
+            statsCoordinator.navigationController,
+            settingsCoordinator.navigationController
+        ], animated: false)
+
+        window.rootViewController = tabBarController
+        window.makeKeyAndVisible()
     }
 }

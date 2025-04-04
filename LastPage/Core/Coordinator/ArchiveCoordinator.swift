@@ -10,7 +10,7 @@ import UIKit
 final class ArchiveCoordinator:Coordinator {
     private weak var parentCoordinator: Coordinator?
     var childCoordinators: [Coordinator] = []
-    private let navigationController: UINavigationController
+    let navigationController: UINavigationController
     private let diContainer: AppDIContainer
 
     init(parentCoordinator: Coordinator?, navigationController: UINavigationController, diContainer: AppDIContainer) {
