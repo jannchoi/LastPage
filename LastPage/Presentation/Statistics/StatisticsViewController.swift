@@ -10,7 +10,7 @@ import SnapKit
 import Combine
 
 
-class StatisticsViewController: BaseViewController {
+class StatisticsViewController: BaseViewController, UIViewControllerTransitioningDelegate {
     weak var coordinator: StatsCoordinator?
     var viewModel: StatsViewModel
     private var cancellables: Set<AnyCancellable> = []
@@ -181,49 +181,13 @@ class StatisticsViewController: BaseViewController {
         datePicker.addTarget(self, action: #selector(dateSelected), for: .valueChanged)
         return datePicker
     }()
-    
-    // Chart
-    private lazy var chartContainerView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .systemBackground
-        view.layer.cornerRadius = 12
-        view.layer.shadowColor = UIColor.black.cgColor
-        view.layer.shadowOpacity = 0.1
-        view.layer.shadowOffset = CGSize(width: 0, height: 2)
-        view.layer.shadowRadius = 4
-        return view
-    }()
-    
-    private lazy var chartTitleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Reading Progress"
-        label.font = .systemFont(ofSize: 18, weight: .semibold)
-        return label
-    }()
-    private let chartview = UIView()
-//    private lazy var barChartView: BarChartView = {
-//        let chartView = BarChartView()
-//        chartView.rightAxis.enabled = false
-//        
-//        let leftAxis = chartView.leftAxis
-//        leftAxis.labelFont = .systemFont(ofSize: 10)
-//        leftAxis.labelTextColor = .label
-//        leftAxis.axisMinimum = 0
-//        
-//        let xAxis = chartView.xAxis
-//        xAxis.labelPosition = .bottom
-//        xAxis.labelFont = .systemFont(ofSize: 10)
-//        xAxis.labelTextColor = .label
-//        
-//        chartView.legend.enabled = false
-//        chartView.animate(yAxisDuration: 1.0)
-//        
-//        return chartView
-//    }()
-    
+    private var contentViewOriginalCenter: CGPoint?
     init(viewModel: StatsViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
+        modalPresentationStyle = .custom
+        transitioningDelegate = self
+
     }
     
     @MainActor required init?(coder: NSCoder) {
@@ -234,7 +198,7 @@ class StatisticsViewController: BaseViewController {
         super.viewDidLoad()
         
         title = "Statistics"
-        //setupBarChart()
+
     }
     
     override func bind() {
@@ -247,6 +211,40 @@ class StatisticsViewController: BaseViewController {
                 self.setupUI(stats: stats)
             }
             .store(in: &cancellables)
+        viewModel.$bookDetail
+             .receive(on: DispatchQueue.main)
+             .sink { [weak self] books in
+                 guard let self = self, let books = books, !books.isEmpty else { return }
+                 self.showBooksInDate(books: books)
+             }
+             .store(in: &cancellables)
+        NotificationCenter.default.publisher(for: NSNotification.Name("BooksInDateViewDismissed"))
+            .sink { [weak self] _ in
+                self?.resetContentViewPosition()
+            }
+            .store(in: &cancellables)
+    }
+    func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
+        return PartialPresentationController(presentedViewController: presented, presenting: presenting)
+    }
+    private func showBooksInDate(books: [HomeBookEntity]) {
+        // Save the original position of content view
+        contentViewOriginalCenter = contentView.center
+        
+        // Animate the content view upward
+        UIView.animate(withDuration: 0.3) {
+            self.contentView.center.y -= 180
+        }
+        
+        // Use coordinator to present the BooksInDateViewController
+        coordinator?.showBooksInDate(books: books)
+    }
+    private func resetContentViewPosition() {
+        if let originalCenter = contentViewOriginalCenter {
+            UIView.animate(withDuration: 0.3) {
+                self.contentView.center = originalCenter
+            }
+        }
     }
     private func setupUI(stats: BookStats) {
         booksThisMonthCountLabel.text = String(stats.monthCount)
@@ -283,12 +281,6 @@ class StatisticsViewController: BaseViewController {
         calendarContainerView.addSubview(calendarPrevButton)
         calendarContainerView.addSubview(calendarNextButton)
         calendarContainerView.addSubview(calendarView)
-        
-        // Add chart
-        contentView.addSubview(chartContainerView)
-        chartContainerView.addSubview(chartTitleLabel)
-        //chartContainerView.addSubview(barChartView)
-        chartContainerView.addSubview(chartview)
     }
     
     // MARK: - View 레이아웃 설정
@@ -387,6 +379,7 @@ class StatisticsViewController: BaseViewController {
             make.leading.equalTo(contentView).offset(20)
             make.trailing.equalTo(contentView).offset(-20)
             make.height.equalTo(350)
+            make.bottom.equalTo(contentView).offset(-20)
         }
         
         calendarTitleLabel.snp.makeConstraints { make in
@@ -412,32 +405,6 @@ class StatisticsViewController: BaseViewController {
             make.trailing.equalTo(calendarContainerView).offset(-10)
             make.bottom.equalTo(calendarContainerView).offset(-10)
         }
-        
-        // Chart container
-        chartContainerView.snp.makeConstraints { make in
-            make.top.equalTo(calendarContainerView.snp.bottom).offset(20)
-            make.leading.equalTo(contentView).offset(20)
-            make.trailing.equalTo(contentView).offset(-20)
-            make.height.equalTo(300)
-            make.bottom.equalTo(contentView).offset(-20)
-        }
-        
-        chartTitleLabel.snp.makeConstraints { make in
-            make.top.equalTo(chartContainerView).offset(16)
-            make.leading.equalTo(chartContainerView).offset(16)
-        }
-        chartview.snp.makeConstraints { make in
-            make.top.equalTo(chartTitleLabel.snp.bottom).offset(16)
-            make.leading.equalTo(chartContainerView).offset(16)
-            make.trailing.equalTo(chartContainerView).offset(-16)
-            make.bottom.equalTo(chartContainerView).offset(-16)
-        }
-//        barChartView.snp.makeConstraints { make in
-//            make.top.equalTo(chartTitleLabel.snp.bottom).offset(16)
-//            make.leading.equalTo(chartContainerView).offset(16)
-//            make.trailing.equalTo(chartContainerView).offset(-16)
-//            make.bottom.equalTo(chartContainerView).offset(-16)
-//        }
     }
     
     // MARK: - 프로퍼티 속성 설정
@@ -447,80 +414,89 @@ class StatisticsViewController: BaseViewController {
         
     }
 
-    
-    // MARK: - Chart Setup
-//    private func setupBarChart() {
-//        // Initial setup with dummy data
-//        let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
-//        let values = [5, 2, 0, 0, 0, 5]
-//        
-//        var dataEntries: [BarChartDataEntry] = []
-//        
-//        for i in 0..<months.count {
-//            let dataEntry = BarChartDataEntry(x: Double(i), y: Double(values[i]))
-//            dataEntries.append(dataEntry)
-//        }
-//        
-//        let dataSet = BarChartDataSet(entries: dataEntries, label: "Books read")
-//        dataSet.colors = [.systemBlue]
-//        dataSet.valueTextColor = .label
-//        dataSet.valueFont = .systemFont(ofSize: 10)
-//        
-//        let data = BarChartData(dataSet: dataSet)
-//        barChartView.data = data
-//        
-//        // X-axis value formatter
-//        let xAxisFormatter = IndexAxisValueFormatter(values: months)
-//        barChartView.xAxis.valueFormatter = xAxisFormatter
-//        barChartView.xAxis.granularity = 1
-//    }
-//    
-//    private func updateBarChart(with data: [(month: String, count: Int)]) {
-//        var dataEntries: [BarChartDataEntry] = []
-//        var months: [String] = []
-//        
-//        for (index, item) in data.enumerated() {
-//            let dataEntry = BarChartDataEntry(x: Double(index), y: Double(item.count))
-//            dataEntries.append(dataEntry)
-//            months.append(item.month)
-//        }
-//        
-//        let dataSet = BarChartDataSet(entries: dataEntries, label: "Books read")
-//        dataSet.colors = [.systemBlue]
-//        dataSet.valueTextColor = .label
-//        dataSet.valueFont = .systemFont(ofSize: 10)
-//        
-//        let data = BarChartData(dataSet: dataSet)
-//        barChartView.data = data
-//        
-//        // X-axis value formatter
-//        let xAxisFormatter = IndexAxisValueFormatter(values: months)
-//        barChartView.xAxis.valueFormatter = xAxisFormatter
-//        barChartView.xAxis.granularity = 1
-//        
-//        barChartView.notifyDataSetChanged()
-//    }
-    
-//    private func updateCalendarTitle() {
-//        let dateFormatter = DateFormatter()
-//        dateFormatter.dateFormat = "MMMM yyyy"
-//        calendarTitleLabel.text = dateFormatter.string(from: calendarView.date)
-//    }
-//    
+  
     // MARK: - Actions
     @objc private func dateSelected(_ sender: UIDatePicker) {
-        //viewModel.selectedDate = sender.date
+        viewModel.getBooksInDate(target: sender.date)
     }
-    
+
     @objc private func previousMonthTapped() {
         guard let currentDate = Calendar.current.date(byAdding: .month, value: -1, to: calendarView.date) else { return }
         calendarView.setDate(currentDate, animated: true)
-        //viewModel.selectedDate = currentDate
     }
     
     @objc private func nextMonthTapped() {
         guard let currentDate = Calendar.current.date(byAdding: .month, value: 1, to: calendarView.date) else { return }
         calendarView.setDate(currentDate, animated: true)
-        //viewModel.selectedDate = currentDate
+    }
+}
+class PartialPresentationController: UIPresentationController {
+    private let dimView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor.black.withAlphaComponent(0.3)
+        view.alpha = 0
+        return view
+    }()
+    
+    override var frameOfPresentedViewInContainerView: CGRect {
+        guard let containerView = containerView else { return .zero }
+        
+        // 화면 하단에 표시될 높이 계산 (원하는 높이로 조정 가능)
+        let height: CGFloat = 300 // 책 리스트가 보일 정도의 높이
+        
+        return CGRect(
+            x: 0,
+            y: containerView.frame.height - height,
+            width: containerView.frame.width,
+            height: height
+        )
+    }
+    
+    override func presentationTransitionWillBegin() {
+        guard let containerView = containerView else { return }
+        
+        // 배경 dimView 추가
+        dimView.frame = containerView.bounds
+        containerView.insertSubview(dimView, at: 0)
+        
+        // 탭 제스처 추가 (dimView 탭시 dismiss)
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
+        dimView.addGestureRecognizer(tapGesture)
+        
+        // 애니메이션
+        guard let coordinator = presentedViewController.transitionCoordinator else {
+            dimView.alpha = 1.0
+            return
+        }
+        
+        coordinator.animate(alongsideTransition: { _ in
+            self.dimView.alpha = 1.0
+        })
+    }
+    
+    override func dismissalTransitionWillBegin() {
+        guard let coordinator = presentedViewController.transitionCoordinator else {
+            dimView.alpha = 0.0
+            return
+        }
+        
+        coordinator.animate(alongsideTransition: { _ in
+            self.dimView.alpha = 0.0
+        })
+    }
+    
+    @objc private func handleTap(_ gesture: UITapGestureRecognizer) {
+        presentedViewController.dismiss(animated: true) {
+            // Notify that view was dismissed
+            NotificationCenter.default.post(name: NSNotification.Name("BooksInDateViewDismissed"), object: nil)
+        }
+    }
+    
+    override func containerViewWillLayoutSubviews() {
+        presentedView?.frame = frameOfPresentedViewInContainerView
+    }
+    
+    override func containerViewDidLayoutSubviews() {
+        presentedView?.frame = frameOfPresentedViewInContainerView
     }
 }

@@ -9,11 +9,11 @@ import Foundation
 import Combine
 
 final class StatsViewModel:BaseViewModel {
-    private let internalData : InternalData
+    private var internalData : InternalData
     var cancellables = Set<AnyCancellable>()
     let getAllBooksUseCase: GetAllBooksUseCaseProtocol
-    @Published private(set) var bookDetail : [BookDetailEntity] = []
-    @Published private(set) var fetchError: String = ""
+    @Published private(set) var bookDetail : [HomeBookEntity]? = nil
+    @Published private(set) var fetchError: String? = nil
     @Published private(set) var bookStats: BookStats? = nil
     struct Input {
         
@@ -22,7 +22,7 @@ final class StatsViewModel:BaseViewModel {
         
     }
     struct InternalData {
-
+        var bookList : [HomeBookEntity] = []
     }
     
     init(getAllBooksUseCase: GetAllBooksUseCaseProtocol) {
@@ -35,21 +35,23 @@ final class StatsViewModel:BaseViewModel {
         return Output()
     }
     private func getBookData() {
-        getAllBooksUseCase.execute().sink { [weak self] completion in
+        getAllBooksUseCase.excuteHome().sink { [weak self] completion in
             if case .failure(let error) = completion {
                 self?.fetchError = TextResource.DataError.fetchError.text
             }
         } receiveValue: { [weak self] books in
             guard let self = self else {return}
-            self.getStats(books: books)
+            self.internalData.bookList = books
+            self.getStats()
         }
         .store(in: &cancellables)
     }
-    private func getStats(books: [BookEntity]) {
+    private func getStats() {
+        if internalData.bookList.isEmpty {return}
         let calendar = Calendar.current
         let now = Date()
         
-        let validBooks = books.compactMap { $0.bookDetail.addedDate }
+        let validBooks = internalData.bookList.compactMap { $0.bookDetail.addedDate }
 
         let monthCount = validBooks.filter {
             calendar.isDate($0, equalTo: now, toGranularity: .month)
@@ -63,6 +65,16 @@ final class StatsViewModel:BaseViewModel {
 
         bookStats = BookStats(monthCount: monthCount, yearCount: yearCount, totalCount: totalCount)
     }
+    func getBooksInDate(target: Date) {
+        let calendar = Calendar.current
+        let result = internalData.bookList.filter {
+            guard let addedDate = $0.bookDetail.addedDate else { return false }
+            return calendar.isDate(addedDate, inSameDayAs: target)
+        }
+
+        bookDetail = result
+    }
+
 
     
 }

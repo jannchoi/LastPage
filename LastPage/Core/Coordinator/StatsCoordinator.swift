@@ -25,6 +25,13 @@ final class StatsCoordinator: Coordinator {
         vc.coordinator = self
         navigationController.viewControllers = [vc]
     }
+    func showBooksInDate(books: [HomeBookEntity]) {
+        let viewModel = BooksInDateViewModel(books: books)
+        let vc = BooksInDateViewController(viewModel: viewModel)
+        
+        navigationController.present(vc, animated: true)
+        
+    }
 
 }
 
