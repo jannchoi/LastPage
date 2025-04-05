@@ -15,6 +15,24 @@ class MainTabBarController: UITabBarController {
     }
     
     private func setupTabBar() {
-        self.tabBar.tintColor = .systemBlue
+
+        let appearance = UITabBarAppearance()
+        appearance.configureWithTransparentBackground()
+        appearance.backgroundColor = .white
+        
+        appearance.stackedLayoutAppearance.normal.iconColor = .gray
+        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor : UIColor.gray]
+        
+        appearance.stackedLayoutAppearance.selected.iconColor = .blue
+        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor : UIColor.blue]
+        
+        tabBar.layer.shadowOffset = CGSize(width: 0, height: -0.5)
+        tabBar.layer.shadowRadius = 0
+        tabBar.layer.shadowColor = UIColor.darkGray.cgColor
+        tabBar.layer.shadowOpacity = 0.3
+        
+        tabBar.standardAppearance = appearance
+        tabBar.scrollEdgeAppearance = appearance
+        tabBar.tintColor = .blue
     }
 }

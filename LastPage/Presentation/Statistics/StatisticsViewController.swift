@@ -427,6 +427,7 @@ class StatisticsViewController: BaseViewController {
     // MARK: - 프로퍼티 속성 설정
     override func configureView() {
         view.backgroundColor = .systemBackground
+        tabBarItem = UITabBarItem(title: "Statistics", image: UIImage(systemName: "chart.bar"), tag: 2)
         
     }
     

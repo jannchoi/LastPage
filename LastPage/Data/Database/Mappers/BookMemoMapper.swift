@@ -129,5 +129,21 @@ class BookMemoMapper: BookMemoMapperProtocol {
 
         return updatedBook
     }
+    func mapToHomeBook(realmModel: BookMemo) -> HomeBookEntity {
+        let statusString = realmModel.status
+        let statusEntity: ReadingStatusEntity
+        
+        switch statusString {
+        case "읽기전":
+            statusEntity = .unread
+        case "읽는중":
+            statusEntity = .reading
+        case "읽은후":
+            statusEntity = .completed
+        default:
+            statusEntity = .unread
+        }
+        return HomeBookEntity(id: realmModel.id.stringValue, bookDetail: BookDetailEntity(imagePath: realmModel.imagePath,title: realmModel.title,author: realmModel.author,status: statusEntity,shortMemo: realmModel.shortMemo,categories: Array(realmModel.categories),feelings: Array(realmModel.feelings)))
+    }
 
 }

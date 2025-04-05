@@ -251,6 +251,8 @@ final class ArchiveViewController: BaseViewController {
     
     override func configureView() {
         view.backgroundColor = .systemBackground
+        navigationItem.title = "Library"
+        self.tabBarItem = UITabBarItem(title: "Library", image: UIImage(systemName: "book"), tag: 1)
         tableView.backgroundColor = .systemBackground
         tableView.register(ArchiveTableViewCell.self, forCellReuseIdentifier: ArchiveTableViewCell.identifier)
         tableView.delegate = self

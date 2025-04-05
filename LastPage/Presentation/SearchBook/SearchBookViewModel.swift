@@ -52,7 +52,6 @@ final class SearchBookViewModel:BaseViewModel {
         },receiveValue: { [weak self] books in
             guard let self = self else {return}
             self.bookList = books
-            print(bookList.item.count)
         }
         )
         .store(in: &cancellables)

@@ -44,7 +44,6 @@ final class SearchBookViewController: BaseViewController {
 //            print(realm.configuration.fileURL ?? "파일 경로를 찾을 수 없습니다.")
 //        }
 //        getFileURL()
-        bind()
 
     }
     override func configureHierarchy() {

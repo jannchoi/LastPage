@@ -42,6 +42,18 @@ extension BookInfoDTO {
 
 extension BookDetailDTO {
     func toDomain() -> BookDetail {
+        var categoryList : [String]
+        let components = categoryName.components(separatedBy: ">")
+            
+            // 최소한 2개 이상 요소가 있어야 첫 번째 ">" 다음 값을 찾을 수 있음
+        if components.count < 1 {
+            categoryList = []
+        } else {
+            // 첫 번째 ">" 다음 값 (예: "소설/시/희곡", "예술/대중문화")을 "/"로 다시 분리
+            let secondComponent = components[1]
+            categoryList = secondComponent.components(separatedBy: "/")
+        }
+
         return BookDetail(
             title: title,
             link: link,
@@ -49,7 +61,7 @@ extension BookDetailDTO {
             description: description,
             itemId: itemId,
             cover: cover,
-            categoryName: categoryName
+            categoryName: categoryList
         )
     }
 }

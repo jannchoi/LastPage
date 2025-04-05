@@ -25,7 +25,13 @@ class BookMemoRepository: BookMemoRepositoryProtocol {
             }
             .eraseToAnyPublisher()
     }
-    
+    func getHomeBooks() -> AnyPublisher<[HomeBookEntity], Error> {
+        return dataSource.getAllBooks()
+            .map { bookMemos in
+                bookMemos.map { self.mapper.mapToHomeBook(realmModel: $0) }
+            }
+            .eraseToAnyPublisher()
+    }
     func getBook(with id: String) -> AnyPublisher<BookEntity?, Error> {
         let objectId = try! ObjectId(string: id)
         return dataSource.getBook(with: objectId)
@@ -36,6 +42,7 @@ class BookMemoRepository: BookMemoRepositoryProtocol {
     }
     
     func saveBook(_ book: BookEntity) -> AnyPublisher<String, Error> {
+        
         let realmModel = mapper.mapToRealm(domainModel: book)
         return dataSource.saveBook(realmModel)
             .map { objectId in objectId.stringValue } 

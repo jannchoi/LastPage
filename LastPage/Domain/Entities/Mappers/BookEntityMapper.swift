@@ -8,7 +8,7 @@
 import Foundation
 class BookEntityMapper {
     static func map(_ bookdetail: BookDetail) -> BookEntity {
-        return BookEntity(id: nil, bookDetail: BookDetailEntity( imagePath: bookdetail.cover, title: bookdetail.title, author: bookdetail.author, status: .unread, shortMemo: TextResource.Global.empty.text, categories: [bookdetail.categoryName], feelings: []), beforeMemo: nil, inProgressMemo: [], afterMemo: nil)
+        return BookEntity(id: nil, bookDetail: BookDetailEntity( imagePath: bookdetail.cover, title: bookdetail.title, author: bookdetail.author, status: .unread, shortMemo: TextResource.Global.empty.text, categories: bookdetail.categoryName, feelings: []), beforeMemo: nil, inProgressMemo: [], afterMemo: nil)
     }
     static func map() -> BookEntity {
         return BookEntity(id: nil, bookDetail: BookDetailEntity( imagePath: TextResource.Global.empty.text, title: TextResource.Global.empty.text, author: TextResource.Global.empty.text, status: .unread, shortMemo: TextResource.Global.empty.text, categories: [], feelings: []), beforeMemo: nil, inProgressMemo: [], afterMemo: nil)

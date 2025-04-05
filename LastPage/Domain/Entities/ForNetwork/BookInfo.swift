@@ -21,6 +21,6 @@ struct BookDetail: Decodable {
     let author, description: String
     let itemId: Int
     let cover: String
-    let categoryName: String
+    let categoryName: [String]
 
 }
