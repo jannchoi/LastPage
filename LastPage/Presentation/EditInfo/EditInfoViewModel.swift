@@ -14,8 +14,9 @@ final class EditInfoViewModel:BaseViewModel {
     let saveBookUsecase: SaveBookUseCaseProtocol
     
     var bookAdded = PassthroughSubject<String, Never>()
-    @Published private(set) var fetchError: String = ""
+    @Published private(set) var fetchError: String? = nil
     @Published var bookDetail: BookDetailEntity?
+    @Published var popVCTrigger: String?
     var bookId : String?
     struct Input {
         
@@ -32,6 +33,7 @@ final class EditInfoViewModel:BaseViewModel {
             self.fetchBook(itemId: bookId)
         } else {
             self.bookDetail = passedBook
+
         }
     }
     func transform(input: Input) -> Output {
@@ -46,7 +48,11 @@ final class EditInfoViewModel:BaseViewModel {
                 }
                 } receiveValue: {[weak self] _ in
                     guard let self = self else {return}
+                    
                     self.bookAdded.send(bookId)
+                    self.fetchBook(itemId: bookId)
+                    self.popVCTrigger = "저장되었습니다."
+                    
                 }.store(in: &cancellables)
 
         } else {
@@ -58,6 +64,9 @@ final class EditInfoViewModel:BaseViewModel {
             } receiveValue: {[weak self] newId in
                 guard let self = self else {return}
                 self.bookAdded.send(newId)
+                self.popVCTrigger = "저장되었습니다."
+                self.fetchBook(itemId: newId)
+
             }.store(in: &cancellables)
 
         }
@@ -72,6 +81,7 @@ final class EditInfoViewModel:BaseViewModel {
             } receiveValue: { [weak self] book in
                 guard let self = self, let book = book else {return}
                 self.bookDetail = book.bookDetail
+
                 
             }
             .store(in: &cancellables)

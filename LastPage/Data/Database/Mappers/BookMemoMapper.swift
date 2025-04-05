@@ -52,6 +52,7 @@ class BookMemoMapper: BookMemoMapperProtocol {
         bookMemo.title = domainModel.bookDetail.title
         bookMemo.author = domainModel.bookDetail.author
         bookMemo.status = domainModel.bookDetail.status.rawValue
+        bookMemo.shortMemo = domainModel.bookDetail.shortMemo
         
         // 카테고리 설정
         bookMemo.categories.removeAll()
@@ -92,7 +93,6 @@ class BookMemoMapper: BookMemoMapperProtocol {
         } else {
             bookMemo.afterMemo = nil
         }
-        
         return bookMemo
     }
     func updateBookEntity<T>(existing: BookEntity, newValue: T?, field: UpdateTarget, index: Int? = nil) -> BookEntity {
@@ -126,7 +126,6 @@ class BookMemoMapper: BookMemoMapperProtocol {
                 updatedBook.bookDetail = newDetail
             }
         }
-
         return updatedBook
     }
     func mapToHomeBook(realmModel: BookMemo) -> HomeBookEntity {

@@ -146,7 +146,7 @@ final class HighlightTableViewCell: UITableViewCell{
         cellIndex = index
         pageRangeLabel.text = "Pages \(item.startPage) ~ \(item.endPage)"
         guard let st = item.startPage, let stInt = Int(st), let end = item.endPage, let endInt = Int(end) else {return}
-        print(st, end)
+        
         let pageCount = stInt - endInt + 1
         pageRangeLabel.text = "\(pageCount) pages"
         

@@ -93,12 +93,22 @@ final class EditInfoViewController: BaseViewController {
             .sink { [weak self] errorMessage in
                 self?.showAlert(text: errorMessage)
             }.store(in: &cancellables)
+        viewModel.$popVCTrigger.compactMap{$0}
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] message in
+                guard let self = self else {return}
+                self.showAlert(text: message, action: {
+                    self.navigationController?.popViewController(animated: true)
+                })
+            }.store(in: &cancellables)
     }
     func setupUI(item: BookDetailEntity) {
-        ImageFormatter.shared.setImage(target: bookCoverImageView, path: item.imagePath)
+        originalImagePath = item.imagePath
+        ImageFormatter.shared.setImage(target: bookCoverImageView, path: originalImagePath)
         titleField.textField.text = item.title
         authorField.textField.text = item.author
         shortMemoField.textField.text = item.shortMemo
+
         categoryField.setTags(item.categories)
         feelingsField.setTags(item.feelings)
         readingStatusSegmentControl.selectedSegmentIndex = item.status.segmentIndex
@@ -163,51 +173,6 @@ final class EditInfoViewController: BaseViewController {
         originalImagePath = nil
         bookCoverLabel.isHidden = false
     }
-//    private func saveImageToLocal(image: UIImage) -> String {
-//        // 1. 고유한 파일명 생성
-//        let fileName = UUID().uuidString + ".jpg"
-//        
-//        // 2. Documents 디렉토리 경로
-//        if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-//            let fileURL = documentsDirectory.appendingPathComponent(fileName)
-//            
-//            // 3. 이미지 데이터 저장
-//            if let imageData = image.jpegData(compressionQuality: 0.8) {
-//                do {
-//                    try imageData.write(to: fileURL)
-//                    
-//                    // 4. 전체 경로 대신 파일명만 반환
-//                    return "local://\(fileName)"
-//                    
-//                } catch {
-//                    print("이미지 저장 실패: \(error)")
-//                }
-//            }
-//        }
-//        return ""
-//    }
-
-//    private func saveImageToLocal(image: UIImage) -> String {
-//        // 이미지를 저장할 고유한 파일명 생성
-//        let fileName = UUID().uuidString + ".jpg"
-//        
-//        // 파일 저장 경로 생성 (Documents 디렉토리)
-//        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-//        let fileURL = documentsDirectory.appendingPathComponent(fileName)
-//        
-//        // 이미지를 JPEG 형식으로 변환하여 파일로 저장
-//        if let imageData = image.jpegData(compressionQuality: 0.8) {
-//            do {
-//                try imageData.write(to: fileURL)
-//                // 로컬 경로임을 나타내는 접두사 추가
-//                return "local://" + fileURL.path
-//            } catch {
-//                print("이미지 저장 실패: \(error)")
-//                return ""
-//            }
-//        }
-//        return ""
-//    }
     // MARK: - View 계층 구조 설정
     override func configureHierarchy() {
         view.addSubview(scrollView)

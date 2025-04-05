@@ -46,7 +46,7 @@ final class HomeViewModel:BaseViewModel {
             }
         } receiveValue: { [weak self] books in
             guard let self = self else {return}
-            print(books.count)
+            
             self.getRandomBook(bookList: books)
             self.sampleBook = books.last
         }

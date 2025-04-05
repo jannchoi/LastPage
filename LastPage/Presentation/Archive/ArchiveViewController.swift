@@ -250,7 +250,7 @@ final class ArchiveViewController: BaseViewController {
     }
     
     override func configureView() {
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .white
         navigationItem.title = "Library"
         self.tabBarItem = UITabBarItem(title: "Library", image: UIImage(systemName: "book"), tag: 1)
         tableView.backgroundColor = .systemBackground

@@ -34,6 +34,7 @@ class HomeViewController: BaseViewController {
     private let bookCoverImageView = UIImageView()
     private let bookCoverTapGesture = UITapGestureRecognizer()
     private let rightViewTextLabel = UILabel()
+    private let searchButton = UIButton()
     
     private var tags = ["family", "playing", "Drama", "pet", "Romance", "thriller", "Travel", "home", "feel"]
     private var bookCategories = ["Educated", "Klara and the...", "The Midnight...", "Atomi..."]
@@ -83,6 +84,7 @@ class HomeViewController: BaseViewController {
         view.addSubview(bottomRightView)
         bottomRightView.addSubview(rightViewTextLabel)
         bottomRightView.addSubview(bookCoverImageView)
+        view.addSubview(searchButton)
 
     }
     override func configureLayout() {
@@ -124,6 +126,11 @@ class HomeViewController: BaseViewController {
             make.centerX.equalToSuperview()
             make.width.equalTo(80)
             make.height.equalTo(120)
+        }
+        searchButton.snp.makeConstraints { make in
+            make.top.equalTo(bottomLeftTagView.snp.bottom).offset(16)
+            make.horizontalEdges.equalTo(centerView)
+            make.height.equalTo(40)
         }
     }
     override func configureView() {
@@ -174,7 +181,17 @@ class HomeViewController: BaseViewController {
         bookCoverImageView.isUserInteractionEnabled = true
         bookCoverTapGesture.addTarget(self, action: #selector(bookCoverTapped))
         bookCoverImageView.addGestureRecognizer(bookCoverTapGesture)
+        
+        //search
+        searchButton.setTitle("Search And Add Book", for: .normal)
+        searchButton.backgroundColor = .lightGray
+        searchButton.clipsToBounds = true
+        searchButton.layer.cornerRadius = 8
+        searchButton.addTarget(self, action: #selector(searchButtonTapped), for: .touchUpInside)
 
+    }
+    @objc private func searchButtonTapped() {
+        coordinator?.showSearch()
     }
     @objc private func bookCoverTapped() {
         coordinator?.showReading(bookId: viewModel.sampleBook?.id)

@@ -206,7 +206,6 @@ final class ReadingViewController: BaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupGenreLabels()
         setupActions()
         bind()
         updateContentForSelectedSegment()
@@ -430,12 +429,12 @@ final class ReadingViewController: BaseViewController {
                 self.setMemoEditIsAvailable()
             }
             .store(in: &cancellables)
-//        
-//        viewModel.$fetchError.compactMap { $0 }
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak self] errorMessage in
-//                self?.showAlert(text: errorMessage)
-//            }.store(in: &cancellables)
+        
+        viewModel.$fetchError.compactMap { $0 }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] errorMessage in
+                self?.showAlert(text: errorMessage)
+            }.store(in: &cancellables)
     }
 
     private func updateUI(with item: BookEntity) {
@@ -446,12 +445,14 @@ final class ReadingViewController: BaseViewController {
         ImageFormatter.shared.setImage(target: bookCoverImageView, path: imgPath)
         // Format date
         dateAddedLabel.text = "Added: Unknown"
-        progressLabel.text = "Progress: Not started"
+        progressLabel.text = item.bookDetail.status.rawValue
         readingInProgressView.updateData(data: item.inProgressMemo)
         beforeReadingView.updateMemo(item: item.beforeMemo)
         afterReadingView.updateMemo(item: item.afterMemo)
+
         updateNotesVisibility(notes: item.bookDetail.shortMemo)
         updateFeelingsVisibility(feelings: item.bookDetail.feelings)
+        setupGenreLabels(genres: item.bookDetail.categories)
     }
 
 
@@ -532,7 +533,7 @@ final class ReadingViewController: BaseViewController {
         // Request layout update
         view.setNeedsLayout()
     }
-    private func setupGenreLabels() {
+    private func setupGenreLabels(genres: [String]) {
         let genreStackView = UIStackView()
         genreStackView.axis = .horizontal
         genreStackView.spacing = 8
@@ -544,8 +545,7 @@ final class ReadingViewController: BaseViewController {
             make.leading.equalTo(bookCoverImageView.snp.trailing).offset(16)
             make.trailing.lessThanOrEqualToSuperview().offset(-16)
         }
-        
-        let genres = ["Fiction", "Fantasy"]
+
         for genre in genres {
             let genreChip = createChipView(with: genre)
             genreStackView.addArrangedSubview(genreChip)
@@ -563,6 +563,7 @@ final class ReadingViewController: BaseViewController {
     }
     
     @objc private func editButtonTapped() {
+
         coordinator?.showEditInfo(passedBook: viewModel.bookDetail?.bookDetail, bookId: viewModel.bookDetail?.id)
     }
     
@@ -653,6 +654,7 @@ final class ReadingViewController: BaseViewController {
     private func configureMenuForEditButton() {
         let addAction = UIAction(title: "Add ", image: UIImage(systemName: "plus")) { [weak self] _ in
             let indexToAppend = (self?.viewModel.bookDetail?.inProgressMemo.count ?? 0) + 1
+            
             self?.coordinator?.showEditReadingInProgress(bookId: self?.viewModel.bookId, index: indexToAppend)
         }
         
@@ -697,7 +699,7 @@ extension ReadingViewController: ReadingInProgressViewDelegate {
         viewModel.deleteBook(targetIdx: index)
     }
     func editReadingCell(_ view: HighlightTableViewCell, didSelectItemAt index: Int) {
-        print("editReadingcell")
+
         coordinator?.showEditReadingInProgress(bookId: viewModel.bookDetail?.id, index: index)
     }
 

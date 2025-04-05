@@ -28,5 +28,10 @@ final class HomeCoordinator: Coordinator {
         childCoordinators.append(readingCoordinator)
         readingCoordinator.start(bookId: bookId)
     }
+    func showSearch() {
+        let searchCoordinator = SearchCoordinator(parentCoordinator: self, navigationController: navigationController, diContainer: diContainer)
+        childCoordinators.append(searchCoordinator)
+        searchCoordinator.start()
+    }
 
 }

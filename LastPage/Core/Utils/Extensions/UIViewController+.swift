@@ -13,7 +13,7 @@ extension UIViewController  {
         let alert = UIAlertController(title: TextResource.Global.alert.text, message: text, preferredStyle: .alert)
         var button : UIAlertAction
         if let action {
-            button = UIAlertAction(title: "다시 시도하세요.", style: .default) { _ in
+            button = UIAlertAction(title: "확인", style: .default) { _ in
                 action()
             }
         } else {

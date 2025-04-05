@@ -54,6 +54,14 @@ final class EditReadingViewController: BaseViewController {
             .sink { [weak self] errorMessage in
                 self?.showAlert(text: errorMessage)
             }.store(in: &cancellables)
+        viewModel.$popVCTrigger.compactMap{$0}
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] message in
+                guard let self = self else {return}
+                self.showAlert(text: message, action: {
+                    self.navigationController?.popViewController(animated: true)
+                })
+            }.store(in: &cancellables)
     }
     @objc private func saveButtonTapped() {
         guard let newMemo = textView.text else {return}
