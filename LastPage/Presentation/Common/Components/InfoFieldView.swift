@@ -8,6 +8,7 @@
 import UIKit
 import SnapKit
 
+
 final class InfoFieldView: UIView {
     private let infoLabel = UILabel()
     var textField = UITextField()
@@ -141,7 +142,7 @@ final class InfoFieldView: UIView {
     
     @objc private func tagButtonTapped(_ sender: UIButton) {
         guard let title = sender.configuration?.title else { return }
-        print(title)
+        
         removeTag(title)
     }
     

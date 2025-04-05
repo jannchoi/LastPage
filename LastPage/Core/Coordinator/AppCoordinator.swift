@@ -21,23 +21,3 @@ extension Coordinator {
        }
    }
 }
-final class AppCoordinator:Coordinator {
-    var childCoordinators: [Coordinator] = []
-    private let window: UIWindow
-    private let navigationController: UINavigationController
-    private let diContainer: AppDIContainer
-
-    init(window: UIWindow, diContainer: AppDIContainer) {
-        self.window = window
-        self.navigationController = UINavigationController()
-        self.diContainer = diContainer
-    }
-
-    func start() {
-        let mainCoordinator = MainCoordinator(navigationController: navigationController, diContainer: diContainer)
-        childCoordinators.append(mainCoordinator)
-        mainCoordinator.start()
-        window.rootViewController = navigationController
-        window.makeKeyAndVisible()
-    }
-}

@@ -30,13 +30,13 @@ final class SearchBookViewModel:BaseViewModel {
     }
     
     func transform(input: Input) -> Output {
+        
         input.query
             .debounce(for: .milliseconds(300) , scheduler: DispatchQueue.main)
             .removeDuplicates()
             .sink{ [weak self] query in
                 guard let self = self else {return}
                 self.getBookData(query: query)
-                
             }.store(in: &cancellables)
         return Output()
     }

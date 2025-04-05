@@ -14,7 +14,7 @@ final class ReadingViewModel: BaseViewModel {
     let updateBookUsecase: UpdateBookUseCaseProtocol
     @Published var bookDetail: BookEntity?
     @Published var isLoading: Bool = false
-    @Published private(set) var fetchError: String = ""
+    @Published private(set) var fetchError: String? = nil
     var bookId : String?
     struct Input {
 
@@ -27,6 +27,8 @@ final class ReadingViewModel: BaseViewModel {
         self.updateBookUsecase = updateBookUsecase
         self.bookId = bookId
         bookAddedSubject.sink { newId in
+            
+            self.bookId = newId
             self.bookDetail?.id = newId
             self.fetchBook(itemId: newId)
         }.store(in: &cancellables)
@@ -38,6 +40,7 @@ final class ReadingViewModel: BaseViewModel {
         // bookDetail이 전달된 경우, 해당 정보를 사용
         else if let bookDetail = bookDetail {
             self.bookDetail = BookEntityMapper.map(bookDetail)
+
         }
         // 아무 값도 전달되지 않은 경우, 기본값 설정
         else {
@@ -75,6 +78,7 @@ final class ReadingViewModel: BaseViewModel {
             } receiveValue: { [weak self] book in
                 guard let self = self, let book = book else {return}
                 self.bookDetail = book
+
                 
             }
             .store(in: &cancellables)

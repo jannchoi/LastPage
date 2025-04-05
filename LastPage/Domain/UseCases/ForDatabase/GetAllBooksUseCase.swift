@@ -19,4 +19,7 @@ class GetAllBooksUseCase: GetAllBooksUseCaseProtocol {
     func execute() -> AnyPublisher<[BookEntity], Error> {
         return repository.getAllBooks()
     }
+    func excuteHome() -> AnyPublisher<[HomeBookEntity], Error> {
+        return repository.getHomeBooks()
+    }
 }

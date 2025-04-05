@@ -10,5 +10,6 @@ import Combine
 
 protocol GetAllBooksUseCaseProtocol {
     func execute() -> AnyPublisher<[BookEntity], Error>
+    func excuteHome() -> AnyPublisher<[HomeBookEntity], Error>
 }
 

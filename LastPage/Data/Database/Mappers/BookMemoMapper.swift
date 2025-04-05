@@ -52,6 +52,7 @@ class BookMemoMapper: BookMemoMapperProtocol {
         bookMemo.title = domainModel.bookDetail.title
         bookMemo.author = domainModel.bookDetail.author
         bookMemo.status = domainModel.bookDetail.status.rawValue
+        bookMemo.shortMemo = domainModel.bookDetail.shortMemo
         
         // 카테고리 설정
         bookMemo.categories.removeAll()
@@ -92,7 +93,6 @@ class BookMemoMapper: BookMemoMapperProtocol {
         } else {
             bookMemo.afterMemo = nil
         }
-        
         return bookMemo
     }
     func updateBookEntity<T>(existing: BookEntity, newValue: T?, field: UpdateTarget, index: Int? = nil) -> BookEntity {
@@ -126,8 +126,23 @@ class BookMemoMapper: BookMemoMapperProtocol {
                 updatedBook.bookDetail = newDetail
             }
         }
-
         return updatedBook
+    }
+    func mapToHomeBook(realmModel: BookMemo) -> HomeBookEntity {
+        let statusString = realmModel.status
+        let statusEntity: ReadingStatusEntity
+        
+        switch statusString {
+        case "읽기전":
+            statusEntity = .unread
+        case "읽는중":
+            statusEntity = .reading
+        case "읽은후":
+            statusEntity = .completed
+        default:
+            statusEntity = .unread
+        }
+        return HomeBookEntity(id: realmModel.id.stringValue, bookDetail: BookDetailEntity(imagePath: realmModel.imagePath,title: realmModel.title,author: realmModel.author,status: statusEntity,shortMemo: realmModel.shortMemo,categories: Array(realmModel.categories),feelings: Array(realmModel.feelings)))
     }
 
 }

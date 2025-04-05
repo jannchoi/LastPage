@@ -13,94 +13,182 @@ final class ReadingViewController: BaseViewController {
     weak var coordinator: ReadingCoordinator?
     var viewModel: ReadingViewModel
     private var cancellables: Set<AnyCancellable> = []
-    private let topContainerView: UIView = {
+    
+    // Book Detail Section
+    private let bookDetailView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor.lightGray.withAlphaComponent(0.3)
-        view.layer.cornerRadius = 8
+        view.backgroundColor = .white
         return view
     }()
     
     private let bookCoverImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
-        imageView.backgroundColor = .lightGray
-        imageView.layer.cornerRadius = 4
+        imageView.layer.cornerRadius = 8
         imageView.clipsToBounds = true
         return imageView
     }()
     
-    private let infoEditButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle(TextResource.ButtonTitle.edit.text, for: .normal)
-        button.setTitleColor(.blue, for: .normal)
-        return button
-    }()
-    
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Title"
-        label.font = .systemFont(ofSize: 16, weight: .bold)
+        label.font = .systemFont(ofSize: 20, weight: .bold)
         return label
     }()
     
     private let authorLabel: UILabel = {
         let label = UILabel()
-        label.text = "Author"
-        label.font = .systemFont(ofSize: 14)
+        label.font = .systemFont(ofSize: 16)
         label.textColor = .darkGray
         return label
     }()
     
-    private let statusLabel: UILabel = {
+    private let editButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "pencil"), for: .normal)
+        button.tintColor = .darkGray
+        return button
+    }()
+    
+    private let deleteButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "trash"), for: .normal)
+        button.tintColor = .darkGray
+        return button
+    }()
+
+    // Book Metadata Section
+    private let metadataView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 12
+        view.layer.shadowColor = UIColor.black.cgColor
+        view.layer.shadowOpacity = 0.1
+        view.layer.shadowOffset = CGSize(width: 0, height: 1)
+        view.layer.shadowRadius = 4
+        return view
+    }()
+    
+    private let dateAddedLabel: UILabel = {
         let label = UILabel()
-        label.text = "읽는 중"
-        label.font = .systemFont(ofSize: 14)
+        label.font = .systemFont(ofSize: 15)
+        label.textColor = .darkGray
+        return label
+    }()
+
+    private let progressLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 15)
         label.textColor = .darkGray
         return label
     }()
     
-    private let shortMemoLabel: UILabel = {
+    // Notes Section
+    private let notesCardView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 12
+        view.layer.shadowColor = UIColor.black.cgColor
+        view.layer.shadowOpacity = 0.1
+        view.layer.shadowOffset = CGSize(width: 0, height: 1)
+        view.layer.shadowRadius = 4
+        return view
+    }()
+    
+    private let notesTitleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14)
+        label.text = "Notes"
+        label.font = .systemFont(ofSize: 18, weight: .semibold)
+        return label
+    }()
+    
+    private let notesContentLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 15)
+        label.textColor = .darkGray
         label.numberOfLines = 0
         return label
     }()
     
-    // Bottom Gray View (Reading Status)
-    private let bottomContainerView: UIView = {
+    // Feelings Section
+    private let feelingsCardView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor.lightGray.withAlphaComponent(0.3)
-        view.layer.cornerRadius = 8
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 12
+        view.layer.shadowColor = UIColor.black.cgColor
+        view.layer.shadowOpacity = 0.1
+        view.layer.shadowOffset = CGSize(width: 0, height: 1)
+        view.layer.shadowRadius = 4
         return view
     }()
     
+    private let feelingsTitleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Feelings"
+        label.font = .systemFont(ofSize: 18, weight: .semibold)
+        return label
+    }()
+    
+    private let feelingsStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.spacing = 8
+        stackView.distribution = .fillProportionally
+        return stackView
+    }()
+    
+    // Reading Status Section
+    private let memoContainerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 12
+        return view
+    }()
+    private let memoTitleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Notes"
+        label.font = .systemFont(ofSize: 18, weight: .semibold)
+        return label
+    }()
+
     // Segment Control
-    private let readingStatusSegmentControl: UISegmentedControl = {
+    private let readingStatusControl: UISegmentedControl = {
         let items = [TextResource.ReadingStatus.before.text, TextResource.ReadingStatus.inProgress.text, TextResource.ReadingStatus.after.text]
         let segmentControl = UISegmentedControl(items: items)
         segmentControl.selectedSegmentIndex = 1 // Default to "읽는 중"
         return segmentControl
     }()
-    
-    // memoEdit button
-    private let memoEditButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle(TextResource.ButtonTitle.edit.text, for: .normal)
-        button.setTitleColor(.blue, for: .normal)
-        return button
-    }()
-    
     // Custom views for each segment
     private let beforeReadingView = ReadingView()
     private let readingInProgressView = ReadingInProgressView()
     private let afterReadingView = ReadingView()
-    
     // Container for the segment content
     private let segmentContentView: UIView = {
         let view = UIView()
-        view.backgroundColor = .clear
+        view.backgroundColor = .white
         return view
     }()
+    // Reading Sessions Button - For adding new reading sessions
+    private let memoEditButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Edit", for: .normal)
+        button.backgroundColor = .systemBlue
+        button.setTitleColor(.white, for: .normal)
+        button.layer.cornerRadius = 8
+        return button
+    }()
+    
+    // ScrollView to contain all content
+    private let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.showsVerticalScrollIndicator = true
+        scrollView.alwaysBounceVertical = true
+        return scrollView
+    }()
+    
+    private let contentView = UIView()
+    
+    // MARK: - Initialization
+    
     init(viewModel: ReadingViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -109,60 +197,404 @@ final class ReadingViewController: BaseViewController {
     @MainActor required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
     deinit {
         coordinator?.popVC()
     }
+    
     // MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
         setupActions()
         bind()
-        
         updateContentForSelectedSegment()
+        bookDetailView.isUserInteractionEnabled = true
+        memoContainerView.isUserInteractionEnabled = true
+
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+        navigationController?.navigationBar.prefersLargeTitles = false
         setMemoEditIsAvailable()
     }
     private func setMemoEditIsAvailable() {
         memoEditButton.isEnabled = viewModel.bookDetail?.id != nil
     }
+    // MARK: - UI Setup
+    
+    override func configureView() {
+        view.backgroundColor = .systemGray6
+        readingInProgressView.delegate = self
+    }
+    
+    override func configureHierarchy() {
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        
+        // Add main sections to content view
+        contentView.addSubview(bookDetailView)
+        contentView.addSubview(metadataView)
+        contentView.addSubview(notesCardView)
+        contentView.addSubview(feelingsCardView)
+        contentView.addSubview(memoContainerView)
+        
+        // Book detail components
+        bookDetailView.addSubview(bookCoverImageView)
+        bookDetailView.addSubview(titleLabel)
+        bookDetailView.addSubview(authorLabel)
+        bookDetailView.addSubview(editButton)
+        
+        // Metadata components
+        metadataView.addSubview(dateAddedLabel)
+        metadataView.addSubview(progressLabel)
+        
+        // Notes components
+        notesCardView.addSubview(notesTitleLabel)
+        notesCardView.addSubview(notesContentLabel)
+        
+        // Feelings components
+        feelingsCardView.addSubview(feelingsTitleLabel)
+        feelingsCardView.addSubview(feelingsStackView)
+        
+        // Reading status components
+        memoContainerView.addSubview(memoTitleLabel)
+        memoContainerView.addSubview(readingStatusControl)
+        memoContainerView.addSubview(memoEditButton)
+       
+        // Reading status components
+        memoContainerView.addSubview(readingStatusControl)
+        memoContainerView.addSubview(segmentContentView)
+        segmentContentView.addSubview(beforeReadingView)
+        segmentContentView.addSubview(readingInProgressView)
+        segmentContentView.addSubview(afterReadingView)
+
+    }
+    
+    override func configureLayout() {
+        scrollView.snp.makeConstraints { make in
+            make.edges.equalTo(view.safeAreaLayoutGuide)
+        }
+        
+        contentView.snp.makeConstraints { make in
+            make.edges.equalTo(scrollView.contentLayoutGuide)
+            make.width.equalTo(scrollView.frameLayoutGuide)
+        }
+        
+        // Book detail layout
+        bookDetailView.snp.makeConstraints { make in
+            make.top.leading.trailing.equalToSuperview()
+            make.height.equalTo(140)
+        }
+        
+        bookCoverImageView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(20)
+            make.centerY.equalToSuperview()
+            make.width.equalTo(90)
+            make.height.equalTo(120)
+        }
+        
+        titleLabel.snp.makeConstraints { make in
+            make.top.equalTo(bookCoverImageView.snp.top).offset(10)
+            make.leading.equalTo(bookCoverImageView.snp.trailing).offset(16)
+            make.trailing.equalToSuperview().offset(-50)
+        }
+        
+        authorLabel.snp.makeConstraints { make in
+            make.top.equalTo(titleLabel.snp.bottom).offset(8)
+            make.leading.equalTo(bookCoverImageView.snp.trailing).offset(16)
+            make.trailing.equalToSuperview().offset(-50)
+        }
+        
+        editButton.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(20)
+            make.trailing.equalToSuperview().offset(-16)
+            make.width.height.equalTo(24)
+        }
+       
+        // Metadata layout
+        metadataView.snp.makeConstraints { make in
+            make.top.equalTo(bookDetailView.snp.bottom).offset(16)
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.height.equalTo(90)
+        }
+        
+        dateAddedLabel.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(16)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.lessThanOrEqualToSuperview().offset(-16)
+        }
+
+        progressLabel.snp.makeConstraints { make in
+            make.top.equalTo(dateAddedLabel.snp.bottom).offset(12)
+            make.trailing.equalToSuperview().offset(-16)
+        }
+        
+        // Notes layout
+        notesCardView.snp.makeConstraints { make in
+            make.top.equalTo(metadataView.snp.bottom).offset(16)
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.height.equalTo(0)
+        }
+        
+        notesTitleLabel.snp.makeConstraints { make in
+            make.top.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview().offset(-16)
+            make.height.equalTo(20)
+        }
+        
+        notesContentLabel.snp.makeConstraints { make in
+            make.top.equalTo(notesTitleLabel.snp.bottom).offset(8)
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.bottom.equalToSuperview().offset(-16)
+        }
+
+        
+        // Feelings layout
+        feelingsCardView.snp.makeConstraints { make in
+            make.top.equalTo(notesCardView.snp.bottom).offset(16)
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.height.equalTo(0)
+        }
+        
+        feelingsTitleLabel.snp.makeConstraints { make in
+            make.top.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview().offset(-16)
+            make.height.equalTo(20)
+        }
+        
+        feelingsStackView.snp.makeConstraints { make in
+            make.top.equalTo(feelingsTitleLabel.snp.bottom).offset(12)
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.bottom.equalToSuperview().offset(-16)
+        }
+
+        memoEditButton.snp.makeConstraints { make in
+            make.top.equalToSuperview().inset(8)
+            make.trailing.equalTo(feelingsCardView.snp.trailing).inset(16)
+            make.leading.equalTo(contentView.snp.centerX).offset(4)
+            make.height.equalTo(40)
+            
+        }
+        memoTitleLabel.snp.makeConstraints { make in
+            make.top.equalToSuperview().inset(8)
+            make.leading.equalTo(feelingsTitleLabel)
+            make.trailing.equalTo(contentView.snp.centerX).inset(4)
+            make.centerY.equalTo(memoEditButton)
+            make.height.equalTo(20)
+        }
+
+        
+        // Reading status layout
+        memoContainerView.snp.makeConstraints { make in
+            make.top.equalTo(feelingsCardView.snp.bottom).offset(8)
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.height.equalTo(500)
+            make.bottom.equalToSuperview().inset(24)
+        }
+        
+        readingStatusControl.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.top.equalTo(memoEditButton.snp.bottom).offset(16)
+            make.width.equalToSuperview().multipliedBy(0.9)
+            make.height.equalTo(36)
+        }
+        segmentContentView.snp.makeConstraints { make in
+            make.top.equalTo(readingStatusControl.snp.bottom).offset(4)
+            make.height.equalTo(400)
+            make.horizontalEdges.bottom.equalToSuperview()
+        }
+        let customViews = [beforeReadingView, readingInProgressView, afterReadingView]
+        
+        for customView in customViews {
+            customView.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
+        }
+    }
+    
+    // MARK: - Data Binding
+    // Add to bind() method or create if it doesn't exist
     override func bind() {
-        viewModel.$bookDetail.sink {[weak self] bookEntity in
-            guard let self = self, let bookEntity = bookEntity else {return}
-            self.setupUI(item: bookEntity)
-        }.store(in: &cancellables)
-        viewModel.$fetchError.compactMap{$0}
+        // Observe book details
+        viewModel.$bookDetail
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] bookEntity in
+                guard let self = self, let bookEntity = bookEntity else { return }
+                
+                // Update UI with book details
+                self.updateUI(with: bookEntity)
+                
+                // Enable memo edit button if book ID exists
+                self.setMemoEditIsAvailable()
+            }
+            .store(in: &cancellables)
+        
+        viewModel.$fetchError.compactMap { $0 }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] errorMessage in
                 self?.showAlert(text: errorMessage)
             }.store(in: &cancellables)
     }
-    func setupUI(item: BookEntity) {
-        let imgPath = item.bookDetail.imagePath ?? TextResource.Global.empty.text
-        let url = URL(string: imgPath)
-        bookCoverImageView.kf.setImage(with: url)
+
+    private func updateUI(with item: BookEntity) {
         titleLabel.text = item.bookDetail.title
         authorLabel.text = item.bookDetail.author
-        statusLabel.text = item.bookDetail.status.rawValue
+        
+        let imgPath = item.bookDetail.imagePath ?? TextResource.Global.empty.text
+        ImageFormatter.shared.setImage(target: bookCoverImageView, path: imgPath)
+        // Format date
+        dateAddedLabel.text = "Added: Unknown"
+        progressLabel.text = item.bookDetail.status.rawValue
         readingInProgressView.updateData(data: item.inProgressMemo)
         beforeReadingView.updateMemo(item: item.beforeMemo)
         afterReadingView.updateMemo(item: item.afterMemo)
+
+        updateNotesVisibility(notes: item.bookDetail.shortMemo)
+        updateFeelingsVisibility(feelings: item.bookDetail.feelings)
+        setupGenreLabels(genres: item.bookDetail.categories)
     }
-    // MARK: - Actions
-    private func setupActions() {
-        readingStatusSegmentControl.addTarget(self, action: #selector(segmentControlValueChanged), for: .valueChanged)
-        infoEditButton.addTarget(self, action: #selector(infoEditButtonTapped), for: .touchUpInside)
-        memoEditButton.addTarget(self, action: #selector(memoEditButtonTapped), for: .touchUpInside)
+
+
+    private func updateFeelingsVisibility(feelings: [String]) {
+        if feelings.isEmpty {
+            // Hide feelings view if there are no feelings
+            feelingsCardView.isHidden = true
+            return
+        }
         
+        // Show feelings view
+        feelingsCardView.isHidden = false
+
+        // Clear existing feelings
+        for subview in feelingsStackView.arrangedSubviews {
+            feelingsStackView.removeArrangedSubview(subview)
+            subview.removeFromSuperview()
+        }
+        
+        // Add feeling chips
+        for feeling in feelings {
+            let chipView = createChipView(with: feeling)
+            feelingsStackView.addArrangedSubview(chipView)
+        }
+        // Calculate the proper height for the card
+        let totalHeight = feelingsTitleLabel.frame.height + feelingsStackView.frame.height + 40
+
+        // Update constraints with the proper height
+        feelingsCardView.snp.updateConstraints { make in
+            make.height.equalTo(max(80, totalHeight)) // 최소 높이 80으로 설정
+        }
+        view.setNeedsLayout()
+        view.layoutIfNeeded()
+
     }
-    override func configureView() {
-        beforeReadingView.isHidden = true
-        readingInProgressView.isHidden = true
-        afterReadingView.isHidden = true
-        readingInProgressView.delegate = self
+
+    private func createChipView(with text: String) -> UIView {
+        let containerView = UIView()
+        containerView.backgroundColor = .systemGray5
+        containerView.layer.cornerRadius = 16
+        
+        let label = UILabel()
+        label.text = text
+        label.font = .systemFont(ofSize: 14)
+        label.textColor = .darkGray
+        label.textAlignment = .center
+        
+        containerView.addSubview(label)
+        label.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(12)
+            make.height.equalTo(17)
+            make.top.bottom.equalToSuperview().inset(8)
+        }
+        containerView.snp.makeConstraints { make in
+                make.height.greaterThanOrEqualTo(32)
+            }
+        return containerView
+    }
+    
+    private func updateNotesVisibility(notes: String) {
+        if notes.isEmpty {
+            // Hide notes view if there are no notes
+            notesCardView.isHidden = true
+            return
+        }
+        // Show notes view and update content
+        notesCardView.isHidden = false
+        notesContentLabel.text = notes
+        
+        // Update constraints to fit content
+        notesContentLabel.sizeToFit()
+        notesCardView.snp.updateConstraints { make in
+            // Add some padding to the height
+            make.height.equalTo(notesTitleLabel.frame.height + notesContentLabel.frame.height + 40)
+        }
+        
+        // Request layout update
+        view.setNeedsLayout()
+    }
+    private func setupGenreLabels(genres: [String]) {
+        let genreStackView = UIStackView()
+        genreStackView.axis = .horizontal
+        genreStackView.spacing = 8
+        genreStackView.distribution = .fillProportionally
+        
+        bookDetailView.addSubview(genreStackView)
+        genreStackView.snp.makeConstraints { make in
+            make.top.equalTo(authorLabel.snp.bottom).offset(8)
+            make.leading.equalTo(bookCoverImageView.snp.trailing).offset(16)
+            make.trailing.lessThanOrEqualToSuperview().offset(-16)
+        }
+
+        for genre in genres {
+            let genreChip = createChipView(with: genre)
+            genreStackView.addArrangedSubview(genreChip)
+        }
+    }
+    
+    // MARK: - Actions
+    
+    private func setupActions() {
+        editButton.addTarget(self, action: #selector(editButtonTapped), for: .touchUpInside)
+        deleteButton.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: deleteButton)
+        readingStatusControl.addTarget(self, action: #selector(segmentControlValueChanged), for: .valueChanged)
+        memoEditButton.addTarget(self, action: #selector(memoEditButtonTapped), for: .touchUpInside)
+    }
+    
+    @objc private func editButtonTapped() {
+
+        coordinator?.showEditInfo(passedBook: viewModel.bookDetail?.bookDetail, bookId: viewModel.bookDetail?.id)
+    }
+    
+    @objc private func deleteButtonTapped() {
+        let alert = UIAlertController(
+            title: "Delete Book",
+            message: "Are you sure you want to delete this book?",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Delete", style: .destructive) { [weak self] _ in
+            // Implement delete functionality
+            guard let self = self, let bookId = self.viewModel.bookDetail?.id else { return }
+            // Call viewModel method to delete book
+        })
+        
+        present(alert, animated: true)
+    }
+    @objc private func segmentControlValueChanged() {
+        // Clear any menu when segment changes
+        clearButtonMenu()
+        
+        // Reset delete mode if active
+        if readingInProgressView.isDeleteMode {
+            readingInProgressView.isDeleteMode = false
+            memoEditButton.setTitle("Edit", for: .normal)
+        }
+        
+        // Update UI based on selected segment
+        updateContentForSelectedSegment()
     }
     private func updateContentForSelectedSegment() {
         // Hide all views first
@@ -171,7 +603,7 @@ final class ReadingViewController: BaseViewController {
         afterReadingView.isHidden = true
         
         // Show the appropriate view based on selected segment
-        switch readingStatusSegmentControl.selectedSegmentIndex {
+        switch readingStatusControl.selectedSegmentIndex {
         case 0: // 읽기 전
             beforeReadingView.isHidden = false
             clearButtonMenu() // Clear menu
@@ -185,34 +617,11 @@ final class ReadingViewController: BaseViewController {
             break
         }
     }
-
-    // Pre-configure the menu for the edit button
-    private func configureMenuForEditButton() {
-        let addAction = UIAction(title: "Add", image: UIImage(systemName: "plus")) { [weak self] _ in
-            let indexToAppend = (self?.viewModel.bookDetail?.inProgressMemo.count ?? 0) + 1
-            self?.coordinator?.showEditReadingInProgress(bookId: self?.viewModel.bookId, index: indexToAppend)
-        }
-        
-        let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash")) { [weak self] _ in
-            self?.enterDeleteMode()
-        }
-        
-        let menu = UIMenu(title: "메뉴", children: [addAction, deleteAction])
-        
-        memoEditButton.showsMenuAsPrimaryAction = true
-        memoEditButton.menu = menu
-    }
-
-    @objc private func infoEditButtonTapped() {
-        coordinator?.showEditInfo(passedBook: viewModel.bookDetail?.bookDetail, bookId: viewModel.bookDetail?.id)
-    }
     private func clearButtonMenu() {
         memoEditButton.menu = nil
         memoEditButton.showsMenuAsPrimaryAction = false
     }
-    // memoEditButtonTapped() 메서드 간소화
     @objc private func memoEditButtonTapped() {
-
         // 삭제 모드 체크
         if readingInProgressView.isDeleteMode {
             exitDeleteMode()
@@ -220,7 +629,7 @@ final class ReadingViewController: BaseViewController {
         }
         
         // 현재 세그먼트 확인
-        let currentSegmentIndex = readingStatusSegmentControl.selectedSegmentIndex
+        let currentSegmentIndex = readingStatusControl.selectedSegmentIndex
         guard let bookId = viewModel.bookDetail?.id else { return }
         
         // 세그먼트에 따른 처리
@@ -241,6 +650,22 @@ final class ReadingViewController: BaseViewController {
         default:
             break
         }
+    }
+    private func configureMenuForEditButton() {
+        let addAction = UIAction(title: "Add ", image: UIImage(systemName: "plus")) { [weak self] _ in
+            let indexToAppend = (self?.viewModel.bookDetail?.inProgressMemo.count ?? 0) + 1
+            
+            self?.coordinator?.showEditReadingInProgress(bookId: self?.viewModel.bookId, index: indexToAppend)
+        }
+        
+        let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash")) { [weak self] _ in
+            self?.enterDeleteMode()
+        }
+        
+        let menu = UIMenu(title: "메뉴", children: [addAction, deleteAction])
+        
+        memoEditButton.showsMenuAsPrimaryAction = true
+        memoEditButton.menu = menu
     }
 
     // Enter delete mode
@@ -267,141 +692,15 @@ final class ReadingViewController: BaseViewController {
         // Refresh table view
         readingInProgressView.refreshTableViewForDeleteMode()
     }
-    @objc private func segmentControlValueChanged() {
-        // Clear any menu when segment changes
-        clearButtonMenu()
-        
-        // Reset delete mode if active
-        if readingInProgressView.isDeleteMode {
-            readingInProgressView.isDeleteMode = false
-            memoEditButton.setTitle("Edit", for: .normal)
-        }
-        
-        // Update UI based on selected segment
-        updateContentForSelectedSegment()
-    }
-    // MARK: - UI Setup
-    override func configureHierarchy() {
-        // Add subviews
-        view.addSubview(topContainerView)
-        view.addSubview(bottomContainerView)
-        
-        topContainerView.addSubview(bookCoverImageView)
-        topContainerView.addSubview(infoEditButton)
-        topContainerView.addSubview(titleLabel)
-        topContainerView.addSubview(authorLabel)
-        topContainerView.addSubview(statusLabel)
-        topContainerView.addSubview(shortMemoLabel)
-        
-        bottomContainerView.addSubview(memoEditButton)
-        bottomContainerView.addSubview(readingStatusSegmentControl)
-        bottomContainerView.addSubview(segmentContentView)
-        
 
-        segmentContentView.addSubview(beforeReadingView)
-        segmentContentView.addSubview(readingInProgressView)
-        segmentContentView.addSubview(afterReadingView)
-
-    }
-    
-    // MARK: - Constraints
-    override func configureLayout() {
-        
-        // Top Gray View
-        topContainerView.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(16)
-            make.leading.trailing.equalToSuperview().inset(16)
-        }
-        
-        // Book Cover
-        bookCoverImageView.snp.makeConstraints { make in
-            make.leading.top.equalToSuperview().offset(16)
-            make.bottom.equalToSuperview().offset(-16)
-            make.width.equalTo(120)
-            make.height.equalTo(150)
-        }
-        
-        // Edit Button
-        infoEditButton.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(16)
-            make.trailing.equalToSuperview().offset(-16)
-        }
-        
-        // Author Label
-        titleLabel.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(16)
-            make.leading.equalTo(bookCoverImageView.snp.trailing).offset(16)
-            make.trailing.lessThanOrEqualTo(infoEditButton.snp.leading).offset(-8)
-        }
-        
-        // Writer Label
-        authorLabel.snp.makeConstraints { make in
-            make.top.equalTo(titleLabel.snp.bottom).offset(8)
-            make.leading.equalTo(bookCoverImageView.snp.trailing).offset(16)
-            make.trailing.equalToSuperview().offset(-16)
-        }
-        
-        // Date Label
-        statusLabel.snp.makeConstraints { make in
-            make.top.equalTo(authorLabel.snp.bottom).offset(8)
-            make.leading.equalTo(bookCoverImageView.snp.trailing).offset(16)
-            make.trailing.equalToSuperview().offset(-16)
-        }
-        
-        // Questions Label
-        shortMemoLabel.snp.makeConstraints { make in
-            make.top.equalTo(statusLabel.snp.bottom).offset(8)
-            make.leading.equalTo(bookCoverImageView.snp.trailing).offset(16)
-            make.trailing.equalToSuperview().offset(-16)
-            make.bottom.lessThanOrEqualToSuperview().offset(-16)
-        }
-        
-        // Bottom Gray View
-        bottomContainerView.snp.makeConstraints { make in
-            make.top.equalTo(topContainerView.snp.bottom).offset(16)
-            make.leading.trailing.equalToSuperview().inset(16)
-            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-16)
-        }
-        //memoEdit Button
-        memoEditButton.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(8)
-            make.trailing.equalToSuperview().inset(8)
-            make.width.equalTo(42)
-            make.height.equalTo(40)
-        }
-        // Segment Control
-        readingStatusSegmentControl.snp.makeConstraints { make in
-            make.centerY.equalTo(memoEditButton)
-            make.leading.equalToSuperview().inset(8)
-            make.trailing.equalTo(memoEditButton.snp.leading)
-            make.height.equalTo(40)
-        }
-        
-        // Segment Content View
-        segmentContentView.snp.makeConstraints { make in
-            make.top.equalTo(readingStatusSegmentControl.snp.bottom).offset(8)
-            make.leading.trailing.bottom.equalToSuperview().inset(8)
-        }
-        
-
-        let customViews = [beforeReadingView, readingInProgressView, afterReadingView]
-        
-        for customView in customViews {
-            customView.snp.makeConstraints { make in
-                make.edges.equalToSuperview()
-            }
-        }
-    }
-    
 }
 extension ReadingViewController: ReadingInProgressViewDelegate {
-    func readingInProgressView(_ view: ReadingInProgressView, didSelectItemAt index: Int, isDelete: Bool) {
-        if isDelete {
-            viewModel.deleteBook(targetIdx: index)
-        }
-        else {
-            coordinator?.showEditReadingInProgress(bookId: viewModel.bookDetail?.id, index: index)
-        }
+    func deleteReadingCell(_ view: ReadingInProgressView, didSelectItemAt index: Int) {
+        viewModel.deleteBook(targetIdx: index)
+    }
+    func editReadingCell(_ view: HighlightTableViewCell, didSelectItemAt index: Int) {
+
+        coordinator?.showEditReadingInProgress(bookId: viewModel.bookDetail?.id, index: index)
     }
 
 }

@@ -11,11 +11,11 @@ final class EditReadingViewModel:BaseViewModel {
     var cancellables = Set<AnyCancellable>()
     let getBookUseCase: GetBookUseCaseProtocol
     let updateBookUsecase: UpdateBookUseCaseProtocol
-    @Published private(set) var fetchError: String = ""
+    @Published private(set) var fetchError: String? = nil
     @Published var bookDetail: MemoEntity?
     let bookId : String?
     let status : UpdateTarget?
-    
+    @Published var popVCTrigger: String?
     var bookAdded = PassthroughSubject<String, Never>()
     
     struct Input {
@@ -47,6 +47,7 @@ final class EditReadingViewModel:BaseViewModel {
                 } receiveValue: {[weak self] _ in
                     guard let self = self else {return}
                     self.bookAdded.send(bookId)
+                    self.popVCTrigger = "저장되었습니다."
                 }.store(in: &cancellables)
 
         }
@@ -59,6 +60,7 @@ final class EditReadingViewModel:BaseViewModel {
                 }
             } receiveValue: { [weak self] book in
                 guard let self = self, let book = book else {return}
+
                 switch status {
                 case .unread:
                     self.bookDetail = book.beforeMemo

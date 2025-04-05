@@ -11,7 +11,22 @@
 		CE0A75292D96FEFE00CFA9E9 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = CE0A75282D96FEFE00CFA9E9 /* SnapKit */; };
 		CE2C22AB2D9AEBB900211B65 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = CE2C22AA2D9AEBB900211B65 /* RealmSwift */; };
 		CE2C25822D9BF80C00211B65 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = CE2C25812D9BF80C00211B65 /* Kingfisher */; };
+		CE2C27BA2DA152A100211B65 /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = CE2C22AA2D9AEBB900211B65 /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		CE2C27BB2DA152A100211B65 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				CE2C27BA2DA152A100211B65 /* RealmSwift in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		CE0A72832D9540C400CFA9E9 /* LastPage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LastPage.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -80,6 +95,7 @@
 				CE0A727F2D9540C400CFA9E9 /* Sources */,
 				CE0A72802D9540C400CFA9E9 /* Frameworks */,
 				CE0A72812D9540C400CFA9E9 /* Resources */,
+				CE2C27BB2DA152A100211B65 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -166,12 +182,12 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = WLVCLJ283X;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LastPage/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -197,12 +213,12 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = WLVCLJ283X;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LastPage/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

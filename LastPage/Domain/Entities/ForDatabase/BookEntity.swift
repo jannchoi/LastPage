@@ -13,4 +13,3 @@ struct BookEntity {
     var inProgressMemo: [ProgressMemoEntity]
     var afterMemo: MemoEntity?
 }
-

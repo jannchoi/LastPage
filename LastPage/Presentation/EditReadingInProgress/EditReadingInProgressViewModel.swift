@@ -15,8 +15,9 @@ final class EditReadingInProgressViewModel: BaseViewModel {
     @Published var bookDetail: ProgressMemoEntity?
     let bookId : String?
     let index : Int?
-    @Published private(set) var fetchError: String = ""
+    @Published private(set) var fetchError: String?
     var bookAdded = PassthroughSubject<String, Never>()
+    @Published var popVCTrigger: String?
     
     struct Input {
         
@@ -29,6 +30,7 @@ final class EditReadingInProgressViewModel: BaseViewModel {
         self.updateBookUsecase = updateBookUsecase
         self.bookId = bookId
         self.index = index
+        
         if let bookId = bookId, let index = index{
             self.fetchBook(itemId: bookId, index: index)
         }
@@ -53,6 +55,9 @@ final class EditReadingInProgressViewModel: BaseViewModel {
                     [weak self] _ in
                         guard let self = self else {return}
                     self.bookAdded.send(bookId)
+                    self.popVCTrigger = "저장되었습니다"
+                    guard let index = index else {return}
+                    self.fetchBook(itemId: bookId, index: index)
                 }
             )
             .store(in: &cancellables)

@@ -28,7 +28,14 @@ class NetworkManager {
                 guard 200..<300 ~= httpResponse.statusCode else {
                     throw self?.getError(code: httpResponse.statusCode) ?? .customError(code: 500, message: "Unknown error")
                 }
-                return data
+                var modifiedData = data
+
+                if let stringData = String(data: data, encoding: .utf8),
+                   stringData.hasSuffix(";") {
+                    let modifiedString = stringData.dropLast()
+                    modifiedData = Data(modifiedString.utf8)
+                }
+                return modifiedData
             }
             .decode(type: T.self, decoder: JSONDecoder())
             .mapError { error in

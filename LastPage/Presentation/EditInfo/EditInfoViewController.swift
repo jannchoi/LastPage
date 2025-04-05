@@ -67,10 +67,15 @@ final class EditInfoViewController: BaseViewController {
         button.setTitleColor(.blue, for: .normal)
         return button
     }()
-    // 선택된 이미지를 저장할 변수
     private var selectedImage: UIImage?
-    // 원래 이미지 경로를 저장할 변수
     private var originalImagePath: String?
+    // 1. First, add properties to track keyboard state
+    private var initialScrollViewInsets: UIEdgeInsets?
+    private var activeTextField: UITextField?
+    private var keyboardHeight: CGFloat = 0
+    private let keyboardTopPadding: CGFloat = 20
+    private var isKeyboardVisible = false
+
     init(viewModel: EditInfoViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -82,6 +87,123 @@ final class EditInfoViewController: BaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupKeyboardObservers()
+    }
+
+    private func setupKeyboardObservers() {
+        // Register for keyboard notifications
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillShow),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillHide),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
+        
+        // Add tap gesture to dismiss keyboard when tapping outside
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+        
+        // Set delegates for text fields to track the active field
+        [titleField, authorField, shortMemoField, categoryField, feelingsField].forEach {
+            $0.textField.delegate = self
+        }
+    }
+
+    @objc private func keyboardWillShow(_ notification: Notification) {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
+            return
+        }
+        
+        // Save initial scroll insets if not already saved
+        if initialScrollViewInsets == nil {
+            initialScrollViewInsets = scrollView.contentInset
+        }
+        
+        // Calculate keyboard height in view coordinates
+        keyboardHeight = keyboardFrame.height
+        isKeyboardVisible = true
+        
+        // Adjust view for currently active text field if exists
+        if let activeField = activeTextField {
+            adjustScrollViewForTextField(activeField)
+        }
+    }
+
+    private func adjustScrollViewForTextField(_ textField: UITextField) {
+        guard isKeyboardVisible,
+              let activeInfoField = getInfoFieldView(for: textField) else {
+            return
+        }
+        
+        // Calculate the bottom of the active field in window coordinates
+        let activeFieldBottom = activeInfoField.convert(activeInfoField.bounds, to: nil).maxY
+        
+        // Calculate keyboard top position in window coordinates
+        let keyboardTop = UIScreen.main.bounds.height - keyboardHeight
+        
+        // Check if the active field is covered by keyboard
+        if activeFieldBottom > keyboardTop - keyboardTopPadding {
+            // Calculate how much we need to scroll to make the field visible
+            let scrollPoint = activeFieldBottom - (keyboardTop - keyboardTopPadding)
+            
+            // Set content inset to ensure scrollability
+            let bottomInset = keyboardHeight
+            scrollView.contentInset = UIEdgeInsets(
+                top: initialScrollViewInsets?.top ?? 0,
+                left: initialScrollViewInsets?.left ?? 0,
+                bottom: bottomInset,
+                right: initialScrollViewInsets?.right ?? 0
+            )
+            scrollView.scrollIndicatorInsets = scrollView.contentInset
+            
+            // Scroll to make the field visible with padding
+            let contentOffset = CGPoint(
+                x: 0,
+                y: scrollView.contentOffset.y + scrollPoint
+            )
+            scrollView.setContentOffset(contentOffset, animated: true)
+        }
+    }
+
+    @objc private func keyboardWillHide(_ notification: Notification) {
+        // Restore original insets
+        if let insets = initialScrollViewInsets {
+            scrollView.contentInset = insets
+            scrollView.scrollIndicatorInsets = insets
+        }
+        
+        // Reset keyboard state
+        isKeyboardVisible = false
+        keyboardHeight = 0
+    }
+
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
+    }
+
+    // Helper method to get the InfoFieldView parent of a text field
+    private func getInfoFieldView(for textField: UITextField) -> InfoFieldView? {
+        var view = textField.superview
+        while view != nil {
+            if let infoFieldView = view as? InfoFieldView {
+                return infoFieldView
+            }
+            view = view?.superview
+        }
+        return nil
+    }
+
+    // Clean up observers when view controller is deallocated
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     override func bind() {
         viewModel.$bookDetail.sink {[weak self] bookDetail in
@@ -93,13 +215,22 @@ final class EditInfoViewController: BaseViewController {
             .sink { [weak self] errorMessage in
                 self?.showAlert(text: errorMessage)
             }.store(in: &cancellables)
+        viewModel.$popVCTrigger.compactMap{$0}
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] message in
+                guard let self = self else {return}
+                self.showAlert(text: message, action: {
+                    self.navigationController?.popViewController(animated: true)
+                })
+            }.store(in: &cancellables)
     }
     func setupUI(item: BookDetailEntity) {
         originalImagePath = item.imagePath
-        setImage(originalImagePath)
+        ImageFormatter.shared.setImage(target: bookCoverImageView, path: originalImagePath)
         titleField.textField.text = item.title
         authorField.textField.text = item.author
         shortMemoField.textField.text = item.shortMemo
+
         categoryField.setTags(item.categories)
         feelingsField.setTags(item.feelings)
         readingStatusSegmentControl.selectedSegmentIndex = item.status.segmentIndex
@@ -131,7 +262,7 @@ final class EditInfoViewController: BaseViewController {
                 
                 // 새 이미지가 선택되었다면 저장
                 if let selectedImage = selectedImage {
-                    imagePath = saveImageToLocal(image: selectedImage)
+                    imagePath = ImageFormatter.shared.saveImageToLocal(image: selectedImage)
                 }
                 
                 let newValue = BookDetailEntity(
@@ -163,28 +294,6 @@ final class EditInfoViewController: BaseViewController {
         selectedImage = nil
         originalImagePath = nil
         bookCoverLabel.isHidden = false
-    }
-    
-    private func saveImageToLocal(image: UIImage) -> String {
-        // 이미지를 저장할 고유한 파일명 생성
-        let fileName = UUID().uuidString + ".jpg"
-        
-        // 파일 저장 경로 생성 (Documents 디렉토리)
-        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let fileURL = documentsDirectory.appendingPathComponent(fileName)
-        
-        // 이미지를 JPEG 형식으로 변환하여 파일로 저장
-        if let imageData = image.jpegData(compressionQuality: 0.8) {
-            do {
-                try imageData.write(to: fileURL)
-                // 로컬 경로임을 나타내는 접두사 추가
-                return "local://" + fileURL.path
-            } catch {
-                print("이미지 저장 실패: \(error)")
-                return ""
-            }
-        }
-        return ""
     }
     // MARK: - View 계층 구조 설정
     override func configureHierarchy() {
@@ -317,5 +426,38 @@ extension EditInfoViewController: UIImagePickerControllerDelegate, UINavigationC
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         dismiss(animated: true)
+    }
+}
+extension EditInfoViewController: UITextFieldDelegate {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        activeTextField = textField
+        
+        // 키보드가 이미 보이는 상태라면 바로 뷰 조정
+        if isKeyboardVisible {
+            adjustScrollViewForTextField(textField)
+        }
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        // Focus가 끝난 텍스트필드가 현재 액티브 필드면 초기화
+        if activeTextField == textField {
+            activeTextField = nil
+        }
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        // Move to next field or dismiss keyboard if last field
+        if textField == titleField.textField {
+            authorField.textField.becomeFirstResponder()
+        } else if textField == authorField.textField {
+            shortMemoField.textField.becomeFirstResponder()
+        } else if textField == shortMemoField.textField {
+            categoryField.textField.becomeFirstResponder()
+        } else if textField == categoryField.textField {
+            feelingsField.textField.becomeFirstResponder()
+        } else {
+            textField.resignFirstResponder()
+        }
+        return true
     }
 }
