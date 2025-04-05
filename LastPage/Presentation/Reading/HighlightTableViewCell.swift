@@ -141,7 +141,7 @@ final class HighlightTableViewCell: UITableViewCell{
     }
     
     func configure(item: ProgressMemoEntity, index: Int) {
-        dateLabel.text = item.date
+        dateLabel.text = DateFormattManager.shared.dateToStr(item.date)
         memoLabel.text = item.memo
         cellIndex = index
         pageRangeLabel.text = "Pages \(item.startPage) ~ \(item.endPage)"

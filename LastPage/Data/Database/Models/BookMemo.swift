@@ -11,6 +11,7 @@ import RealmSwift
 class BookMemo: Object {
     @Persisted(primaryKey: true) var id: ObjectId
     @Persisted var imagePath: String?
+    @Persisted var addedDate: Date
     @Persisted var title: String
     @Persisted var author: String
     @Persisted var status: String // Enum은 직접 저장할 수 없으므로 String으로 변환
@@ -35,6 +36,7 @@ class BookMemo: Object {
     ) {
         self.init()
         self.imagePath = imagePath
+        self.addedDate = Date()
         self.title = title
         self.author = author
         self.status = status.rawValue

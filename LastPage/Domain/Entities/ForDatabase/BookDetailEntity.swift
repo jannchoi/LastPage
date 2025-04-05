@@ -10,6 +10,7 @@ import Foundation
 struct BookDetailEntity {
     //let addedDate: String
     let imagePath: String?
+    let addedDate: Date?
     let title: String
     let author: String
     let status: ReadingStatusEntity
