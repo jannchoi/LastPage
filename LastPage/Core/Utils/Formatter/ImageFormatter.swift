@@ -33,5 +33,27 @@ class ImageFormatter {
             target.image = UIImage(systemName: "person")
         }
     }
-
+    func saveImageToLocal(image: UIImage) -> String {
+        // 1. 고유한 파일명 생성
+        let fileName = UUID().uuidString + ".jpg"
+        
+        // 2. Documents 디렉토리 경로
+        if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            let fileURL = documentsDirectory.appendingPathComponent(fileName)
+            
+            // 3. 이미지 데이터 저장
+            if let imageData = image.jpegData(compressionQuality: 0.8) {
+                do {
+                    try imageData.write(to: fileURL)
+                    
+                    // 4. 전체 경로 대신 파일명만 반환
+                    return "local://\(fileName)"
+                    
+                } catch {
+                    print("이미지 저장 실패: \(error)")
+                }
+            }
+        }
+        return ""
+    }
 }

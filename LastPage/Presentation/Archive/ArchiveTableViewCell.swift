@@ -101,8 +101,7 @@ final class ArchiveTableViewCell: UITableViewCell {
         statusLabel.text = item.bookDetail.status.rawValue
         setTags(elements: item.bookDetail.categories)
         let imgPath = item.bookDetail.imagePath ?? TextResource.Global.empty.text
-        let url = URL(string: imgPath)
-        bookCoverImageView.kf.setImage(with: url, placeholder: UIImage(systemName: "person"))
+        ImageFormatter.shared.setImage(target: bookCoverImageView, path: imgPath)
     }
     func setTags(elements: [String]) {
         // 태그 컨테이너 초기화

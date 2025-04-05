@@ -36,6 +36,13 @@ final class EditReadingInProgressViewController: BaseViewController {
     private let endPage = UITextField()
     private let containerScrollView = UIScrollView()
     private let textView = UITextView()
+
+    private let cameraButton : UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "camera.viewfinder"), for: .normal)
+        button.setTitleColor(.blue, for: .normal)
+        return button
+    }()
     init(viewModel: EditReadingInProgressViewModel) {
             self.viewModel = viewModel
             super.init(nibName: nil, bundle: nil)
@@ -53,17 +60,18 @@ final class EditReadingInProgressViewController: BaseViewController {
             guard let self = self, let memoDetail = memoDetail else {return}
             self.setupUI(item: memoDetail)
         }.store(in: &cancellables)
-        viewModel.$fetchError.compactMap{$0}
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] errorMessage in
-                self?.showAlert(text: errorMessage)
-            }.store(in: &cancellables)
+//        viewModel.$fetchError.compactMap{$0}
+//            .receive(on: DispatchQueue.main)
+//            .sink { [weak self] errorMessage in
+//                self?.showAlert(text: errorMessage)
+//            }.store(in: &cancellables)
     }
     private func setupUI(item: ProgressMemoEntity) {
         dateField.textField.text = item.date
-        startPage.text = item.startPage
-        endPage.text = item.endPage
         textView.text = item.memo
+        startPage.text = "\(item.startPage!)"
+        endPage.text = "\(item.endPage!)"
+        
     }
     @objc private func saveButtonTapped() {
         guard let newMemo = textView.text else {return}
@@ -179,9 +187,12 @@ final class EditReadingInProgressViewController: BaseViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         saveButton.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
-        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: saveButton)
+        cameraButton.addTarget(self, action: #selector(cameraButtonTapped), for: .touchUpInside)
+        navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: cameraButton),UIBarButtonItem(customView: saveButton)]
     }
-
+    @objc private func cameraButtonTapped() {
+        
+    }
     // MARK: - Actions and Helpers
     @objc private func doneButtonTapped() {
         if let datePicker = dateField.textField.inputView as? UIDatePicker {

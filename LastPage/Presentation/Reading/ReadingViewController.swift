@@ -443,8 +443,7 @@ final class ReadingViewController: BaseViewController {
         authorLabel.text = item.bookDetail.author
         
         let imgPath = item.bookDetail.imagePath ?? TextResource.Global.empty.text
-        let url = URL(string: imgPath)
-        bookCoverImageView.kf.setImage(with: url)
+        ImageFormatter.shared.setImage(target: bookCoverImageView, path: imgPath)
         // Format date
         dateAddedLabel.text = "Added: Unknown"
         progressLabel.text = "Progress: Not started"
