@@ -44,7 +44,7 @@ class ReadingView: UIScrollView {
     }
     func updateMemo(item: MemoEntity?) {
         guard let item = item else {return}
-        dateLabel.text = item.date
+        dateLabel.text = DateFormattManager.shared.dateToStr(item.date)
         memoLabel.text = item.memo
     }
     private func configureView() {

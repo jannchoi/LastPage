@@ -7,6 +7,6 @@
 
 import Foundation
 struct MemoEntity {
-    let date: String?
+    let date: Date?
     let memo: String
 }

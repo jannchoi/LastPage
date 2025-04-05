@@ -23,20 +23,20 @@ class BookMemoMapper: BookMemoMapperProtocol {
         default:
             statusEntity = .unread
         }
-        return BookEntity(id: realmModel.id.stringValue, bookDetail:             BookDetailEntity(imagePath: realmModel.imagePath,
+        return BookEntity(id: realmModel.id.stringValue, bookDetail:             BookDetailEntity(imagePath: realmModel.imagePath, addedDate: realmModel.addedDate,
                 title: realmModel.title,author: realmModel.author,status: statusEntity,shortMemo: realmModel.shortMemo,categories: Array(realmModel.categories),feelings: Array(realmModel.feelings)),beforeMemo: realmModel.beforeMemo.map {
-            MemoEntity(date: DateFormattManager.shared.dateToStr($0.date), memo: $0.memo)
+            MemoEntity(date: $0.date, memo: $0.memo)
         },
         inProgressMemo: realmModel.inProgressMemo.map {
             ProgressMemoEntity(
                 startPage: "\($0.startPage)",
                 endPage: "\($0.endPage)",
-                date: DateFormattManager.shared.dateToStr($0.date),
+                date: $0.date,
                 memo: $0.memo
             )
         },
         afterMemo: realmModel.afterMemo.map {
-            MemoEntity(date: DateFormattManager.shared.dateToStr($0.date), memo: $0.memo)
+            MemoEntity(date: $0.date, memo: $0.memo)
         })
 
     }
@@ -65,7 +65,7 @@ class BookMemoMapper: BookMemoMapperProtocol {
         // 읽기 전 메모 설정
         if let beforeMemo = domainModel.beforeMemo {
             let memo = Memo()
-            memo.date = DateFormattManager.shared.strToDate(beforeMemo.date)
+            memo.date = beforeMemo.date
             memo.memo = beforeMemo.memo
             bookMemo.beforeMemo = memo
         } else {
@@ -79,7 +79,7 @@ class BookMemoMapper: BookMemoMapperProtocol {
 
             progressMemo.startPage = Int(item.startPage ?? TextResource.Global.none.text)
             progressMemo.endPage = Int(item.endPage ?? TextResource.Global.none.text)
-            progressMemo.date = DateFormattManager.shared.strToDate(item.date)
+            progressMemo.date = item.date
             progressMemo.memo = item.memo
             bookMemo.inProgressMemo.append(progressMemo)
         }
@@ -87,7 +87,7 @@ class BookMemoMapper: BookMemoMapperProtocol {
         // 읽은 후 메모 설정
         if let afterMemo = domainModel.afterMemo {
             let memo = Memo()
-            memo.date = DateFormattManager.shared.strToDate(afterMemo.date)
+            memo.date = afterMemo.date
             memo.memo = afterMemo.memo
             bookMemo.afterMemo = memo
         } else {
@@ -142,7 +142,7 @@ class BookMemoMapper: BookMemoMapperProtocol {
         default:
             statusEntity = .unread
         }
-        return HomeBookEntity(id: realmModel.id.stringValue, bookDetail: BookDetailEntity(imagePath: realmModel.imagePath,title: realmModel.title,author: realmModel.author,status: statusEntity,shortMemo: realmModel.shortMemo,categories: Array(realmModel.categories),feelings: Array(realmModel.feelings)))
+        return HomeBookEntity(id: realmModel.id.stringValue, bookDetail: BookDetailEntity(imagePath: realmModel.imagePath, addedDate: realmModel.addedDate ,title: realmModel.title,author: realmModel.author,status: statusEntity,shortMemo: realmModel.shortMemo,categories: Array(realmModel.categories),feelings: Array(realmModel.feelings)))
     }
 
 }

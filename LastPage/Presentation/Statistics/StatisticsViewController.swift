@@ -105,7 +105,7 @@ class StatisticsViewController: BaseViewController {
     }()
     
     // Reading streak view
-    private lazy var readingStreakView: UIView = {
+    private lazy var booksThisYearhView: UIView = {
         let view = UIView()
         view.backgroundColor = .systemBackground
         view.layer.cornerRadius = 12
@@ -116,7 +116,7 @@ class StatisticsViewController: BaseViewController {
         return view
     }()
     
-    private lazy var readingStreakTitleLabel: UILabel = {
+    private lazy var booksThisYearTitleLabel: UILabel = {
         let label = UILabel()
         label.text = "Reading Streak"
         label.textColor = .systemGray
@@ -124,7 +124,7 @@ class StatisticsViewController: BaseViewController {
         return label
     }()
     
-    private lazy var readingStreakCountLabel: UILabel = {
+    private lazy var booksThisYearhCountLabel: UILabel = {
         let label = UILabel()
         label.text = "7 days"
         label.font = .systemFont(ofSize: 32, weight: .bold)
@@ -237,6 +237,22 @@ class StatisticsViewController: BaseViewController {
         //setupBarChart()
     }
     
+    override func bind() {
+        let input = StatsViewModel.Input()
+        let output = viewModel.transform(input: input)
+        viewModel.$bookStats
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] stats in
+                guard let self = self, let stats = stats else {return}
+                self.setupUI(stats: stats)
+            }
+            .store(in: &cancellables)
+    }
+    private func setupUI(stats: BookStats) {
+        booksThisMonthCountLabel.text = String(stats.monthCount)
+        totalBooksCountLabel.text = String(stats.totalCount)
+        booksThisYearhCountLabel.text = String(stats.yearCount)
+    }
     // MARK: - View 계층 구조 설정
     override func configureHierarchy() {
         view.addSubview(scrollView)
@@ -256,10 +272,10 @@ class StatisticsViewController: BaseViewController {
         totalBooksView.addSubview(totalBooksCountLabel)
         totalBooksView.addSubview(totalBooksIconImageView)
         
-        contentView.addSubview(readingStreakView)
-        readingStreakView.addSubview(readingStreakTitleLabel)
-        readingStreakView.addSubview(readingStreakCountLabel)
-        readingStreakView.addSubview(readingStreakIconImageView)
+        contentView.addSubview(booksThisYearhView)
+        booksThisYearhView.addSubview(booksThisYearTitleLabel)
+        booksThisYearhView.addSubview(booksThisYearhCountLabel)
+        booksThisYearhView.addSubview(readingStreakIconImageView)
         
         // Add calendar
         contentView.addSubview(calendarContainerView)
@@ -342,32 +358,32 @@ class StatisticsViewController: BaseViewController {
         }
         
         // Reading streak view
-        readingStreakView.snp.makeConstraints { make in
+        booksThisYearhView.snp.makeConstraints { make in
             make.top.equalTo(totalBooksView.snp.bottom).offset(16)
             make.leading.equalTo(contentView).offset(20)
             make.trailing.equalTo(contentView).offset(-20)
             make.height.equalTo(100)
         }
         
-        readingStreakTitleLabel.snp.makeConstraints { make in
-            make.top.equalTo(readingStreakView).offset(20)
-            make.leading.equalTo(readingStreakView).offset(20)
+        booksThisYearTitleLabel.snp.makeConstraints { make in
+            make.top.equalTo(booksThisYearhView).offset(20)
+            make.leading.equalTo(booksThisYearhView).offset(20)
         }
         
-        readingStreakCountLabel.snp.makeConstraints { make in
-            make.top.equalTo(readingStreakTitleLabel.snp.bottom).offset(5)
-            make.leading.equalTo(readingStreakView).offset(20)
+        booksThisYearhCountLabel.snp.makeConstraints { make in
+            make.top.equalTo(booksThisYearTitleLabel.snp.bottom).offset(5)
+            make.leading.equalTo(booksThisYearhView).offset(20)
         }
         
         readingStreakIconImageView.snp.makeConstraints { make in
-            make.centerY.equalTo(readingStreakView)
-            make.trailing.equalTo(readingStreakView).offset(-20)
+            make.centerY.equalTo(booksThisYearhView)
+            make.trailing.equalTo(booksThisYearhView).offset(-20)
             make.width.height.equalTo(40)
         }
         
         // Calendar container
         calendarContainerView.snp.makeConstraints { make in
-            make.top.equalTo(readingStreakView.snp.bottom).offset(20)
+            make.top.equalTo(booksThisYearhView.snp.bottom).offset(20)
             make.leading.equalTo(contentView).offset(20)
             make.trailing.equalTo(contentView).offset(-20)
             make.height.equalTo(350)
@@ -430,11 +446,7 @@ class StatisticsViewController: BaseViewController {
         tabBarItem = UITabBarItem(title: "Statistics", image: UIImage(systemName: "chart.bar"), tag: 2)
         
     }
-    
-    // MARK: - Rx Bind 메서드 실행
-    override func bind() {
-        
-    }
+
     
     // MARK: - Chart Setup
 //    private func setupBarChart() {

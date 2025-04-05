@@ -232,7 +232,7 @@ final class EditReadingInProgressViewController: BaseViewController {
     }
 
     private func setupUI(item: ProgressMemoEntity) {
-        dateField.textField.text = item.date
+        dateField.textField.text = DateFormattManager.shared.dateToStr(item.date)
         textView.text = item.memo
         startPage.text = "\(item.startPage!)"
         endPage.text = "\(item.endPage!)"
@@ -242,9 +242,9 @@ final class EditReadingInProgressViewController: BaseViewController {
     }
     
     @objc private func saveButtonTapped() {
-        print("saveButtonTapped")
         guard let newMemo = textView.text else {return}
-        let newValue = ProgressMemoEntity(startPage: startPage.text, endPage: endPage.text, date: dateField.textField.text, memo: newMemo)
+        print("EditReadingInProgress", dateField.textField.text)
+        let newValue = ProgressMemoEntity(startPage: startPage.text, endPage: endPage.text, date: DateFormattManager.shared.strToDate(dateField.textField.text), memo: newMemo)
         viewModel.saveBook(newValue: newValue)
     }
     
@@ -375,7 +375,7 @@ final class EditReadingInProgressViewController: BaseViewController {
     @objc private func doneButtonTapped() {
         if let datePicker = dateField.textField.inputView as? UIDatePicker {
             let dateFormatter = DateFormatter()
-            dateFormatter.dateStyle = .medium
+            dateFormatter.dateFormat = "yyyy.MM.dd"
             dateField.textField.text = dateFormatter.string(from: datePicker.date)
         }
         view.endEditing(true)

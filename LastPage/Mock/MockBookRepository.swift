@@ -11,7 +11,7 @@ let mockBookList: [BookEntity] = [
     BookEntity(
         id: nil,
         bookDetail: BookDetailEntity(
-            imagePath: "https://image.aladin.co.kr/product/36117/12/coversum/k552038160_1.jpg",
+            imagePath: "https://image.aladin.co.kr/product/36117/12/coversum/k552038160_1.jpg", addedDate: Date(),
             title: "걸리버 여행기 (완역본)",
             author: "조너선 스위프트 지음, 강경숙 옮김",
             status: .completed,
@@ -26,7 +26,7 @@ let mockBookList: [BookEntity] = [
     BookEntity(
         id: nil,
         bookDetail: BookDetailEntity(
-            imagePath: "https://image.aladin.co.kr/product/35935/10/coversum/k002037708_1.jpg",
+            imagePath: "https://image.aladin.co.kr/product/35935/10/coversum/k002037708_1.jpg", addedDate: Date(),
             title: "Do it! 스위프트로 아이폰 앱 만들기 : 입문 - 개정 8판, 일상생활 필수 앱을 직접 만들며 배운다!",
             author: "송호정.이범근 지음",
             status: .reading,
@@ -41,7 +41,7 @@ let mockBookList: [BookEntity] = [
     BookEntity(
         id: nil,
         bookDetail: BookDetailEntity(
-            imagePath: "https://image.aladin.co.kr/product/35728/23/coversum/k692036432_1.jpg",
+            imagePath: "https://image.aladin.co.kr/product/35728/23/coversum/k692036432_1.jpg", addedDate: Date(),
             title: "걸리버 여행기",
             author: "조너선 스위프트 지음, 마틴 우드사이드 다시 씀, 김완진 그림, 장혜진 옮김, 아서 포버",
             status: .unread,
@@ -56,7 +56,7 @@ let mockBookList: [BookEntity] = [
     BookEntity(
         id:nil,
         bookDetail: BookDetailEntity(
-            imagePath: "https://image.aladin.co.kr/product/35647/70/coversum/k382036711_1.jpg",
+            imagePath: "https://image.aladin.co.kr/product/35647/70/coversum/k382036711_1.jpg", addedDate: Date(),
             title: "테일러 스위프트 - 앨범별로 돌아본 우리 시대 아티스트의 삶과 노래",
             author: "캐롤린 맥휴 지음, 장정문 옮김, 김도헌 감수",
             status: .reading,
@@ -71,7 +71,7 @@ let mockBookList: [BookEntity] = [
     BookEntity(
         id: nil,
         bookDetail: BookDetailEntity(
-            imagePath: "https://image.aladin.co.kr/product/35095/35/coversum/k042934503_1.jpg",
+            imagePath: "https://image.aladin.co.kr/product/35095/35/coversum/k042934503_1.jpg", addedDate: Date(),
             title: "제국의 설계자 - 테일러 스위프트의 비즈니스 레슨",
             author: "크리스토퍼 마이클 우드 지음, 플랫폼 9와 3/4 옮김",
             status: .unread,
@@ -86,7 +86,7 @@ let mockBookList: [BookEntity] = [
     BookEntity(
         id: nil,
         bookDetail: BookDetailEntity(
-            imagePath: "https://image.aladin.co.kr/product/34165/94/coversum/k432931910_1.jpg",
+            imagePath: "https://image.aladin.co.kr/product/34165/94/coversum/k432931910_1.jpg", addedDate: Date(),
             title: "[세트] 걸리버 유람기 + 후이늠 Houyhnhnm : 검은 인화지에 남긴 흰 그림자 - 전2권",
             author: "강화길 외 지음",
             status: .unread,
@@ -101,7 +101,7 @@ let mockBookList: [BookEntity] = [
     BookEntity(
         id: nil,
         bookDetail: BookDetailEntity(
-            imagePath: "https://image.aladin.co.kr/product/34157/31/coversum/8985231081_1.jpg",
+            imagePath: "https://image.aladin.co.kr/product/34157/31/coversum/8985231081_1.jpg", addedDate: Date(),
             title: "걸리버 유람기",
             author: "김연수 지음, 강혜숙 그림, 조너선 스위프트 원작",
             status: .completed,
@@ -116,7 +116,7 @@ let mockBookList: [BookEntity] = [
     BookEntity(
         id: nil,
         bookDetail: BookDetailEntity(
-            imagePath: "https://image.aladin.co.kr/product/33888/52/coversum/k462038921_1.jpg",
+            imagePath: "https://image.aladin.co.kr/product/33888/52/coversum/k462038921_1.jpg", addedDate: Date(),
             title: "딥러닝 스위프트 - iOS 앱 개발자를 위한",
             author: "조기성 지음",
             status: .unread,

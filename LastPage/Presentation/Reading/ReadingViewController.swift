@@ -444,7 +444,8 @@ final class ReadingViewController: BaseViewController {
         let imgPath = item.bookDetail.imagePath ?? TextResource.Global.empty.text
         ImageFormatter.shared.setImage(target: bookCoverImageView, path: imgPath)
         // Format date
-        dateAddedLabel.text = "Added: Unknown"
+
+        dateAddedLabel.text = DateFormattManager.shared.dateToStr(item.bookDetail.addedDate)
         progressLabel.text = item.bookDetail.status.rawValue
         readingInProgressView.updateData(data: item.inProgressMemo)
         beforeReadingView.updateMemo(item: item.beforeMemo)

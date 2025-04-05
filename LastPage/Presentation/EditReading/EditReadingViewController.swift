@@ -76,12 +76,12 @@ final class EditReadingViewController: BaseViewController {
     
     @objc private func saveButtonTapped() {
         guard let newMemo = textView.text else {return}
-        let newValue = MemoEntity(date: dateField.textField.text, memo: newMemo)
+        let newValue = MemoEntity(date: DateFormattManager.shared.strToDate(dateField.textField.text) , memo: newMemo)
         viewModel.saveBook(newValue: newValue)
     }
     
     private func setupUI(item: MemoEntity) {
-        dateField.textField.text = item.date
+        dateField.textField.text = DateFormattManager.shared.dateToStr(item.date)
         textView.text = item.memo
         // Trigger text view height update when setting text initially
         textViewDidChange(textView)
@@ -175,8 +175,9 @@ final class EditReadingViewController: BaseViewController {
     @objc private func doneButtonTapped() {
         if let datePicker = dateField.textField.inputView as? UIDatePicker {
             let dateFormatter = DateFormatter()
-            dateFormatter.dateStyle = .medium
+            dateFormatter.dateFormat = "yyyy.MM.dd"
             dateField.textField.text = dateFormatter.string(from: datePicker.date)
+            print()
         }
         view.endEditing(true)
     }
