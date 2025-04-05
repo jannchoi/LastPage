@@ -27,7 +27,7 @@ final class ReadingViewModel: BaseViewModel {
         self.updateBookUsecase = updateBookUsecase
         self.bookId = bookId
         bookAddedSubject.sink { newId in
-            
+            print("BookAdded")
             self.bookId = newId
             self.bookDetail?.id = newId
             self.fetchBook(itemId: newId)

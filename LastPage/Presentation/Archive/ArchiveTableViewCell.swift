@@ -95,7 +95,7 @@ final class ArchiveTableViewCell: UITableViewCell {
     }
     
     
-    func configure(item: BookEntity) {
+    func configure(item: HomeBookEntity) {
         titleLabel.text = item.bookDetail.title
         authorLabel.text = item.bookDetail.author
         statusLabel.text = item.bookDetail.status.rawValue
@@ -140,27 +140,24 @@ final class ArchiveTableViewCell: UITableViewCell {
         }
     }
     
-    private func configureStatusView(status: String) {
-        statusLabel.text = status
-        
-        switch status.lowercased() {
-        case "finished":
-            statusContainerView.layer.borderColor = UIColor.systemGreen.cgColor
-            statusLabel.textColor = .systemGreen
-            statusIcon.image = UIImage(systemName: "checkmark.circle.fill")
-            statusIcon.tintColor = .systemGreen
-        case "reading":
-            statusContainerView.layer.borderColor = UIColor.systemOrange.cgColor
-            statusLabel.textColor = .systemOrange
-            statusIcon.image = UIImage(systemName: "book.fill")
-            statusIcon.tintColor = .systemOrange
-        case "want to read":
+    private func configureStatusView(status: ReadingStatusEntity) {
+        statusLabel.text = status.rawValue
+        switch status {
+        case .unread:
             statusContainerView.layer.borderColor = UIColor.systemBlue.cgColor
             statusLabel.textColor = .systemBlue
             statusIcon.image = UIImage(systemName: "bookmark.fill")
             statusIcon.tintColor = .systemBlue
-        default:
-            statusContainerView.isHidden = true
+        case .reading:
+            statusContainerView.layer.borderColor = UIColor.systemOrange.cgColor
+            statusLabel.textColor = .systemOrange
+            statusIcon.image = UIImage(systemName: "book.fill")
+            statusIcon.tintColor = .systemOrange
+        case .completed:
+            statusContainerView.layer.borderColor = UIColor.systemGreen.cgColor
+            statusLabel.textColor = .systemGreen
+            statusIcon.image = UIImage(systemName: "checkmark.circle.fill")
+            statusIcon.tintColor = .systemGreen
         }
     }
     
