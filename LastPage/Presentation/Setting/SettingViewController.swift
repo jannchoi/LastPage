@@ -62,7 +62,6 @@ class SettingViewController: BaseViewController {
     // MARK: - 프로퍼티 속성 설정
     override func configureView() {
         view.backgroundColor = .white
-        tabBarItem = UITabBarItem(title: "Settings", image: UIImage(systemName: "gearshape"), tag: 3)
         version.text = "Version 1.0.0"
         version.textColor = .secondaryLabel
         version.font = .systemFont(ofSize: 14)
@@ -149,7 +148,8 @@ extension SettingViewController: UITableViewDelegate {
         
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         alert.addAction(UIAlertAction(title: "Reset", style: .destructive) { [weak self] _ in
-            // reset logic
+            guard let self = self else {return}
+            self.viewModel.resetBooks()
         })
         
         present(alert, animated: true)

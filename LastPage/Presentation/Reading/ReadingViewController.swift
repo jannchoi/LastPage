@@ -579,7 +579,8 @@ final class ReadingViewController: BaseViewController {
         alert.addAction(UIAlertAction(title: "Delete", style: .destructive) { [weak self] _ in
             // Implement delete functionality
             guard let self = self, let bookId = self.viewModel.bookDetail?.id else { return }
-            // Call viewModel method to delete book
+            viewModel.deleteBook(targetId: bookId)
+            self.navigationController?.popViewController(animated: true)
         })
         
         present(alert, animated: true)

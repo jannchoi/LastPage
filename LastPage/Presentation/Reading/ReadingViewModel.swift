@@ -12,6 +12,8 @@ final class ReadingViewModel: BaseViewModel {
     var cancellables = Set<AnyCancellable>()
     let getBookUseCase: GetBookUseCaseProtocol
     let updateBookUsecase: UpdateBookUseCaseProtocol
+    let deleteBookUsecase: DeleteBookUseCaseProtocol
+    var bookDeleted = PassthroughSubject<Void, Never>()
     @Published var bookDetail: BookEntity?
     @Published var isLoading: Bool = false
     @Published private(set) var fetchError: String? = nil
@@ -22,9 +24,10 @@ final class ReadingViewModel: BaseViewModel {
     struct Output {
         
     }
-    init(bookAddedSubject: PassthroughSubject<String, Never>, bookId: String? = nil, bookDetail: BookDetail? = nil, getBookUseCase: GetBookUseCaseProtocol, updateBookUsecase: UpdateBookUseCaseProtocol) {
+    init(bookAddedSubject: PassthroughSubject<String, Never>, bookId: String? = nil, bookDetail: BookDetail? = nil, getBookUseCase: GetBookUseCaseProtocol, updateBookUsecase: UpdateBookUseCaseProtocol, deleteBookUsecase: DeleteBookUseCaseProtocol) {
         self.getBookUseCase = getBookUseCase
         self.updateBookUsecase = updateBookUsecase
+        self.deleteBookUsecase = deleteBookUsecase
         self.bookId = bookId
         bookAddedSubject.sink { newId in
             self.bookId = newId
@@ -50,6 +53,17 @@ final class ReadingViewModel: BaseViewModel {
 
         return Output()
     }
+    func deleteBook(targetId: String) {
+        deleteBookUsecase.execute(with: targetId).sink { [weak self] completion in
+            if case .failure(let error) = completion {
+                self?.fetchError = TextResource.DataError.deleteError.text
+            }
+        } receiveValue: { [weak self] _ in
+            guard let self = self else {return}
+            self.bookDeleted.send(())
+        }
+        .store(in: &cancellables)
+    }
     func deleteBook(targetIdx: Int) {
         guard let bookDetail = bookDetail, let id = bookDetail.id else {return}
         updateBookUsecase.execute(bookId: id, field: .reading, newValue:  Optional<ProgressMemoEntity>.none, index: targetIdx).sink(
@@ -62,8 +76,9 @@ final class ReadingViewModel: BaseViewModel {
                     self.fetchError = TextResource.DataError.updateError.text
                 }
             },
-            receiveValue: {
-
+            receiveValue: { [weak self] _ in
+                guard let self = self else {return}
+                self.bookDeleted.send(())
             }
         )
         .store(in: &cancellables)

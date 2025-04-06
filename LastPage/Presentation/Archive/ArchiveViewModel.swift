@@ -13,6 +13,7 @@ final class ArchiveViewModel: BaseViewModel {
     var cancellables = Set<AnyCancellable>()
     let getAllBooksUseCase: GetAllBooksUseCaseProtocol
     let deleteBookUsecase: DeleteBookUseCaseProtocol
+    var bookDeleted = PassthroughSubject<Void, Never>()
     @Published private(set) var fetchError: String? = nil
     
     @Published var bookList: [HomeBookEntity] = []
@@ -40,13 +41,17 @@ final class ArchiveViewModel: BaseViewModel {
         var bookList: [HomeBookEntity] = []
     }
     
-    init(bookAddedSubject: PassthroughSubject<String, Never>,getAllBooksUseCase: GetAllBooksUseCaseProtocol, deleteBookUsecase: DeleteBookUseCaseProtocol) {
+    init(bookDeletedSubject : PassthroughSubject<Void, Never>, bookAddedSubject: PassthroughSubject<String, Never>,getAllBooksUseCase: GetAllBooksUseCaseProtocol, deleteBookUsecase: DeleteBookUseCaseProtocol) {
         self.getAllBooksUseCase = getAllBooksUseCase
         self.deleteBookUsecase = deleteBookUsecase
         self.internalData = InternalData()
         self.getAllBooks()
         bookAddedSubject.sink { _ in
             self.bookList = []
+            self.getAllBooks()
+        }.store(in: &cancellables)
+        bookDeletedSubject.sink{ newId in
+            print("archive deleted")
             self.getAllBooks()
         }.store(in: &cancellables)
     }
@@ -80,8 +85,9 @@ final class ArchiveViewModel: BaseViewModel {
             if case .failure(let error) = completion {
                 self?.fetchError = TextResource.DataError.deleteError.text
             }
-        } receiveValue: {
-            // Success
+        } receiveValue: { [weak self] _ in
+            guard let self = self else {return}
+            self.bookDeleted.send(())
         }
         .store(in: &cancellables)
         getAllBooks()

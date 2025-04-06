@@ -14,28 +14,42 @@ final class ReadingCoordinator:Coordinator {
     private let diContainer: AppDIContainer
     
     let bookAddedSubject : PassthroughSubject<String, Never>
-
-    init(bookAddedSubject : PassthroughSubject<String, Never>, parentCoordinator: Coordinator?, navigationController: UINavigationController, diContainer: AppDIContainer) {
+    let bookDeletedSubject : PassthroughSubject<Void, Never>
+    init(bookDeletedSubject : PassthroughSubject<Void, Never>,bookAddedSubject : PassthroughSubject<String, Never>, parentCoordinator: Coordinator?, navigationController: UINavigationController, diContainer: AppDIContainer) {
         self.parentCoordinator = parentCoordinator
         self.navigationController = navigationController
         self.diContainer = diContainer
         self.bookAddedSubject = bookAddedSubject
+        self.bookDeletedSubject = bookDeletedSubject
     }
 
     func start() {
-        let viewModel = ReadingViewModel(bookAddedSubject: bookAddedSubject, getBookUseCase: diContainer.makeGetBookUseCase(), updateBookUsecase: diContainer.makeUpdateBookUseCase())
+        let viewModel = ReadingViewModel(bookAddedSubject: bookAddedSubject, getBookUseCase: diContainer.makeGetBookUseCase(), updateBookUsecase: diContainer.makeUpdateBookUseCase(), deleteBookUsecase: diContainer.makeDeleteBookUseCase())
+        viewModel.bookDeleted.sink { [weak self] bookId in
+            guard let self = self else {return}
+            self.bookDeletedSubject.send()
+        }.store(in: &viewModel.cancellables)
         let readingVC = ReadingViewController(viewModel: viewModel)
         readingVC.coordinator = self
         navigationController.pushViewController(readingVC, animated: true)
     }
     func start(bookId: String?) {
-        let viewModel = ReadingViewModel(bookAddedSubject: bookAddedSubject, bookId: bookId, getBookUseCase: diContainer.makeGetBookUseCase(), updateBookUsecase: diContainer.makeUpdateBookUseCase())
+        let viewModel = ReadingViewModel(bookAddedSubject: bookAddedSubject, bookId: bookId, getBookUseCase: diContainer.makeGetBookUseCase(), updateBookUsecase: diContainer.makeUpdateBookUseCase(), deleteBookUsecase: diContainer.makeDeleteBookUseCase())
+        viewModel.bookDeleted.sink { [weak self] bookId in
+            guard let self = self else {return}
+            self.bookDeletedSubject.send()
+        }.store(in: &viewModel.cancellables)
         let readingVC = ReadingViewController(viewModel: viewModel)
+        
         readingVC.coordinator = self
         navigationController.pushViewController(readingVC, animated: true)
     }
     func start(bookDetail: BookDetail) {
-        let viewModel = ReadingViewModel(bookAddedSubject: bookAddedSubject, bookDetail: bookDetail,getBookUseCase: diContainer.makeGetBookUseCase(), updateBookUsecase: diContainer.makeUpdateBookUseCase())
+        let viewModel = ReadingViewModel(bookAddedSubject: bookAddedSubject, bookDetail: bookDetail,getBookUseCase: diContainer.makeGetBookUseCase(), updateBookUsecase: diContainer.makeUpdateBookUseCase(), deleteBookUsecase: diContainer.makeDeleteBookUseCase())
+        viewModel.bookDeleted.sink { [weak self] bookId in
+            guard let self = self else {return}
+            self.bookDeletedSubject.send()
+        }.store(in: &viewModel.cancellables)
         let readingVC = ReadingViewController(viewModel: viewModel)
         readingVC.coordinator = self
         navigationController.pushViewController(readingVC, animated: true)

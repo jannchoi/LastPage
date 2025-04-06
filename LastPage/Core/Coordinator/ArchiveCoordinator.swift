@@ -14,23 +14,30 @@ final class ArchiveCoordinator:Coordinator {
     let navigationController: UINavigationController
     private let diContainer: AppDIContainer
     let bookAddedSubject : PassthroughSubject<String, Never>
-    init(bookAddedSubject : PassthroughSubject<String, Never>, parentCoordinator: Coordinator?, navigationController: UINavigationController, diContainer: AppDIContainer) {
+    let bookDeletedSubject : PassthroughSubject<Void, Never>
+    init(bookDeletedSubject : PassthroughSubject<Void, Never>,bookAddedSubject : PassthroughSubject<String, Never>, parentCoordinator: Coordinator?, navigationController: UINavigationController, diContainer: AppDIContainer) {
         self.parentCoordinator = parentCoordinator
         self.navigationController = navigationController
         self.diContainer = diContainer
         self.bookAddedSubject = bookAddedSubject
+        self.bookDeletedSubject = bookDeletedSubject
     }
 
     func start() {
-        let viewModel = ArchiveViewModel(bookAddedSubject: bookAddedSubject,
+        let viewModel = ArchiveViewModel(bookDeletedSubject : bookDeletedSubject, bookAddedSubject: bookAddedSubject,
             getAllBooksUseCase: diContainer.makeGetAllBooksUseCase(), deleteBookUsecase: diContainer.makeDeleteBookUseCase())
+        viewModel.bookDeleted.sink { [weak self] bookId in
+            guard let self = self else {return}
+            print("Archive deleted")
+            self.bookDeletedSubject.send()
+        }.store(in: &viewModel.cancellables)
         let archiveVC = ArchiveViewController(viewModel: viewModel)
         archiveVC.coordinator = self
         navigationController.pushViewController(archiveVC, animated: true)
     }
 
     func showReading(bookId: String?) {
-        let readingCoordinator = ReadingCoordinator(bookAddedSubject: bookAddedSubject,parentCoordinator: self,navigationController: navigationController, diContainer: diContainer)
+        let readingCoordinator = ReadingCoordinator(bookDeletedSubject : bookDeletedSubject,bookAddedSubject: bookAddedSubject,parentCoordinator: self,navigationController: navigationController, diContainer: diContainer)
         childCoordinators.append(readingCoordinator)
         readingCoordinator.start(bookId: bookId)
     }

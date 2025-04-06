@@ -14,11 +14,13 @@ final class SearchCoordinator:Coordinator {
     private let navigationController: UINavigationController
     private let diContainer: AppDIContainer
     let bookAddedSubject : PassthroughSubject<String, Never>
-    init(bookAddedSubject : PassthroughSubject<String, Never>,parentCoordinator: Coordinator?, navigationController: UINavigationController, diContainer: AppDIContainer) {
+    let bookDeletedSubject : PassthroughSubject<Void, Never>
+    init(bookDeletedSubject : PassthroughSubject<Void, Never>, bookAddedSubject : PassthroughSubject<String, Never>,parentCoordinator: Coordinator?, navigationController: UINavigationController, diContainer: AppDIContainer) {
         self.parentCoordinator = parentCoordinator
         self.navigationController = navigationController
         self.diContainer = diContainer
         self.bookAddedSubject = bookAddedSubject
+        self.bookDeletedSubject = bookDeletedSubject
     }
 
     func start() {
@@ -29,12 +31,12 @@ final class SearchCoordinator:Coordinator {
     }
 
     func showReading() {
-        let readingCoordinator = ReadingCoordinator(bookAddedSubject : bookAddedSubject,parentCoordinator: self,navigationController: navigationController, diContainer: diContainer)
+        let readingCoordinator = ReadingCoordinator(bookDeletedSubject: bookDeletedSubject,bookAddedSubject : bookAddedSubject,parentCoordinator: self,navigationController: navigationController, diContainer: diContainer)
         childCoordinators.append(readingCoordinator)
         readingCoordinator.start()
     }
     func showReading(bookDetail: BookDetail) {
-        let readingCoordinator = ReadingCoordinator(bookAddedSubject : bookAddedSubject,parentCoordinator: self,navigationController: navigationController, diContainer: diContainer)
+        let readingCoordinator = ReadingCoordinator(bookDeletedSubject: bookDeletedSubject, bookAddedSubject : bookAddedSubject,parentCoordinator: self,navigationController: navigationController, diContainer: diContainer)
         childCoordinators.append(readingCoordinator)
         readingCoordinator.start(bookDetail: bookDetail)
     }

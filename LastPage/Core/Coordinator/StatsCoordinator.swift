@@ -14,15 +14,17 @@ final class StatsCoordinator: Coordinator {
     let navigationController: UINavigationController
     let diContainer: AppDIContainer
     let bookAddedSubject : PassthroughSubject<String, Never>
-    init(bookAddedSubject : PassthroughSubject<String, Never>, parentCoordinator: Coordinator?, navigationController: UINavigationController, diContainer: AppDIContainer) {
+    let bookDeletedSubject : PassthroughSubject<Void, Never>
+    init(bookDeletedSubject : PassthroughSubject<Void, Never>, bookAddedSubject : PassthroughSubject<String, Never>, parentCoordinator: Coordinator?, navigationController: UINavigationController, diContainer: AppDIContainer) {
         self.parentCoordinator = parentCoordinator
         self.navigationController = navigationController
         self.diContainer = diContainer
         self.bookAddedSubject = bookAddedSubject
+        self.bookDeletedSubject = bookDeletedSubject
     }
 
     func start() {
-        let viewModel = StatsViewModel(getAllBooksUseCase: diContainer.makeGetAllBooksUseCase() )
+        let viewModel = StatsViewModel(bookDeletedSubject : bookDeletedSubject, getAllBooksUseCase: diContainer.makeGetAllBooksUseCase() )
         let vc = StatisticsViewController(viewModel: viewModel)
         vc.coordinator = self
         navigationController.viewControllers = [vc]
