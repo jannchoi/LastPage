@@ -28,7 +28,7 @@ final class MainCoordinator: Coordinator {
         let homeCoordinator = HomeCoordinator(bookDeletedSubject : bookDeletedSubject,bookAddedSubject : bookAddedSubject,navigationController: UINavigationController(), diContainer: diContainer)
         let archiveCoordinator = ArchiveCoordinator(bookDeletedSubject : bookDeletedSubject, bookAddedSubject : bookAddedSubject, parentCoordinator: self ,navigationController: UINavigationController(), diContainer: diContainer)
         let statsCoordinator = StatsCoordinator(    bookDeletedSubject : bookDeletedSubject, bookAddedSubject : bookAddedSubject, parentCoordinator: self ,navigationController: UINavigationController(), diContainer: diContainer)
-        let settingsCoordinator = SettingsCoordinator(parentCoordinator: self ,navigationController: UINavigationController(), diContainer: diContainer)
+        let settingsCoordinator = SettingsCoordinator(bookDeletedSubject: bookDeletedSubject ,parentCoordinator: self ,navigationController: UINavigationController(), diContainer: diContainer)
 
         childCoordinators = [homeCoordinator, archiveCoordinator, statsCoordinator, settingsCoordinator]
 

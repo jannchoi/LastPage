@@ -28,6 +28,7 @@ final class ArchiveCoordinator:Coordinator {
             getAllBooksUseCase: diContainer.makeGetAllBooksUseCase(), deleteBookUsecase: diContainer.makeDeleteBookUseCase())
         viewModel.bookDeleted.sink { [weak self] bookId in
             guard let self = self else {return}
+            print("Archive deleted")
             self.bookDeletedSubject.send()
         }.store(in: &viewModel.cancellables)
         let archiveVC = ArchiveViewController(viewModel: viewModel)

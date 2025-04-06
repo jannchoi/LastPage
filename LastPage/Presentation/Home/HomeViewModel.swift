@@ -35,6 +35,7 @@ final class HomeViewModel:BaseViewModel {
         }.store(in: &cancellables)
         bookDeletedSubject.sink {
             _ in
+            print("home deleted")
             self.getBookData()
         }.store(in: &cancellables)
        

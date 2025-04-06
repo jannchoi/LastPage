@@ -51,6 +51,7 @@ final class ArchiveViewModel: BaseViewModel {
             self.getAllBooks()
         }.store(in: &cancellables)
         bookDeletedSubject.sink{ newId in
+            print("archive deleted")
             self.getAllBooks()
         }.store(in: &cancellables)
     }

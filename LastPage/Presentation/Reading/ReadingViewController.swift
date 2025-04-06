@@ -580,6 +580,7 @@ final class ReadingViewController: BaseViewController {
             // Implement delete functionality
             guard let self = self, let bookId = self.viewModel.bookDetail?.id else { return }
             viewModel.deleteBook(targetId: bookId)
+            self.navigationController?.popViewController(animated: true)
         })
         
         present(alert, animated: true)

@@ -149,7 +149,8 @@ extension SettingViewController: UITableViewDelegate {
         
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         alert.addAction(UIAlertAction(title: "Reset", style: .destructive) { [weak self] _ in
-            // reset logic
+            guard let self = self else {return}
+            self.viewModel.resetBooks()
         })
         
         present(alert, animated: true)
