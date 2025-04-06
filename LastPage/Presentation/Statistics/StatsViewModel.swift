@@ -25,9 +25,12 @@ final class StatsViewModel:BaseViewModel {
         var bookList : [HomeBookEntity] = []
     }
     
-    init(getAllBooksUseCase: GetAllBooksUseCaseProtocol) {
+    init(bookDeletedSubject : PassthroughSubject<Void, Never>, getAllBooksUseCase: GetAllBooksUseCaseProtocol) {
         self.getAllBooksUseCase = getAllBooksUseCase
         self.internalData = InternalData()
+        bookDeletedSubject.sink{ newId in
+            self.getBookData()
+        }.store(in: &cancellables)
     }
     
     func transform(input: Input) -> Output {

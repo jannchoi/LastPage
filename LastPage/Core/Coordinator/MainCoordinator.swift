@@ -13,6 +13,8 @@ final class MainCoordinator: Coordinator {
     private let window: UIWindow
     private let diContainer: AppDIContainer
     let bookAddedSubject = PassthroughSubject<String, Never>()
+    let bookDeletedSubject = PassthroughSubject<Void, Never>()
+
     init(window: UIWindow, diContainer: AppDIContainer) {
         self.window = window
         self.diContainer = diContainer
@@ -23,9 +25,9 @@ final class MainCoordinator: Coordinator {
         tabBarController.coordinator = self
 
 
-        let homeCoordinator = HomeCoordinator(bookAddedSubject : bookAddedSubject,navigationController: UINavigationController(), diContainer: diContainer)
-        let archiveCoordinator = ArchiveCoordinator(bookAddedSubject : bookAddedSubject, parentCoordinator: self ,navigationController: UINavigationController(), diContainer: diContainer)
-        let statsCoordinator = StatsCoordinator(bookAddedSubject : bookAddedSubject, parentCoordinator: self ,navigationController: UINavigationController(), diContainer: diContainer)
+        let homeCoordinator = HomeCoordinator(bookDeletedSubject : bookDeletedSubject,bookAddedSubject : bookAddedSubject,navigationController: UINavigationController(), diContainer: diContainer)
+        let archiveCoordinator = ArchiveCoordinator(bookDeletedSubject : bookDeletedSubject, bookAddedSubject : bookAddedSubject, parentCoordinator: self ,navigationController: UINavigationController(), diContainer: diContainer)
+        let statsCoordinator = StatsCoordinator(    bookDeletedSubject : bookDeletedSubject, bookAddedSubject : bookAddedSubject, parentCoordinator: self ,navigationController: UINavigationController(), diContainer: diContainer)
         let settingsCoordinator = SettingsCoordinator(parentCoordinator: self ,navigationController: UINavigationController(), diContainer: diContainer)
 
         childCoordinators = [homeCoordinator, archiveCoordinator, statsCoordinator, settingsCoordinator]

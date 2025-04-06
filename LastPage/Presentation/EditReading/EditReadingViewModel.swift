@@ -27,6 +27,7 @@ final class EditReadingViewModel:BaseViewModel {
     init(bookId: String? = nil, status: UpdateTarget? = nil, getBookUseCase: GetBookUseCaseProtocol, updateBookUsecase: UpdateBookUseCaseProtocol) {
         self.getBookUseCase = getBookUseCase
         self.updateBookUsecase = updateBookUsecase
+
         self.bookId = bookId
         self.status = status
         if let bookId = bookId, let status = status {
@@ -38,6 +39,7 @@ final class EditReadingViewModel:BaseViewModel {
         //
         return Output()
     }
+
     func saveBook<T>(newValue: T) {
         if let bookId = bookId, let status = status {
             updateBookUsecase.execute(bookId: bookId, field: status, newValue: newValue, index: nil).sink { [weak self] completion in

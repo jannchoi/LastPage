@@ -27,10 +27,14 @@ final class HomeViewModel:BaseViewModel {
         let bookListSubject = [BookEntity]()
     }
     
-    init(bookAddedSubject: PassthroughSubject<String, Never>, getAllBooksUseCase: GetAllBooksUseCaseProtocol) {
+    init(bookDeletedSubject : PassthroughSubject<Void, Never>, bookAddedSubject: PassthroughSubject<String, Never>, getAllBooksUseCase: GetAllBooksUseCaseProtocol) {
         self.getAllBooksUseCase = getAllBooksUseCase
         self.internalData = InternalData()
         bookAddedSubject.sink { _ in
+            self.getBookData()
+        }.store(in: &cancellables)
+        bookDeletedSubject.sink {
+            _ in
             self.getBookData()
         }.store(in: &cancellables)
        
