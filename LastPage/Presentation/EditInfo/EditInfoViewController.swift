@@ -325,7 +325,6 @@ final class EditInfoViewController: BaseViewController {
                     categories: categoryField.getTag(),
                     feelings: feelingsField.getTag()
                 )
-                print(newValue)
                 viewModel.saveBook(newValue: newValue)
             }
             else {

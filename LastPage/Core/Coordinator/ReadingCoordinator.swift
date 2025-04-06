@@ -13,12 +13,13 @@ final class ReadingCoordinator:Coordinator {
     private let navigationController: UINavigationController
     private let diContainer: AppDIContainer
     
-    let bookAddedSubject = PassthroughSubject<String, Never>()
+    let bookAddedSubject : PassthroughSubject<String, Never>
 
-    init(parentCoordinator: Coordinator?, navigationController: UINavigationController, diContainer: AppDIContainer) {
+    init(bookAddedSubject : PassthroughSubject<String, Never>, parentCoordinator: Coordinator?, navigationController: UINavigationController, diContainer: AppDIContainer) {
         self.parentCoordinator = parentCoordinator
         self.navigationController = navigationController
         self.diContainer = diContainer
+        self.bookAddedSubject = bookAddedSubject
     }
 
     func start() {

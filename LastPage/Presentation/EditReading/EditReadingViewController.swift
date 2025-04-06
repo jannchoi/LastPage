@@ -177,7 +177,6 @@ final class EditReadingViewController: BaseViewController {
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy.MM.dd"
             dateField.textField.text = dateFormatter.string(from: datePicker.date)
-            print()
         }
         view.endEditing(true)
     }

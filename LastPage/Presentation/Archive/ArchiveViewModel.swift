@@ -13,9 +13,6 @@ final class ArchiveViewModel: BaseViewModel {
     var cancellables = Set<AnyCancellable>()
     let getAllBooksUseCase: GetAllBooksUseCaseProtocol
     let deleteBookUsecase: DeleteBookUseCaseProtocol
-    let getBooksByStatusUseCase: GetBooksByStatusUseCaseProtocol
-    let getBooksByCategoryUseCase: GetBooksByCategoryUseCaseProtocol
-    let getBooksByFeelingUseCase: GetBooksByFeelingUseCaseProtocol
     @Published private(set) var fetchError: String? = nil
     
     @Published var bookList: [HomeBookEntity] = []
@@ -43,18 +40,18 @@ final class ArchiveViewModel: BaseViewModel {
         var bookList: [HomeBookEntity] = []
     }
     
-    init(getAllBooksUseCase: GetAllBooksUseCaseProtocol, deleteBookUsecase: DeleteBookUseCaseProtocol, getBooksByStatusUseCase: GetBooksByStatusUseCaseProtocol, getBooksByCategoryUseCase: GetBooksByCategoryUseCaseProtocol, getBooksByFeelingUseCase: GetBooksByFeelingUseCaseProtocol) {
+    init(bookAddedSubject: PassthroughSubject<String, Never>,getAllBooksUseCase: GetAllBooksUseCaseProtocol, deleteBookUsecase: DeleteBookUseCaseProtocol) {
         self.getAllBooksUseCase = getAllBooksUseCase
         self.deleteBookUsecase = deleteBookUsecase
-        self.getBooksByStatusUseCase = getBooksByStatusUseCase
-        self.getBooksByCategoryUseCase = getBooksByCategoryUseCase
-        self.getBooksByFeelingUseCase = getBooksByFeelingUseCase
         self.internalData = InternalData()
         self.getAllBooks()
+        bookAddedSubject.sink { _ in
+            self.bookList = []
+            self.getAllBooks()
+        }.store(in: &cancellables)
     }
     
     func transform(input: Input) -> Output {
-        // 모든 필터 입력을 결합하여 필터링된 책 목록 생성
         let filteredBooks = Publishers.CombineLatest4(
             $searchQuery,
             $selectedStatusTags,
@@ -74,6 +71,7 @@ final class ArchiveViewModel: BaseViewModel {
         
         return Output(filteredBooks: filteredBooks)
     }
+
     
     func deleteBook(index: Int) {
         if index >= bookList.count { return }

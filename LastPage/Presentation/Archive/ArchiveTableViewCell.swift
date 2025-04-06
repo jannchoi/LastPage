@@ -98,7 +98,7 @@ final class ArchiveTableViewCell: UITableViewCell {
     func configure(item: HomeBookEntity) {
         titleLabel.text = item.bookDetail.title
         authorLabel.text = item.bookDetail.author
-        statusLabel.text = item.bookDetail.status.rawValue
+        configureStatusView(status: item.bookDetail.status)
         setTags(elements: item.bookDetail.categories)
         let imgPath = item.bookDetail.imagePath ?? TextResource.Global.empty.text
         ImageFormatter.shared.setImage(target: bookCoverImageView, path: imgPath)

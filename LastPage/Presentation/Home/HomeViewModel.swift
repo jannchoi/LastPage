@@ -27,16 +27,18 @@ final class HomeViewModel:BaseViewModel {
         let bookListSubject = [BookEntity]()
     }
     
-    init(getAllBooksUseCase: GetAllBooksUseCaseProtocol) {
+    init(bookAddedSubject: PassthroughSubject<String, Never>, getAllBooksUseCase: GetAllBooksUseCaseProtocol) {
         self.getAllBooksUseCase = getAllBooksUseCase
         self.internalData = InternalData()
-        getBookData()
+        bookAddedSubject.sink { _ in
+            self.getBookData()
+        }.store(in: &cancellables)
        
         
     }
     
     func transform(input: Input) -> Output {
-
+        getBookData()
         return Output()
     }
     private func getBookData() {

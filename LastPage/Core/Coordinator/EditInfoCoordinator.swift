@@ -29,7 +29,6 @@ final class EditInfoCoordinator:Coordinator {
         let viewModel = EditInfoViewModel(passedBook: passedBook ,bookId: bookId,getBookUseCase: diContainer.makeGetBookUseCase(),updateBookUsecase: diContainer.makeUpdateBookUseCase(),saveBookUsecase: diContainer.makeSaveBookUseCase() )
         viewModel.bookAdded.sink { [weak self] bookId in
             guard let self = self else {return}
-            print(#function)
             self.bookAddedSubject.send(bookId)
         }
         .store(in: &viewModel.cancellables)

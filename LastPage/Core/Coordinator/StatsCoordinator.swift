@@ -6,17 +6,19 @@
 //
 
 import UIKit
+import Combine
 final class StatsCoordinator: Coordinator {
     private weak var parentCoordinator: Coordinator?
     var childCoordinators: [Coordinator] = []
     
     let navigationController: UINavigationController
     let diContainer: AppDIContainer
-
-    init(parentCoordinator: Coordinator?, navigationController: UINavigationController, diContainer: AppDIContainer) {
+    let bookAddedSubject : PassthroughSubject<String, Never>
+    init(bookAddedSubject : PassthroughSubject<String, Never>, parentCoordinator: Coordinator?, navigationController: UINavigationController, diContainer: AppDIContainer) {
         self.parentCoordinator = parentCoordinator
         self.navigationController = navigationController
         self.diContainer = diContainer
+        self.bookAddedSubject = bookAddedSubject
     }
 
     func start() {

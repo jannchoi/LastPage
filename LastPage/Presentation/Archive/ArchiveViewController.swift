@@ -134,7 +134,6 @@ final class ArchiveViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
     }
-    
     override func bind() {
         viewModel.$bookList
             .receive(on: DispatchQueue.main)
@@ -324,16 +323,7 @@ final class ArchiveViewController: BaseViewController {
         statusFilterButton.addTarget(self, action: #selector(statusFilterTapped), for: .touchUpInside)
         categoryFilterButton.addTarget(self, action: #selector(categoryFilterTapped), for: .touchUpInside)
         feelingFilterButton.addTarget(self, action: #selector(feelingFilterTapped), for: .touchUpInside)
-        
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        tapGesture.cancelsTouchesInView = false
-        view.addGestureRecognizer(tapGesture)
     }
-    
-    @objc private func dismissKeyboard() {
-        view.endEditing(true)
-    }
-    
     @objc private func deleteButtonTapped() {
         if isDeleteMode {
             isDeleteMode = false
@@ -658,6 +648,9 @@ extension ArchiveViewController: UITableViewDelegate, UITableViewDataSource {
     // Add to UITableViewDataSource implementation
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return true
+    }
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        view.endEditing(true)
     }
     
 }
