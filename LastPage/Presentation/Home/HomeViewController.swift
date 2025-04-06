@@ -136,8 +136,6 @@ class HomeViewController: BaseViewController {
     override func configureView() {
         view.backgroundColor = .white
         self.navigationItem.title = "Last Page"
-        self.tabBarItem = UITabBarItem(title: "Home", image: UIImage(systemName: "house"), tag: 0)
-        //Scrollview
         horizontalCollectionView.delegate = self
         horizontalCollectionView.dataSource = self
         horizontalCollectionView.showsHorizontalScrollIndicator = false

@@ -29,7 +29,29 @@ final class MainCoordinator: Coordinator {
         let archiveCoordinator = ArchiveCoordinator(bookDeletedSubject : bookDeletedSubject, bookAddedSubject : bookAddedSubject, parentCoordinator: self ,navigationController: UINavigationController(), diContainer: diContainer)
         let statsCoordinator = StatsCoordinator(    bookDeletedSubject : bookDeletedSubject, bookAddedSubject : bookAddedSubject, parentCoordinator: self ,navigationController: UINavigationController(), diContainer: diContainer)
         let settingsCoordinator = SettingsCoordinator(bookDeletedSubject: bookDeletedSubject ,parentCoordinator: self ,navigationController: UINavigationController(), diContainer: diContainer)
-
+        homeCoordinator.navigationController.tabBarItem = UITabBarItem(
+               title: "Home",
+               image: UIImage(systemName: "house"),
+               selectedImage: UIImage(systemName: "house.fill")
+           )
+           
+           archiveCoordinator.navigationController.tabBarItem = UITabBarItem(
+               title: "Archive",
+               image: UIImage(systemName: "archivebox"),
+               selectedImage: UIImage(systemName: "archivebox.fill")
+           )
+           
+           statsCoordinator.navigationController.tabBarItem = UITabBarItem(
+               title: "Stats",
+               image: UIImage(systemName: "chart.bar"),
+               selectedImage: UIImage(systemName: "chart.bar.fill")
+           )
+           
+           settingsCoordinator.navigationController.tabBarItem = UITabBarItem(
+               title: "Settings",
+               image: UIImage(systemName: "gear"),
+               selectedImage: UIImage(systemName: "gear")
+           )
         childCoordinators = [homeCoordinator, archiveCoordinator, statsCoordinator, settingsCoordinator]
 
         // start() 호출로 각 루트 VC 준비
