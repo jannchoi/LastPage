@@ -49,7 +49,6 @@ final class InfoFieldView: UIView {
         
         textField.borderStyle = .roundedRect
         textField.font = .systemFont(ofSize: 14)
-        textField.addTarget(self, action: #selector(textFieldDidReturn), for: .editingDidEndOnExit)
         
         tagsScrollView.showsHorizontalScrollIndicator = false
         tagsScrollView.alwaysBounceHorizontal = true
@@ -112,6 +111,7 @@ final class InfoFieldView: UIView {
         updateTagsView()
     }
     
+    // InfoFieldView 클래스 내부의 updateTagsView() 메서드
     private func updateTagsView() {
         tagsStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
         
@@ -123,13 +123,15 @@ final class InfoFieldView: UIView {
         let totalWidth = tagsStackView.arrangedSubviews.reduce(0) { $0 + $1.intrinsicContentSize.width + 8 }
         
         tagsStackView.snp.remakeConstraints { make in
-            make.height.equalTo(30)
-            make.width.equalTo(totalWidth)
+            make.edges.equalToSuperview()
+            make.height.equalToSuperview()
+            make.width.equalTo(max(totalWidth, tagsScrollView.frame.width))
         }
         
-        
-        tagsScrollView.contentSize = CGSize(width: totalWidth, height: 40)
-        tagsStackView.superview?.layoutIfNeeded()
+        // 명시적 레이아웃 업데이트 요청
+        tagsScrollView.layoutIfNeeded()
+        tagsStackView.layoutIfNeeded()
+        self.layoutIfNeeded()
     }
     
     
@@ -145,20 +147,7 @@ final class InfoFieldView: UIView {
         
         removeTag(title)
     }
-    
-    @objc private func textFieldDidReturn(_ sender: UITextField) {
-        guard let text = sender.text, !text.isEmpty else { return }
-        
-        let newTags = text.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-        
-        for tag in newTags {
-            if !tag.isEmpty {
-                addTag(tag)
-            }
-        }
-        
-        
-    }
+
 }
 extension InfoFieldView {
     private final class TagButton: UIButton {

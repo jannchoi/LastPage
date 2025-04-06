@@ -13,12 +13,13 @@ final class ReadingCoordinator:Coordinator {
     private let navigationController: UINavigationController
     private let diContainer: AppDIContainer
     
-    let bookAddedSubject = PassthroughSubject<String, Never>()
+    let bookAddedSubject : PassthroughSubject<String, Never>
 
-    init(parentCoordinator: Coordinator?, navigationController: UINavigationController, diContainer: AppDIContainer) {
+    init(bookAddedSubject : PassthroughSubject<String, Never>, parentCoordinator: Coordinator?, navigationController: UINavigationController, diContainer: AppDIContainer) {
         self.parentCoordinator = parentCoordinator
         self.navigationController = navigationController
         self.diContainer = diContainer
+        self.bookAddedSubject = bookAddedSubject
     }
 
     func start() {
@@ -42,14 +43,9 @@ final class ReadingCoordinator:Coordinator {
     
 
     func showEditInfo(passedBook: BookDetailEntity? = nil, bookId: String? = nil) {
-        let viewModel = EditInfoViewModel(passedBook: passedBook ,bookId: bookId,getBookUseCase: diContainer.makeGetBookUseCase(),updateBookUsecase: diContainer.makeUpdateBookUseCase(),saveBookUsecase: diContainer.makeSaveBookUseCase() )
-        viewModel.bookAdded.sink { [weak self] bookId in
-            guard let self = self else {return}
-            self.bookAddedSubject.send(bookId)
-        }
-        .store(in: &viewModel.cancellables)
-        let editInfoVC = EditInfoViewController(viewModel: viewModel)
-        navigationController.pushViewController(editInfoVC, animated: true)
+        let editInfoCoordinator = EditInfoCoordinator(parentCoordinator: self, navigationController: navigationController, diContainer: diContainer, bookAddedSubject: bookAddedSubject)
+        childCoordinators.append(editInfoCoordinator)
+        editInfoCoordinator.start(passedBook: passedBook, bookId: bookId)
     }
 
     func showEditReading(bookId: String? = nil, status: UpdateTarget? = nil) {

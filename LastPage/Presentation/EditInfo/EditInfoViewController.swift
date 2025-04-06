@@ -12,6 +12,7 @@ import SnapKit
 final class EditInfoViewController: BaseViewController {
     private var cancellables: Set<AnyCancellable> = []
     var viewModel: EditInfoViewModel
+    weak var coordinator: EditInfoCoordinator?
     private let scrollView = UIScrollView()
     private let contentView = UIView()
     
@@ -49,6 +50,9 @@ final class EditInfoViewController: BaseViewController {
     
     private let titleField = InfoFieldView(title: TextResource.InfoTextView.title.text)
     private let authorField = InfoFieldView(title: TextResource.InfoTextView.author.text)
+    private let shortMemoField = InfoFieldView(title: TextResource.InfoTextView.shortMemo.text)
+    let categoryField = InfoFieldView(title: TextResource.InfoTextView.categories.text, isTaggable: true)
+    private let feelingsField = InfoFieldView(title: TextResource.InfoTextView.feelings.text, isTaggable: true)
     
     private let readingStatusSegmentControl: UISegmentedControl = {
         let items = [TextResource.ReadingStatus.before.text, TextResource.ReadingStatus.inProgress.text, TextResource.ReadingStatus.after.text]
@@ -56,10 +60,6 @@ final class EditInfoViewController: BaseViewController {
         segmentControl.selectedSegmentIndex = 0
         return segmentControl
     }()
-    
-    private let shortMemoField = InfoFieldView(title: TextResource.InfoTextView.shortMemo.text)
-    private let categoryField = InfoFieldView(title: TextResource.InfoTextView.categories.text, isTaggable: true)
-    private let feelingsField = InfoFieldView(title: TextResource.InfoTextView.feelings.text, isTaggable: true)
     
     private let saveButton: UIButton = {
         let button = UIButton(type: .system)
@@ -69,12 +69,16 @@ final class EditInfoViewController: BaseViewController {
     }()
     private var selectedImage: UIImage?
     private var originalImagePath: String?
-    // 1. First, add properties to track keyboard state
+    
+    // Keyboard handling properties
     private var initialScrollViewInsets: UIEdgeInsets?
     private var activeTextField: UITextField?
     private var keyboardHeight: CGFloat = 0
     private let keyboardTopPadding: CGFloat = 20
     private var isKeyboardVisible = false
+    
+    // Store the original content offset to restore later
+    private var originalContentOffset: CGPoint = .zero
 
     init(viewModel: EditInfoViewModel) {
         self.viewModel = viewModel
@@ -118,7 +122,10 @@ final class EditInfoViewController: BaseViewController {
     }
 
     @objc private func keyboardWillShow(_ notification: Notification) {
-        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
+              // Skip if the active field is category or feelings
+              activeTextField != categoryField.textField &&
+              activeTextField != feelingsField.textField else {
             return
         }
         
@@ -172,8 +179,50 @@ final class EditInfoViewController: BaseViewController {
             scrollView.setContentOffset(contentOffset, animated: true)
         }
     }
+    
+    // New method to adjust view for category presentation
+    private func adjustViewForCategoryPresentation() {
+        // Store the current content offset to restore later
+        originalContentOffset = scrollView.contentOffset
+        
+        // Calculate the position to show categoryField with 16pt gap above presented VC
+        let categoryFieldBottom = categoryField.convert(categoryField.bounds, to: nil).maxY
+        let targetY = categoryFieldBottom - view.frame.height + 16
+        
+        // Only scroll if needed
+        if targetY > scrollView.contentOffset.y {
+            let contentOffset = CGPoint(x: 0, y: targetY)
+            scrollView.setContentOffset(contentOffset, animated: true)
+        }
+    }
+    
+    // New method to adjust view for feelings presentation
+    private func adjustViewForFeelingsPresentation() {
+        // Store the current content offset to restore later
+        originalContentOffset = scrollView.contentOffset
+        
+        // Calculate the position to show feelingsField with 16pt gap above presented VC
+        let feelingsFieldBottom = feelingsField.convert(feelingsField.bounds, to: nil).maxY
+        let targetY = feelingsFieldBottom - view.frame.height + 16
+        
+        // Only scroll if needed
+        if targetY > scrollView.contentOffset.y {
+            let contentOffset = CGPoint(x: 0, y: targetY)
+            scrollView.setContentOffset(contentOffset, animated: true)
+        }
+    }
+    
+    // Method to restore view position when category/feelings VC is dismissed
+    func restoreViewPosition() {
+        scrollView.setContentOffset(originalContentOffset, animated: true)
+    }
 
     @objc private func keyboardWillHide(_ notification: Notification) {
+        // Skip restoration if we're presenting category or feelings
+        if activeTextField == categoryField.textField || activeTextField == feelingsField.textField {
+            return
+        }
+        
         // Restore original insets
         if let insets = initialScrollViewInsets {
             scrollView.contentInset = insets
@@ -205,6 +254,7 @@ final class EditInfoViewController: BaseViewController {
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
+    
     override func bind() {
         viewModel.$bookDetail.sink {[weak self] bookDetail in
             guard let self = self, let bookDetail = bookDetail else {return}
@@ -224,6 +274,7 @@ final class EditInfoViewController: BaseViewController {
                 })
             }.store(in: &cancellables)
     }
+    
     func setupUI(item: BookDetailEntity) {
         originalImagePath = item.imagePath
         ImageFormatter.shared.setImage(target: bookCoverImageView, path: originalImagePath)
@@ -235,6 +286,7 @@ final class EditInfoViewController: BaseViewController {
         feelingsField.setTags(item.feelings)
         readingStatusSegmentControl.selectedSegmentIndex = item.status.segmentIndex
     }
+    
     private func setImage(_ path: String?){
         let imgPath = path ?? TextResource.Global.empty.text
         
@@ -248,9 +300,8 @@ final class EditInfoViewController: BaseViewController {
             bookCoverLabel.isHidden = true
         } else {
             bookCoverImageView.image = nil
-                    bookCoverLabel.isHidden = false
+            bookCoverLabel.isHidden = false
         }
-        
     }
     
     @objc private func saveButtonTapped() {
@@ -281,6 +332,7 @@ final class EditInfoViewController: BaseViewController {
             }
         }
     }
+    
     @objc private func changeImageButtonTapped() {
         let imagePicker = UIImagePickerController()
         imagePicker.sourceType = .photoLibrary
@@ -295,6 +347,7 @@ final class EditInfoViewController: BaseViewController {
         originalImagePath = nil
         bookCoverLabel.isHidden = false
     }
+    
     // MARK: - View 계층 구조 설정
     override func configureHierarchy() {
         view.addSubview(scrollView)
@@ -391,24 +444,10 @@ final class EditInfoViewController: BaseViewController {
         changeImageButton.addTarget(self, action: #selector(changeImageButtonTapped), for: .touchUpInside)
         clearImageButton.addTarget(self, action: #selector(clearImageButtonTapped), for: .touchUpInside)
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: saveButton)
-        // 태그 관련 콜백 설정
-        categoryField.onTagAdded = { tag in
-            print("Genre tag added: \(tag)")
-        }
-        
-        categoryField.onTagRemoved = { tag in
-            print("Genre tag removed: \(tag)")
-        }
-        
-        feelingsField.onTagAdded = { tag in
-            print("Feeling tag added: \(tag)")
-        }
-        
-        feelingsField.onTagRemoved = { tag in
-            print("Feeling tag removed: \(tag)")
-        }
+
     }
 }
+
 extension EditInfoViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let editedImage = info[.editedImage] as? UIImage {
@@ -428,12 +467,26 @@ extension EditInfoViewController: UIImagePickerControllerDelegate, UINavigationC
         dismiss(animated: true)
     }
 }
+
 extension EditInfoViewController: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
         activeTextField = textField
         
-        // 키보드가 이미 보이는 상태라면 바로 뷰 조정
-        if isKeyboardVisible {
+        // Special handling for category and feelings fields
+        if textField == categoryField.textField {
+            // Dismiss keyboard to avoid conflicts
+            textField.resignFirstResponder()
+            // Present the category list VC
+            coordinator?.showCategories()
+            adjustViewForCategoryPresentation()
+        } else if textField == feelingsField.textField {
+            // Dismiss keyboard to avoid conflicts
+            textField.resignFirstResponder()
+            // Similar handling for feelings if needed
+            coordinator?.showFeelings() // Change to showFeelings() when available
+            adjustViewForFeelingsPresentation()
+        } else if isKeyboardVisible {
+            // For other fields, keep the keyboard adjustment
             adjustScrollViewForTextField(textField)
         }
     }
@@ -446,18 +499,39 @@ extension EditInfoViewController: UITextFieldDelegate {
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        // Move to next field or dismiss keyboard if last field
         if textField == titleField.textField {
             authorField.textField.becomeFirstResponder()
         } else if textField == authorField.textField {
             shortMemoField.textField.becomeFirstResponder()
         } else if textField == shortMemoField.textField {
-            categoryField.textField.becomeFirstResponder()
-        } else if textField == categoryField.textField {
-            feelingsField.textField.becomeFirstResponder()
-        } else {
+            // 여기서 categoryField는 직접 포커스를 주지 말고 키보드 닫기
             textField.resignFirstResponder()
+            return true
         }
+
         return true
     }
+}
+
+
+protocol EditInfoViewControllerDelegate: AnyObject {
+    func updateTags(_ view: CategoryListViewController, categories: [String], type: TagType)
+}
+extension EditInfoViewController: EditInfoViewControllerDelegate {
+
+    func updateTags(_ view: CategoryListViewController, categories: [String], type: TagType) {
+        switch type {
+        case .category:
+            for category in categories {
+                categoryField.addTag(category)
+            }
+        case .feeling:
+            for category in categories {
+                feelingsField.addTag(category)
+            }
+        }
+        
+    }
+    
+    
 }

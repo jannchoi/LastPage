@@ -243,7 +243,6 @@ final class EditReadingInProgressViewController: BaseViewController {
     
     @objc private func saveButtonTapped() {
         guard let newMemo = textView.text else {return}
-        print("EditReadingInProgress", dateField.textField.text)
         let newValue = ProgressMemoEntity(startPage: startPage.text, endPage: endPage.text, date: DateFormattManager.shared.strToDate(dateField.textField.text), memo: newMemo)
         viewModel.saveBook(newValue: newValue)
     }

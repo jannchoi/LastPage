@@ -134,7 +134,6 @@ final class ArchiveViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
     }
-    
     override func bind() {
         viewModel.$bookList
             .receive(on: DispatchQueue.main)
@@ -142,8 +141,61 @@ final class ArchiveViewController: BaseViewController {
                 self?.tableView.reloadData()
             }
             .store(in: &cancellables)
+        viewModel.$categoryList
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] categories in
+                if !categories.isEmpty {
+                }
+            }
+            .store(in: &cancellables)
+        viewModel.$feelingList
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] feelings in
+                if !feelings.isEmpty {
+                }
+            }
+            .store(in: &cancellables)
     }
-    
+    private func applyFilters() {
+        
+    }
+    @objc private func clearFiltersTapped() {
+        viewModel.clearFilters()
+        
+        // UI 상태 초기화
+        selectedFilterType = .none
+        categoriesLabel.isHidden = true
+        tagContainerView.isHidden = true
+        filterTypeContainer.isHidden = true
+        
+        // 버튼 모양 초기화
+        updateFilterButtonStyles()
+        
+        // 제약조건 업데이트
+        updateFilterIconConstraints()
+        updateTableViewConstraints()
+        
+        // 검색바 초기화
+        searchBar.text = ""
+        
+        // 태그 컬렉션 뷰 새로고침
+        tagFlowLayout.reloadData()
+    }
+    private func isTagSelected(_ tag: String, for filterType: FilterType) -> Bool {
+        switch filterType {
+        case .status:
+            if let statusEnum = ReadingStatusEntity(rawValue: tag) {
+                return viewModel.selectedStatusTags.contains(statusEnum)
+            }
+            return false
+        case .category:
+            return viewModel.selectedCategoryTags.contains(tag)
+        case .feeling:
+            return viewModel.selectedFeelingTags.contains(tag)
+        case .none:
+            return false
+        }
+    }
     override func configureHierarchy() {
         // Search components
         view.addSubview(searchBar)
@@ -174,7 +226,7 @@ final class ArchiveViewController: BaseViewController {
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(16)
             make.height.equalTo(40)
         }
-
+        
         filterIcon.snp.makeConstraints { make in
             make.top.equalTo(searchBar.snp.bottom).offset(8)
             make.leading.equalTo(view.safeAreaLayoutGuide).offset(16)
@@ -182,7 +234,7 @@ final class ArchiveViewController: BaseViewController {
         }
         // Filter icon positioned below search bar when no filter type is selected
         updateFilterIconConstraints()
-
+        
         // Filter type buttons
         filterTypeContainer.snp.makeConstraints { make in
             make.top.equalTo(searchBar.snp.bottom).offset(16)
@@ -233,7 +285,7 @@ final class ArchiveViewController: BaseViewController {
     }
     
     private func updateTableViewConstraints() {
-
+        
         if selectedFilterType == .none {
             // Table view starts directly below filter icon when no filter
             tableView.snp.remakeConstraints { make in
@@ -249,6 +301,7 @@ final class ArchiveViewController: BaseViewController {
         }
     }
     
+    
     override func configureView() {
         view.backgroundColor = .white
         navigationItem.title = "Library"
@@ -258,16 +311,19 @@ final class ArchiveViewController: BaseViewController {
         tableView.delegate = self
         tableView.dataSource = self
         
+        // 검색바 설정
+        searchBar.delegate = self
+        searchBar.placeholder = "제목 또는 작가로 검색"
+        
         deleteButton.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: deleteButton)
         
-        // Configure filter buttons
+        // 필터 버튼 설정
         filterIcon.addTarget(self, action: #selector(filterIconTapped), for: .touchUpInside)
         statusFilterButton.addTarget(self, action: #selector(statusFilterTapped), for: .touchUpInside)
         categoryFilterButton.addTarget(self, action: #selector(categoryFilterTapped), for: .touchUpInside)
         feelingFilterButton.addTarget(self, action: #selector(feelingFilterTapped), for: .touchUpInside)
     }
-    
     @objc private func deleteButtonTapped() {
         if isDeleteMode {
             isDeleteMode = false
@@ -370,11 +426,6 @@ final class ArchiveViewController: BaseViewController {
         view.layoutIfNeeded()
     }
     
-    private func applyFilters() {
-        // Get all selected tags from collection view
-        // Implementation depends on your data model
-        // viewModel.applyFilters(type: selectedFilterType, tags: selectedTags)
-    }
 }
 
 // MARK: - UICollectionViewDataSource
@@ -382,33 +433,45 @@ extension ArchiveViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         switch selectedFilterType {
         case .status:
-            return 3 // ["Finished", "Reading", "Want to Read"]
+            return ReadingStatusEntity.allCases.count
         case .category:
-            return 9 // ["Adventure", "Biography", "Fantasy", "Fiction", "Literary Fiction", "Memoir", "Psychology", "Science Fiction", "Self-help"]
+            return viewModel.categoryList.count
         case .feeling:
-            return 5 // ["Happy", "Sad", "Inspiring", "Thought-provoking", "Relaxing"]
+            return viewModel.feelingList.count
         case .none:
             return 0
         }
     }
     
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TagCell", for: indexPath) as! TagCollectionViewCell
         
-        var tags: [String] = []
         switch selectedFilterType {
         case .status:
-            tags = ["Finished", "Reading", "Want to Read"]
+            let statusValues = ReadingStatusEntity.allCases
+            if indexPath.item < statusValues.count {
+                let status = statusValues[indexPath.item]
+                let isSelected = viewModel.selectedStatusTags.contains(status)
+                cell.configure(with: status.rawValue, isSelected: isSelected)
+            }
+            
         case .category:
-            tags = ["Adventure", "Biography", "Fantasy", "Fiction", "Literary Fiction", "Memoir", "Psychology", "Science Fiction", "Self-help"]
+            if indexPath.item < viewModel.categoryList.count {
+                let tag = viewModel.categoryList[indexPath.item]
+                let isSelected = viewModel.selectedCategoryTags.contains(tag)
+                cell.configure(with: tag, isSelected: isSelected)
+            }
+            
         case .feeling:
-            tags = ["Happy", "Sad", "Inspiring", "Thought-provoking", "Relaxing"]
+            if indexPath.item < viewModel.feelingList.count {
+                let tag = viewModel.feelingList[indexPath.item]
+                let isSelected = viewModel.selectedFeelingTags.contains(tag)
+                cell.configure(with: tag, isSelected: isSelected)
+            }
+            
         case .none:
-            tags = []
-        }
-        
-        if indexPath.item < tags.count {
-            cell.configure(with: tags[indexPath.item])
+            break
         }
         
         return cell
@@ -420,35 +483,68 @@ extension ArchiveViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let cell = collectionView.cellForItem(at: indexPath) as? TagCollectionViewCell else { return }
         
-        // Toggle selected state
+        // 선택 상태 토글
         cell.toggleSelection()
         
-        // Apply filters
-        applyFilters()
+        // 태그 텍스트 가져오기
+        switch selectedFilterType {
+        case .status:
+            let statusValues = ReadingStatusEntity.allCases
+            if indexPath.item < statusValues.count {
+                let selectedStatus = statusValues[indexPath.item]
+                viewModel.toggleStatusTag(selectedStatus)
+            }
+            
+        case .category:
+            if indexPath.item < viewModel.categoryList.count {
+                let selectedTag = viewModel.categoryList[indexPath.item]
+                viewModel.toggleCategoryTag(selectedTag)
+            }
+            
+        case .feeling:
+            if indexPath.item < viewModel.feelingList.count {
+                let selectedTag = viewModel.feelingList[indexPath.item]
+                viewModel.toggleFeelingTag(selectedTag)
+            }
+            
+        case .none:
+            break
+        }
     }
 }
 
 // MARK: - UICollectionViewDelegateFlowLayout
 extension ArchiveViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        var tags: [String] = []
+        var tagText = ""
+        
         switch selectedFilterType {
         case .status:
-            tags = ["Finished", "Reading", "Want to Read"]
+            let statusValues = ReadingStatusEntity.allCases
+            if indexPath.item < statusValues.count {
+                tagText = statusValues[indexPath.item].rawValue
+            }
+            
         case .category:
-            tags = ["Adventure", "Biography", "Fantasy", "Fiction", "Literary Fiction", "Memoir", "Psychology", "Science Fiction", "Self-help"]
+            if indexPath.item < viewModel.categoryList.count {
+                tagText = viewModel.categoryList[indexPath.item]
+            }
+            
         case .feeling:
-            tags = ["Happy", "Sad", "Inspiring", "Thought-provoking", "Relaxing"]
+            if indexPath.item < viewModel.feelingList.count {
+                tagText = viewModel.feelingList[indexPath.item]
+            }
+            
         case .none:
-            tags = []
+            break
         }
         
-        if indexPath.item < tags.count {
+        if !tagText.isEmpty {
             let label = UILabel()
-            label.text = tags[indexPath.item]
+            label.text = tagText
             label.sizeToFit()
             
-            // Width = text width + padding
+            // 너비 = 텍스트 너비 + 패딩
             let width = label.frame.width + 32
             
             return CGSize(width: width, height: 32)
@@ -488,9 +584,9 @@ class TagCollectionViewCell: UICollectionViewCell {
         }
     }
     
-    func configure(with title: String) {
+    func configure(with title: String, isSelected: Bool = false) {
         titleLabel.text = title
-        isTagSelected = false
+        isTagSelected = isSelected
         updateAppearance()
     }
     
@@ -509,6 +605,16 @@ class TagCollectionViewCell: UICollectionViewCell {
         }
     }
 }
+extension ArchiveViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        viewModel.updateSearchQuery(searchText)
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
+    }
+}
+
 extension ArchiveViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 152
@@ -532,7 +638,7 @@ extension ArchiveViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             // Remove the item from data source
-
+            
             viewModel.deleteBook(index: indexPath.row)
             // Delete the row from the table
             tableView.deleteRows(at: [indexPath], with: .fade)
@@ -542,6 +648,9 @@ extension ArchiveViewController: UITableViewDelegate, UITableViewDataSource {
     // Add to UITableViewDataSource implementation
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return true
+    }
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        view.endEditing(true)
     }
     
 }

@@ -6,12 +6,13 @@
 //
 
 import UIKit
+import Combine
 
 final class MainCoordinator: Coordinator {
     var childCoordinators: [Coordinator] = []
     private let window: UIWindow
     private let diContainer: AppDIContainer
-    
+    let bookAddedSubject = PassthroughSubject<String, Never>()
     init(window: UIWindow, diContainer: AppDIContainer) {
         self.window = window
         self.diContainer = diContainer
@@ -21,10 +22,10 @@ final class MainCoordinator: Coordinator {
         let tabBarController = MainTabBarController()
         tabBarController.coordinator = self
 
-        // 하위 Coordinator 연결
-        let homeCoordinator = HomeCoordinator(navigationController: UINavigationController(), diContainer: diContainer)
-        let archiveCoordinator = ArchiveCoordinator(parentCoordinator: self ,navigationController: UINavigationController(), diContainer: diContainer)
-        let statsCoordinator = StatsCoordinator(parentCoordinator: self ,navigationController: UINavigationController(), diContainer: diContainer)
+
+        let homeCoordinator = HomeCoordinator(bookAddedSubject : bookAddedSubject,navigationController: UINavigationController(), diContainer: diContainer)
+        let archiveCoordinator = ArchiveCoordinator(bookAddedSubject : bookAddedSubject, parentCoordinator: self ,navigationController: UINavigationController(), diContainer: diContainer)
+        let statsCoordinator = StatsCoordinator(bookAddedSubject : bookAddedSubject, parentCoordinator: self ,navigationController: UINavigationController(), diContainer: diContainer)
         let settingsCoordinator = SettingsCoordinator(parentCoordinator: self ,navigationController: UINavigationController(), diContainer: diContainer)
 
         childCoordinators = [homeCoordinator, archiveCoordinator, statsCoordinator, settingsCoordinator]

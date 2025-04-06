@@ -150,7 +150,7 @@ class HomeViewController: BaseViewController {
         centerView.layer.cornerRadius = 12
 
         
-        centerTextLabel.text = "오늘의 나는 내일을 만든다"
+        centerTextLabel.text = "쌈뽕한 한 문장"
         centerTextLabel.font = .systemFont(ofSize: 20, weight: .medium)
         centerTextLabel.textAlignment = .center
         
@@ -203,7 +203,7 @@ class HomeViewController: BaseViewController {
         bottomLeftTagView.subviews.forEach { $0.removeFromSuperview() }
         
         // jar 이미지 추가 (배경으로 사용)
-        jarImageView.image = UIImage(systemName: "plus")
+        jarImageView.image = nil
         jarImageView.contentMode = .scaleToFill
         bottomLeftTagView.addSubview(jarImageView)
         
