@@ -64,17 +64,19 @@ final class SearchBookTableViewCell: UITableViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         highlightContainerView.silverFrame()
+        firstTagView.layer.cornerRadius = firstTagView.frame.height / 2
     }
     func configure(item: BookDetail) {
         titleLabel.text = item.title
         authorLabel.text = item.author
-
-        firstTagLabel.text = "item.primaryCategory"
+        let categoryFirst = item.categoryName.first ?? ""
+        firstTagLabel.text = categoryFirst
 
         // Load book cover
         let url = URL(string: item.cover)
         bookCoverImageView.kf.setImage(with: url, placeholder: UIImage(systemName: "book"))
     }
+
     override func prepareForReuse() {
         super.prepareForReuse()
         titleLabel.text = nil
