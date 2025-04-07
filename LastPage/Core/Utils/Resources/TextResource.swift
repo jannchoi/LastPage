@@ -90,7 +90,7 @@ enum TextResource {
     }
     
     enum Placeholder {
-        case BookSearch
+        case bookSearch
         case memoSearch
         case title
         case author
@@ -102,7 +102,7 @@ enum TextResource {
         
         var text: String {
             switch self {
-            case .BookSearch:
+            case .bookSearch:
                 "도서의 제목 또는 저자를 입력하세요."
             case .memoSearch:
                 "메모를 검색하세요."
@@ -111,11 +111,11 @@ enum TextResource {
             case .author:
                 "도서의 저자를 입력하세요."
             case .memo:
-                "메모를 입력하세요."
+                "이 책을 표현할 한 문장"
             case .category:
-                "카테고리를 ','와 함께 입력하세요."
+                "너의 취향, 이렇게 멋질 일?"
             case .feelings:
-                "감정을 ','와 함께 입력하세요."
+                "책이 건드린 너의 마음"
             case .date:
                 "날짜를 선택하세요."
             case .page:
@@ -164,7 +164,23 @@ enum TextResource {
             case .bookKeywrod:
                 "책 추천 키워드"
             case .commonKeyword:
-                "책 추천 키워드"
+                "공통 추천 키워드"
+            }
+        }
+    }
+    enum Stats {
+        case forMonth
+        case forYear
+        case total
+        
+        var text: String {
+            switch self {
+            case .forMonth:
+                "이 달에 너의 문장이 태어난 책들"
+            case .forYear:
+                "올해도 꽤 멋지게 써내려왔어"
+            case .total:
+                "지금까지 네가 남긴 감상의 역사"
             }
         }
     }

@@ -38,12 +38,6 @@ final class SearchBookViewController: BaseViewController {
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-//        let realm = try! Realm()
-//        
-//        func getFileURL() {
-//            print(realm.configuration.fileURL ?? "파일 경로를 찾을 수 없습니다.")
-//        }
-//        getFileURL()
 
     }
     override func configureHierarchy() {
@@ -60,14 +54,25 @@ final class SearchBookViewController: BaseViewController {
         }
     }
     override func configureView() {
+        view.backgroundColor = .backgroundBase
+        navigationItem.title = "Search"
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
         searchBar.delegate = self
+        searchBar.placeholder = TextResource.Placeholder.bookSearch.text
+        searchBar.barTintColor = .backgroundBase
+        searchBar.searchBarStyle = .minimal
+        searchBar.backgroundColor = .clear
         tableView.delegate = self
         tableView.dataSource = self
-        searchBar.backgroundColor = .white
-        tableView.backgroundColor = .white
+        searchBar.backgroundColor = .backgroundBase
+        tableView.backgroundColor = .backgroundBase
         tableView.register(SearchBookTableViewCell.self, forCellReuseIdentifier: SearchBookTableViewCell.identifier)
         plusButton.addTarget(self, action: #selector(plusButtonTapped), for: .touchUpInside)
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: plusButton)
+    }
+    
+    @objc private func backButtonTapped() {
+        navigationController?.popViewController(animated: true)
     }
     @objc private func plusButtonTapped() {
         coordinator?.showReading()

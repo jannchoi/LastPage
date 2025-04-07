@@ -14,7 +14,7 @@ final class CategoryListViewController: UIViewController {
     weak var delegate: EditInfoViewControllerDelegate?
     private let containerView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(red: 0.85, green: 0.94, blue: 0.97, alpha: 1.0) // Light blue background
+        view.backgroundColor = .backgroundBase
         view.layer.cornerRadius = 12
         view.clipsToBounds = true
         return view
@@ -31,14 +31,14 @@ final class CategoryListViewController: UIViewController {
     private let closeButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "xmark.circle.fill"), for: .normal)
-        button.tintColor = .gray
+        button.tintColor = .btnTint
         return button
     }()
     
     private let confirmButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Confirm", for: .normal)
-        button.backgroundColor = .systemBlue
+        button.setTitle("확인", for: .normal)
+        button.backgroundColor = .btnTint
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 8
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
@@ -141,6 +141,12 @@ final class CategoryListViewController: UIViewController {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleOutsideTap(_:)))
         tapGesture.cancelsTouchesInView = false
         view.addGestureRecognizer(tapGesture)
+        switch viewModel.type {
+        case .category:
+            titleLabel.text = TextResource.Placeholder.category.text
+        case .feeling:
+            titleLabel.text = TextResource.Placeholder.feelings.text
+        }
     }
     
     private func bindViewModel() {
@@ -187,11 +193,23 @@ extension CategoryListViewController: UICollectionViewDataSource, UICollectionVi
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        // Adaptive cell size based on category text length
         let category = viewModel.categories[indexPath.item]
-        let width = calculateCellWidth(for: category)
-        return CGSize(width: width, height: 36)
+        let font = UIFont.systemFont(ofSize: 14)
+        let maxWidth: CGFloat = collectionView.bounds.width - 40 // 최대 너비 제한
+        let constraintRect = CGSize(width: maxWidth, height: .greatestFiniteMagnitude)
+        
+        let boundingBox = (category as NSString).boundingRect(
+            with: constraintRect,
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
+            attributes: [.font: font],
+            context: nil
+        )
+        
+        let height = ceil(boundingBox.height) + 12 // 상하 패딩 고려
+        let width = max(boundingBox.width + 24, 80) // 좌우 패딩 및 최소 너비 고려
+        return CGSize(width: width, height: height)
     }
+
     
     private func calculateCellWidth(for category: String) -> CGFloat {
         // Calculate width based on text length with padding
@@ -227,22 +245,30 @@ class CategoryCell: UICollectionViewCell {
         let label = UILabel()
         label.textAlignment = .center
         label.font = .systemFont(ofSize: 14)
-        label.textColor = .darkGray
+        label.textColor = .mainText
+        label.numberOfLines = 0
+        label.lineBreakMode = .byWordWrapping
         return label
     }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
-        contentView.backgroundColor = UIColor(white: 0.9, alpha: 1.0)
-        contentView.layer.cornerRadius = 18
-        
+
+        contentView.backgroundColor = .tagBackground
+        contentView.layer.borderWidth = 0.5
+        contentView.layer.borderColor = UIColor.tagBorder.cgColor
+        contentView.layer.cornerRadius = 15
         contentView.addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(UIEdgeInsets(top: 6, left: 12, bottom: 6, right: 12))
         }
     }
-    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        contentView.backgroundColor = nil
+        titleLabel.text = nil
+        titleLabel.textColor = nil
+    }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -253,8 +279,8 @@ class CategoryCell: UICollectionViewCell {
     
     override var isSelected: Bool {
         didSet {
-            contentView.backgroundColor = isSelected ? UIColor.systemBlue.withAlphaComponent(0.2) : UIColor(white: 0.9, alpha: 1.0)
-            titleLabel.textColor = isSelected ? .systemBlue : .darkGray
+            contentView.backgroundColor = isSelected ? UIColor.accentTint.withAlphaComponent(0.2) : .tagBackground
+            titleLabel.textColor = isSelected ? .tagBackground : .mainText
         }
     }
 }

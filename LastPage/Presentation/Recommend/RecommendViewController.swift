@@ -55,7 +55,7 @@ final class RecommendViewController: BaseViewController {
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        
         configureKeywords()
     }
     override func bind() {
@@ -124,7 +124,8 @@ final class RecommendViewController: BaseViewController {
     }
     
     override func configureView() {
-        bookRecommendView.backgroundColor = .systemGray6
+        view.backgroundColor = .backgroundBase
+        bookRecommendView.backgroundColor = .backgroundBase
         bookRecommendView.layer.cornerRadius = 10
     }
     
@@ -200,10 +201,12 @@ extension RecommendViewController {
             label.text = text
             label.font = .systemFont(ofSize: 14)
             label.textAlignment = .left
-            label.textColor = .black
+            label.textColor = .mainText
             label.numberOfLines = 0
             label.setContentHuggingPriority(.required, for: .horizontal)
-            self.backgroundColor = .systemGray5
+            self.backgroundColor = .tagBackground
+            self.layer.borderWidth = 0.5
+            self.layer.borderColor = UIColor.tagBorder.cgColor
             self.layer.cornerRadius = 15
             
             self.addSubview(label)

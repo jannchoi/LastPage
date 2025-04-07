@@ -51,11 +51,7 @@ class ReadingView: UIScrollView {
         backgroundColor = .white
         isScrollEnabled = true
         highlightContainerView.backgroundColor = .white
-        highlightContainerView.layer.cornerRadius = 12
-        highlightContainerView.layer.shadowColor = UIColor.black.withAlphaComponent(0.1).cgColor
-        highlightContainerView.layer.shadowOffset = CGSize(width: 0, height: 1)
-        highlightContainerView.layer.shadowOpacity = 1
-        highlightContainerView.layer.shadowRadius = 3
+        highlightContainerView.makeShadow()
         
     }
     private func configureHierachy() {

@@ -15,8 +15,8 @@ final class HomeViewModel:BaseViewModel {
     let getAllBooksUseCase: GetAllBooksUseCaseProtocol
     @Published private(set) var bookDetail : [HomeBookEntity] = []
     @Published private(set) var sampleBook : HomeBookEntity?
-    @Published private(set) var selectedTags = [HomeBookEntity]()
-    @Published private(set) var fetchError: String = ""
+    @Published private(set) var selectedTags = [String]()
+    @Published private(set) var fetchError: String? = nil
     struct Input {
         
     }
@@ -61,9 +61,16 @@ final class HomeViewModel:BaseViewModel {
     }
     private func getRandomBook(bookList: [HomeBookEntity]) {
         if !bookList.isEmpty {
-            let shuffledBooks = bookList.shuffled().prefix(min(bookList.count - 1, 10))
+            let shuffledBooks = bookList.shuffled().prefix(min(bookList.count, 10))
             bookDetail = Array(shuffledBooks)
-            selectedTags = shuffledBooks.shuffled()
+            let randomFeelingList = shuffledBooks
+                .compactMap { $0.bookDetail.feelings } 
+                .flatMap { $0 }
+                .shuffled()
+                .prefix(12)
+                .map { $0 }
+
+            selectedTags = randomFeelingList
         }
        
         

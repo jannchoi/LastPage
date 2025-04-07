@@ -26,14 +26,14 @@ class BooksInDateViewController: BaseViewController {
     private lazy var closeButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "xmark.circle.fill"), for: .normal)
-        button.tintColor = .systemGray
+        button.tintColor = .btnTint
         button.addTarget(self, action: #selector(dismissViewController), for: .touchUpInside)
         return button
     }()
     
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Books Read on this Date"
+        label.text = "그날, 네 마음이 머문 도서"
         label.font = .systemFont(ofSize: 18, weight: .semibold)
         return label
     }()

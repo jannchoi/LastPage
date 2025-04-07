@@ -10,8 +10,6 @@ import SnapKit
 import Combine
 import Kingfisher
 
-import RealmSwift
-
 class HomeViewController: BaseViewController {
     weak var coordinator: HomeCoordinator?
     var viewModel: HomeViewModel
@@ -35,10 +33,7 @@ class HomeViewController: BaseViewController {
     private let bookCoverTapGesture = UITapGestureRecognizer()
     private let rightViewTextLabel = UILabel()
     private let searchButton = UIButton()
-    
-    private var tags = ["family", "playing", "Drama", "pet", "Romance", "thriller", "Travel", "home", "feel"]
-    private var bookCategories = ["Educated", "Klara and the...", "The Midnight...", "Atomi..."]
-    
+
     init(viewModel: HomeViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -64,8 +59,8 @@ class HomeViewController: BaseViewController {
         viewModel.$selectedTags.receive(on: DispatchQueue.main)
             .sink { [weak self] tags in
                 guard let self = self else {return}
-                //self.setupTagsInView(with: tags)\
-                self.setupTagsInView(with: self.tags)
+                self.setupTagsInView(with: tags)
+                
             }
             .store(in: &cancellables)
         viewModel.$sampleBook.receive(on: DispatchQueue.main)
@@ -74,6 +69,11 @@ class HomeViewController: BaseViewController {
                 ImageFormatter.shared.setImage(target: self.bookCoverImageView, path: book?.bookDetail.imagePath)
             }
             .store(in: &cancellables)
+        viewModel.$fetchError.compactMap{$0}
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] errorMessage in
+                self?.showAlert(text: errorMessage)
+            }.store(in: &cancellables)
     }
     override func configureHierarchy() {
         view.addSubview(settingsButton)
@@ -91,8 +91,9 @@ class HomeViewController: BaseViewController {
 
         horizontalCollectionView.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide).offset(20)
-            make.leading.trailing.equalToSuperview()
-            make.height.equalTo(160)
+            make.leading.equalToSuperview().offset(0)
+            make.trailing.equalToSuperview().offset(0)
+            make.height.equalTo(186)
         }
         centerView.snp.makeConstraints { make in
             make.top.equalTo(horizontalCollectionView.snp.bottom).offset(20)
@@ -102,6 +103,7 @@ class HomeViewController: BaseViewController {
         }
         centerTextLabel.snp.makeConstraints { make in
             make.center.equalToSuperview()
+            make.horizontalEdges.equalToSuperview().inset(8)
         }
         bottomLeftTagView.snp.makeConstraints { make in
             make.top.equalTo(centerView.snp.bottom).offset(20)
@@ -133,39 +135,41 @@ class HomeViewController: BaseViewController {
             make.height.equalTo(40)
         }
     }
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        horizontalCollectionView.silverFrame(horizontalOnly: true)  // Only top and bottom borders
+        centerView.silverFrame()
+        bottomLeftTagView.silverFrame()
+        bottomRightView.silverFrame()
+        searchButton.silverFrame()
+    }
     override func configureView() {
-        view.backgroundColor = .white
+        view.backgroundColor = .backgroundBase
         self.navigationItem.title = "Last Page"
         horizontalCollectionView.delegate = self
         horizontalCollectionView.dataSource = self
         horizontalCollectionView.showsHorizontalScrollIndicator = false
         horizontalCollectionView.contentInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
-        horizontalCollectionView.backgroundColor = .clear
         horizontalCollectionView.register(BookCell.self, forCellWithReuseIdentifier: "BookCell")
-        
-        //centerview
-        centerView.backgroundColor = .systemGray6
-        centerView.layer.cornerRadius = 12
 
         
-        centerTextLabel.text = "쌈뽕한 한 문장"
-        centerTextLabel.font = .systemFont(ofSize: 20, weight: .medium)
+        //centerview
+        centerView.backgroundColor = .white
+
+        
+        centerTextLabel.text = TextDataStorage.mainCenterSentence.randomElement()
+        centerTextLabel.font = .systemFont(ofSize: 15, weight: .medium)
         centerTextLabel.textAlignment = .center
         
         //bottomView
         // Bottom Left Tag View
-        bottomLeftTagView.backgroundColor = .systemGray6
-        bottomLeftTagView.layer.cornerRadius = 12
+        bottomLeftTagView.backgroundColor = .white
 
-    
-        
         // Bottom Right View
-        bottomRightView.backgroundColor = .systemGray6
-        bottomRightView.layer.cornerRadius = 12
+        bottomRightView.backgroundColor = .white
 
-        
         // Right View Text Label
-        rightViewTextLabel.text = "마지막 페이지를 작성해주세요"
+        rightViewTextLabel.text = TextDataStorage.mainBookSentence.randomElement()
         rightViewTextLabel.font = .systemFont(ofSize: 14, weight: .medium)
         rightViewTextLabel.textAlignment = .center
         rightViewTextLabel.numberOfLines = 0
@@ -181,8 +185,12 @@ class HomeViewController: BaseViewController {
         bookCoverImageView.addGestureRecognizer(bookCoverTapGesture)
         
         //search
-        searchButton.setTitle("Search And Add Book", for: .normal)
-        searchButton.backgroundColor = .lightGray
+        searchButton.setTitle(TextDataStorage.searchButtonTitle.randomElement(), for: .normal)
+        searchButton.setTitleColor(.mainText, for: .normal)
+        let cursorimg = UIImage(systemName: "cursorarrow")?.withTintColor(.mainText)
+        searchButton.tintColor = .btnTint.withAlphaComponent(0.7)
+        searchButton.setImage(cursorimg, for: .normal)
+        searchButton.backgroundColor = .searchBtn
         searchButton.clipsToBounds = true
         searchButton.layer.cornerRadius = 8
         searchButton.addTarget(self, action: #selector(searchButtonTapped), for: .touchUpInside)
@@ -197,102 +205,79 @@ class HomeViewController: BaseViewController {
 
     // setupTagsInView 메서드를 수정
     private func setupTagsInView(with tags: [String]) {
-        // 기존 태그 뷰들을 제거
         bottomLeftTagView.subviews.forEach { $0.removeFromSuperview() }
-        
-        // jar 이미지 추가 (배경으로 사용)
+
         jarImageView.image = nil
         jarImageView.contentMode = .scaleToFill
         bottomLeftTagView.addSubview(jarImageView)
-        
-        jarImageView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
-        
-        // 태그들을 담을 컨테이너 뷰 (jar 안에 위치)
+        jarImageView.snp.makeConstraints { make in make.edges.equalToSuperview() }
+
         let tagsContainerView = UIView()
         bottomLeftTagView.addSubview(tagsContainerView)
-        
         tagsContainerView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(20)
             make.trailing.equalToSuperview().offset(-20)
-            make.bottom.equalToSuperview().offset(-30) // jar 바닥에서 여백
-            make.top.equalToSuperview().offset(50) // jar 윗부분 여백
+            make.bottom.equalToSuperview().offset(-30)
+            make.top.equalToSuperview().offset(50)
         }
-        
-        // 태그 뷰들을 바닥부터 쌓기 위한 설정
+        tagsContainerView.layoutIfNeeded()
+
+        let maxWidth = tagsContainerView.frame.width
+        var currentX: CGFloat = 0
+        var currentY: CGFloat = 0
         let tagHeight: CGFloat = 25
-        let tagSpacing: CGFloat = 8
-        let maxTagsPerRow = 3
-        
-        // 행과 열을 계산하기 위한 변수들
-        var currentRow = 0
-        var currentColumn = 0
-        var rowTags: [[String]] = []
-        var currentRowTags: [String] = []
-        
-        // 태그를 행과 열로 분리
+        let tagSpacingX: CGFloat = 8
+        let tagSpacingY: CGFloat = 8
+
         for tag in tags {
-            currentRowTags.append(tag)
-            currentColumn += 1
-            
-            if currentColumn >= maxTagsPerRow {
-                rowTags.append(currentRowTags)
-                currentRowTags = []
-                currentColumn = 0
-                currentRow += 1
+            let tagView = createTagView(withText: tag)
+
+            // 텍스트 너비 측정
+            let label = UILabel()
+            label.font = .systemFont(ofSize: 12)
+            label.text = tag
+            label.sizeToFit()
+            let padding: CGFloat = 20 // 좌우 패딩
+            let tagWidth = min(label.frame.width + padding, maxWidth)
+
+            // 줄바꿈 체크
+            if currentX + tagWidth > maxWidth {
+                currentX = 0
+                currentY += tagHeight + tagSpacingY
             }
-        }
-        
-        // 마지막 행이 완성되지 않았다면 추가
-        if !currentRowTags.isEmpty {
-            rowTags.append(currentRowTags)
-        }
-        
-        // 태그를 아래에서부터 위로 쌓기 위해 행 순서를 뒤집음
-        rowTags.reverse()
-        
-        // 태그 뷰 생성 및 배치
-        for (rowIndex, rowOfTags) in rowTags.enumerated() {
-            for (colIndex, tagText) in rowOfTags.enumerated() {
-                let tagView = createTagView(withText: tagText)
-                tagsContainerView.addSubview(tagView)
-                
-                // 가용 너비를 기반으로 태그 너비 계산
-                let totalAvailableWidth = tagsContainerView.frame.width > 0 ? tagsContainerView.frame.width : bottomLeftTagView.frame.width - 40
-                let tagWidth = (totalAvailableWidth - (CGFloat(maxTagsPerRow - 1) * tagSpacing)) / CGFloat(maxTagsPerRow)
-                
-                tagView.snp.makeConstraints { make in
-                    make.bottom.equalToSuperview().offset(-CGFloat(rowIndex) * (tagHeight + tagSpacing))
-                    
-                    // 중앙 정렬을 위한 계산
-                    if rowOfTags.count < maxTagsPerRow {
-                        // 태그가 적을 경우 중앙에 정렬
-                        let totalTagsWidth = CGFloat(rowOfTags.count) * tagWidth + CGFloat(rowOfTags.count - 1) * tagSpacing
-                        let leftOffset = (totalAvailableWidth - totalTagsWidth) / 2 + CGFloat(colIndex) * (tagWidth + tagSpacing)
-                        make.leading.equalToSuperview().offset(leftOffset)
-                    } else {
-                        // 최대 태그 수일 경우 균등하게 분배
-                        make.leading.equalToSuperview().offset(CGFloat(colIndex) * (tagWidth + tagSpacing))
-                    }
-                    
-                    make.width.equalTo(tagWidth)
-                    make.height.equalTo(tagHeight)
-                }
+
+            // 컨테이너 높이 제한 넘으면 그만
+            if currentY + tagHeight > tagsContainerView.frame.height {
+                break
             }
+
+            tagsContainerView.addSubview(tagView)
+            tagView.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(currentX)
+                make.bottom.equalToSuperview().offset(-currentY)
+                make.height.equalTo(tagHeight)
+                make.width.equalTo(tagWidth)
+            }
+
+            currentX += tagWidth + tagSpacingX
         }
     }
 
     // 태그 뷰 생성 함수 (기존 함수 유지)
     private func createTagView(withText text: String) -> UIView {
         let tagContainer = UIView()
-        tagContainer.backgroundColor = .white
+        tagContainer.backgroundColor = .tagBackground
+        tagContainer.layer.borderWidth = 0.5
+        tagContainer.layer.borderColor = UIColor.tagBorder.cgColor
         tagContainer.layer.cornerRadius = 12
         
         let tagLabel = UILabel()
         tagLabel.text = text
+        tagLabel.textColor = .textSecondary
         tagLabel.font = .systemFont(ofSize: 12)
         tagLabel.textAlignment = .center
+        tagLabel.numberOfLines = 1
+        tagLabel.lineBreakMode = .byTruncatingTail
         tagContainer.addSubview(tagLabel)
         
         tagLabel.snp.makeConstraints { make in
@@ -356,7 +341,7 @@ class BookCell: UICollectionViewCell {
         highlightContainerView.addSubview(titleLabel)
         
         highlightContainerView.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(4)
+            make.edges.equalToSuperview()
         }
         imageView.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(8)
@@ -376,23 +361,24 @@ class BookCell: UICollectionViewCell {
         titleLabel.text = nil
         imageView.image = nil
     }
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        highlightContainerView.silverFrame()
+        contentView.clipsToBounds = true
+        layer.masksToBounds = true
+    }
     private func setupCell() {
-        
         highlightContainerView.backgroundColor = .white
-        highlightContainerView.layer.cornerRadius = 12
-        highlightContainerView.layer.shadowColor = UIColor.black.withAlphaComponent(0.1).cgColor
-        highlightContainerView.layer.shadowOffset = CGSize(width: 0, height: 1)
-        highlightContainerView.layer.shadowOpacity = 1
-        highlightContainerView.layer.shadowRadius = 3
+        //highlightContainerView.makeShadow()
         
         // Image View
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = 8
-        imageView.backgroundColor = .systemGray4
+        imageView.backgroundColor = .clear
 
         // Title Label
-        titleLabel.font = .systemFont(ofSize: 14)
+        titleLabel.font = .systemFont(ofSize: 13)
         titleLabel.textAlignment = .center
         titleLabel.numberOfLines = 2
         

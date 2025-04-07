@@ -17,7 +17,7 @@ final class EditReadingInProgressViewController: BaseViewController {
     private let saveButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle(TextResource.ButtonTitle.save.text, for: .normal)
-        button.setTitleColor(.blue, for: .normal)
+        button.setTitleColor(.btnTint, for: .normal)
         return button
     }()
     private let dateField = InfoFieldView(title: TextResource.InfoTextView.date.text)
@@ -42,7 +42,7 @@ final class EditReadingInProgressViewController: BaseViewController {
     private let cameraButton : UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "camera.viewfinder"), for: .normal)
-        button.setTitleColor(.blue, for: .normal)
+        button.tintColor = .btnTint
         return button
     }()
     
@@ -310,14 +310,11 @@ final class EditReadingInProgressViewController: BaseViewController {
     }
 
     override func configureView() {
-        view.backgroundColor = .white
+        view.backgroundColor = .backgroundBase
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
         containerScrollView.backgroundColor = .white
         textView.backgroundColor = .white
-        textView.layer.cornerRadius = 12
-        textView.layer.shadowColor = UIColor.black.withAlphaComponent(0.1).cgColor
-        textView.layer.shadowOffset = CGSize(width: 0, height: 1)
-        textView.layer.shadowOpacity = 1
-        textView.layer.shadowRadius = 3
+        textView.makeShadow()
         title = "Edit Reading"
         
         // Configure date field
@@ -329,6 +326,7 @@ final class EditReadingInProgressViewController: BaseViewController {
         
         // Add toolbar with done button for date picker
         let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(doneButtonTapped))
+        doneButton.tintColor = .btnTint
         let toolbar1 = UIToolbar()
         toolbar1.sizeToFit()
         toolbar1.setItems([doneButton], animated: true)
@@ -369,7 +367,9 @@ final class EditReadingInProgressViewController: BaseViewController {
         cameraButton.addTarget(self, action: #selector(cameraButtonTapped), for: .touchUpInside)
         navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: cameraButton), UIBarButtonItem(customView: saveButton)]
     }
-
+    @objc private func backButtonTapped() {
+        navigationController?.popViewController(animated: true)
+    }
     // MARK: - Actions and Helpers
     @objc private func doneButtonTapped() {
         if let datePicker = dateField.textField.inputView as? UIDatePicker {

@@ -15,7 +15,7 @@ final class ArchiveViewController: BaseViewController {
     let deleteButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Edit", for: .normal)
-        button.setTitleColor(.systemBlue, for: .normal)
+        button.setTitleColor(.btnTint, for: .normal)
         return button
     }()
     
@@ -30,7 +30,7 @@ final class ArchiveViewController: BaseViewController {
     private let filterIcon: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "line.3.horizontal.decrease"), for: .normal)
-        button.tintColor = .systemBlue
+        button.tintColor = .btnTint
         button.backgroundColor = .systemGray6
         button.layer.cornerRadius = 8
         return button
@@ -40,7 +40,7 @@ final class ArchiveViewController: BaseViewController {
     private let categoriesLabel: UILabel = {
         let label = UILabel()
         label.text = "Categories"
-        label.font = .systemFont(ofSize: 18, weight: .bold)
+        label.font = .systemFont(ofSize: 15, weight: .bold)
         label.isHidden = true
         return label
     }()
@@ -57,6 +57,7 @@ final class ArchiveViewController: BaseViewController {
     private let statusFilterButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Status", for: .normal)
+        button.setTitleColor(.btnTint, for: .normal)
         button.backgroundColor = .systemBackground
         button.layer.cornerRadius = 8
         button.layer.borderWidth = 1
@@ -67,6 +68,7 @@ final class ArchiveViewController: BaseViewController {
     private let categoryFilterButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Category", for: .normal)
+        button.setTitleColor(.btnTint, for: .normal)
         button.backgroundColor = .systemBackground
         button.layer.cornerRadius = 8
         button.layer.borderWidth = 1
@@ -77,6 +79,7 @@ final class ArchiveViewController: BaseViewController {
     private let feelingFilterButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Feeling", for: .normal)
+        button.setTitleColor(.btnTint, for: .normal)
         button.backgroundColor = .systemBackground
         button.layer.cornerRadius = 8
         button.layer.borderWidth = 1
@@ -101,7 +104,7 @@ final class ArchiveViewController: BaseViewController {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
         collectionView.isScrollEnabled = false
-        collectionView.contentInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        collectionView.contentInset = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
         return collectionView
     }()
     
@@ -155,6 +158,11 @@ final class ArchiveViewController: BaseViewController {
                 }
             }
             .store(in: &cancellables)
+        viewModel.$fetchError.compactMap{$0}
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] errorMessage in
+                self?.showAlert(text: errorMessage)
+            }.store(in: &cancellables)
     }
     private func applyFilters() {
         
@@ -230,7 +238,7 @@ final class ArchiveViewController: BaseViewController {
         filterIcon.snp.makeConstraints { make in
             make.top.equalTo(searchBar.snp.bottom).offset(8)
             make.leading.equalTo(view.safeAreaLayoutGuide).offset(16)
-            make.size.equalTo(40)
+            make.size.equalTo(32)
         }
         // Filter icon positioned below search bar when no filter type is selected
         updateFilterIconConstraints()
@@ -240,7 +248,7 @@ final class ArchiveViewController: BaseViewController {
             make.top.equalTo(searchBar.snp.bottom).offset(16)
             make.leading.equalTo(filterIcon.snp.trailing).offset(8)
             make.trailing.equalTo(view.safeAreaLayoutGuide).offset(-16)
-            make.height.equalTo(40)
+            make.height.equalTo(32)
         }
         
         // Categories label
@@ -260,7 +268,11 @@ final class ArchiveViewController: BaseViewController {
             make.edges.equalToSuperview()
             // The collection view will determine its own height
         }
-        
+        [statusFilterButton, categoryFilterButton, feelingFilterButton].forEach{
+            $0.snp.makeConstraints { make in
+                make.height.equalTo(32)
+            }
+        }
         // Table view - will be updated dynamically based on filter state
         updateTableViewConstraints()
     }
@@ -272,14 +284,14 @@ final class ArchiveViewController: BaseViewController {
             filterIcon.snp.remakeConstraints { make in
                 make.top.equalTo(searchBar.snp.bottom).offset(8)
                 make.leading.equalTo(view.safeAreaLayoutGuide).offset(16)
-                make.size.equalTo(40)
+                make.size.equalTo(32)
             }
         } else {
             // Position filter icon below tag container when filter type is selected
             filterIcon.snp.remakeConstraints { make in
                 make.top.equalTo(tagContainerView.snp.bottom).offset(8)
                 make.leading.equalTo(view.safeAreaLayoutGuide).offset(16)
-                make.size.equalTo(40)
+                make.size.equalTo(32)
             }
         }
     }
@@ -303,16 +315,19 @@ final class ArchiveViewController: BaseViewController {
     
     
     override func configureView() {
-        view.backgroundColor = .white
+        view.backgroundColor = .backgroundBase
         navigationItem.title = "Library"
-        tableView.backgroundColor = .systemBackground
+        tableView.backgroundColor = .backgroundBase
         tableView.register(ArchiveTableViewCell.self, forCellReuseIdentifier: ArchiveTableViewCell.identifier)
         tableView.delegate = self
         tableView.dataSource = self
         
         // 검색바 설정
         searchBar.delegate = self
-        searchBar.placeholder = "제목 또는 작가로 검색"
+        searchBar.placeholder = TextResource.Placeholder.bookSearch.text
+        searchBar.barTintColor = .backgroundBase
+        searchBar.searchBarStyle = .minimal
+        searchBar.backgroundColor = .clear
         
         deleteButton.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: deleteButton)
@@ -383,19 +398,19 @@ final class ArchiveViewController: BaseViewController {
         // Reset all button styles
         [statusFilterButton, categoryFilterButton, feelingFilterButton].forEach { button in
             button.backgroundColor = .systemBackground
-            button.setTitleColor(.systemBlue, for: .normal)
+            button.setTitleColor(.btnTint, for: .normal)
         }
         
         // Set selected button style
         switch selectedFilterType {
         case .status:
-            statusFilterButton.backgroundColor = .systemBlue
+            statusFilterButton.backgroundColor = .btnTint
             statusFilterButton.setTitleColor(.white, for: .normal)
         case .category:
-            categoryFilterButton.backgroundColor = .systemBlue
+            categoryFilterButton.backgroundColor = .btnTint
             categoryFilterButton.setTitleColor(.white, for: .normal)
         case .feeling:
-            feelingFilterButton.backgroundColor = .systemBlue
+            feelingFilterButton.backgroundColor = .btnTint
             feelingFilterButton.setTitleColor(.white, for: .normal)
         case .none:
             break
@@ -544,12 +559,12 @@ extension ArchiveViewController: UICollectionViewDelegateFlowLayout {
             label.sizeToFit()
             
             // 너비 = 텍스트 너비 + 패딩
-            let width = label.frame.width + 32
+            let width = label.frame.width + 10
             
-            return CGSize(width: width, height: 32)
+            return CGSize(width: width, height: 25)
         }
         
-        return CGSize(width: 100, height: 32)
+        return CGSize(width: 80, height: 25)
     }
 }
 
@@ -557,7 +572,8 @@ extension ArchiveViewController: UICollectionViewDelegateFlowLayout {
 class TagCollectionViewCell: UICollectionViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .darkGray
+        label.font = UIFont.systemFont(ofSize: 13)
+        label.textColor = .mainText
         label.textAlignment = .center
         return label
     }()
@@ -596,11 +612,11 @@ class TagCollectionViewCell: UICollectionViewCell {
     
     private func updateAppearance() {
         if isTagSelected {
-            contentView.backgroundColor = .systemBlue
+            contentView.backgroundColor = .btnTint
             titleLabel.textColor = .white
         } else {
             contentView.backgroundColor = .systemGray6
-            titleLabel.textColor = .darkGray
+            titleLabel.textColor = .mainText
         }
     }
 }

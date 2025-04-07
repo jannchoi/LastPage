@@ -12,9 +12,9 @@ final class RecommendViewModel:BaseViewModel {
     var cancellables = Set<AnyCancellable>()
     let makeFetchKeywordUseCase: FetchKeywordUseCaseProtocol
     let getBookUseCase: GetBookUseCaseProtocol
-    @Published private(set) var fetchError: String = ""
+    @Published private(set) var fetchError: String? = nil
     @Published var keywordData: [String]?
-    @Published private(set) var error: NetworkError?
+    @Published private(set) var error: NetworkError? = nil
     struct Input {
         
     }

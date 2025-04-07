@@ -30,7 +30,7 @@ final class SearchBookTableViewCell: UITableViewCell {
     private let authorLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 13)
-        label.textColor = .darkGray
+        label.textColor = .mainText
         return label
     }()
     
@@ -43,7 +43,9 @@ final class SearchBookTableViewCell: UITableViewCell {
     
     private let firstTagView: UIView = {
         let view = UIView()
-        view.backgroundColor = .systemGray6
+        view.backgroundColor = .tagBackground
+        view.layer.borderWidth = 0.5
+        view.layer.borderColor = UIColor.tagBorder.cgColor
         view.layer.cornerRadius = 15
         return view
     }()
@@ -51,7 +53,7 @@ final class SearchBookTableViewCell: UITableViewCell {
     private let firstTagLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12)
-        label.textColor = .darkGray
+        label.textColor = .mainText
         return label
     }()
 
@@ -59,7 +61,10 @@ final class SearchBookTableViewCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         configureView()
     }
-    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        highlightContainerView.silverFrame()
+    }
     func configure(item: BookDetail) {
         titleLabel.text = item.title
         authorLabel.text = item.author
@@ -80,7 +85,7 @@ final class SearchBookTableViewCell: UITableViewCell {
     }
     
     private func configureView() {
-        contentView.backgroundColor = .white
+        contentView.backgroundColor = .backgroundBase
         selectionStyle = .none
         addSubview(highlightContainerView)
         // Add subviews
@@ -135,11 +140,7 @@ final class SearchBookTableViewCell: UITableViewCell {
             make.trailing.equalToSuperview().offset(-12)
         }
         highlightContainerView.backgroundColor = .white
-        highlightContainerView.layer.cornerRadius = 12
-        highlightContainerView.layer.shadowColor = UIColor.black.withAlphaComponent(0.1).cgColor
-        highlightContainerView.layer.shadowOffset = CGSize(width: 0, height: 1)
-        highlightContainerView.layer.shadowOpacity = 1
-        highlightContainerView.layer.shadowRadius = 3
+        highlightContainerView.makeShadow()
 
     }
     

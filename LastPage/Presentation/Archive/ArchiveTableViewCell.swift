@@ -30,7 +30,7 @@ final class ArchiveTableViewCell: UITableViewCell {
     private let authorLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 13)
-        label.textColor = .darkGray
+        label.textColor = .mainText
         return label
     }()
     
@@ -43,35 +43,36 @@ final class ArchiveTableViewCell: UITableViewCell {
     
     private let firstTagView: UIView = {
         let view = UIView()
-        view.backgroundColor = .systemGray6
-        view.layer.cornerRadius = 15
+        view.backgroundColor = .tagBackground
+        view.layer.borderWidth = 0.5
+        view.layer.borderColor = UIColor.tagBorder.cgColor
         return view
     }()
     
     private let firstTagLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12)
-        label.textColor = .darkGray
+        label.textColor = .mainText
         return label
     }()
     
     private let secondTagView: UIView = {
         let view = UIView()
-        view.backgroundColor = .systemGray6
-        view.layer.cornerRadius = 15
+        view.backgroundColor = .tagBackground
+        view.layer.borderWidth = 0.5
+        view.layer.borderColor = UIColor.tagBorder.cgColor
         return view
     }()
     
     private let secondTagLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12)
-        label.textColor = .darkGray
+        label.textColor = .mainText
         return label
     }()
     
     private let statusContainerView: UIView = {
         let view = UIView()
-        view.layer.cornerRadius = 15
         view.layer.borderWidth = 1
         return view
     }()
@@ -144,20 +145,20 @@ final class ArchiveTableViewCell: UITableViewCell {
         statusLabel.text = status.rawValue
         switch status {
         case .unread:
-            statusContainerView.layer.borderColor = UIColor.systemBlue.cgColor
-            statusLabel.textColor = .systemBlue
+            statusContainerView.layer.borderColor = UIColor.burgundy.cgColor
+            statusLabel.textColor = .burgundy
             statusIcon.image = UIImage(systemName: "bookmark.fill")
-            statusIcon.tintColor = .systemBlue
+            statusIcon.tintColor = .burgundy
         case .reading:
-            statusContainerView.layer.borderColor = UIColor.systemOrange.cgColor
-            statusLabel.textColor = .systemOrange
+            statusContainerView.layer.borderColor = UIColor.mustard.cgColor
+            statusLabel.textColor = .mustard
             statusIcon.image = UIImage(systemName: "book.fill")
-            statusIcon.tintColor = .systemOrange
+            statusIcon.tintColor = .mustard
         case .completed:
-            statusContainerView.layer.borderColor = UIColor.systemGreen.cgColor
-            statusLabel.textColor = .systemGreen
+            statusContainerView.layer.borderColor = UIColor.oliveGreen.cgColor
+            statusLabel.textColor = .oliveGreen
             statusIcon.image = UIImage(systemName: "checkmark.circle.fill")
-            statusIcon.tintColor = .systemGreen
+            statusIcon.tintColor = .oliveGreen
         }
     }
     
@@ -171,9 +172,15 @@ final class ArchiveTableViewCell: UITableViewCell {
         bookCoverImageView.image = nil
         statusContainerView.isHidden = false
     }
-    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        highlightContainerView.silverFrame()
+        [firstTagView, secondTagView, statusContainerView].forEach{
+            $0.layer.cornerRadius = $0.frame.height / 2
+        }
+    }
     private func configureView() {
-        contentView.backgroundColor = .white
+        contentView.backgroundColor = .backgroundBase
         selectionStyle = .none
         addSubview(highlightContainerView)
         // Add subviews
@@ -263,11 +270,8 @@ final class ArchiveTableViewCell: UITableViewCell {
             make.centerY.equalToSuperview()
         }
         highlightContainerView.backgroundColor = .white
-        highlightContainerView.layer.cornerRadius = 12
-        highlightContainerView.layer.shadowColor = UIColor.black.withAlphaComponent(0.1).cgColor
-        highlightContainerView.layer.shadowOffset = CGSize(width: 0, height: 1)
-        highlightContainerView.layer.shadowOpacity = 1
-        highlightContainerView.layer.shadowRadius = 3
+        highlightContainerView.makeShadow()
+
 
     }
     

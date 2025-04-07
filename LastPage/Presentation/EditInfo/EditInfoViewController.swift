@@ -18,8 +18,8 @@ final class EditInfoViewController: BaseViewController {
     
     private let bookCoverImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFit
-        imageView.backgroundColor = .lightGray
+        imageView.contentMode = .scaleAspectFill
+        imageView.backgroundColor = .clear
         imageView.layer.cornerRadius = 4
         imageView.clipsToBounds = true
         return imageView
@@ -30,12 +30,13 @@ final class EditInfoViewController: BaseViewController {
         label.text = TextResource.Global.none.text
         label.textAlignment = .center
         label.font = .systemFont(ofSize: 14)
-        label.textColor = .darkGray
+        label.textColor = .mainText
         return label
     }()
     private let changeImageButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "plus"), for: .normal)
+        button.tintColor = .btnTint
         button.backgroundColor = .systemGray6
         button.layer.cornerRadius = 4
         return button
@@ -43,6 +44,7 @@ final class EditInfoViewController: BaseViewController {
     private let clearImageButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "xmark"), for: .normal)
+        button.tintColor = .btnTint
         button.backgroundColor = .systemGray6
         button.layer.cornerRadius = 4
         return button
@@ -64,7 +66,7 @@ final class EditInfoViewController: BaseViewController {
     private let saveButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle(TextResource.ButtonTitle.save.text, for: .normal)
-        button.setTitleColor(.blue, for: .normal)
+        button.setTitleColor(.btnTint, for: .normal)
         return button
     }()
     private var selectedImage: UIImage?
@@ -278,6 +280,8 @@ final class EditInfoViewController: BaseViewController {
     func setupUI(item: BookDetailEntity) {
         originalImagePath = item.imagePath
         ImageFormatter.shared.setImage(target: bookCoverImageView, path: originalImagePath)
+        isValidImage()
+        navigationItem.title = item.title
         titleField.textField.text = item.title
         authorField.textField.text = item.author
         shortMemoField.textField.text = item.shortMemo
@@ -287,21 +291,10 @@ final class EditInfoViewController: BaseViewController {
         readingStatusSegmentControl.selectedSegmentIndex = item.status.segmentIndex
     }
     
-    private func setImage(_ path: String?){
-        let imgPath = path ?? TextResource.Global.empty.text
+    private func isValidImage(){
         
-        if imgPath.hasPrefix("https://") {
-            let url = URL(string: imgPath)
-            bookCoverImageView.kf.setImage(with: url, placeholder: UIImage(systemName: "person"))
-            bookCoverLabel.isHidden = true
-        } else if imgPath.hasPrefix("local://") {
-            let localPath = imgPath.replacingOccurrences(of: "local://", with: "")
-            bookCoverImageView.image = UIImage(contentsOfFile: localPath)
-            bookCoverLabel.isHidden = true
-        } else {
-            bookCoverImageView.image = nil
-            bookCoverLabel.isHidden = false
-        }
+        bookCoverLabel.isHidden = bookCoverImageView.image == nil ? false : true
+
     }
     
     @objc private func saveButtonTapped() {
@@ -375,7 +368,7 @@ final class EditInfoViewController: BaseViewController {
         bookCoverImageView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(16)
             make.centerX.equalToSuperview()
-            make.width.equalTo(120)
+            make.width.equalTo(100)
             make.height.equalTo(145)
         }
         changeImageButton.snp.makeConstraints { make in
@@ -432,7 +425,7 @@ final class EditInfoViewController: BaseViewController {
     
     // MARK: - 프로퍼티 속성 설정
     override func configureView() {
-        view.backgroundColor = .white
+        view.backgroundColor = .backgroundBase
         // 필드 placeholder 설정
         titleField.setPlaceholder(TextResource.Placeholder.title.text)
         authorField.setPlaceholder(TextResource.Placeholder.author.text)
@@ -443,8 +436,12 @@ final class EditInfoViewController: BaseViewController {
         saveButton.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
         changeImageButton.addTarget(self, action: #selector(changeImageButtonTapped), for: .touchUpInside)
         clearImageButton.addTarget(self, action: #selector(clearImageButtonTapped), for: .touchUpInside)
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: saveButton)
 
+    }
+    @objc private func backButtonTapped() {
+        navigationController?.popViewController(animated: true)
     }
 }
 
