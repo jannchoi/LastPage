@@ -5,9 +5,9 @@
 	<key>UIUserInterfaceStyle</key>
 	<string></string>
 	<key>NSCameraUsageDescription</key>
-	<string>Camera permissions for scanning text</string>
+	<string>텍스트를 인식하기 위해 카메라 접근이 필요합니다.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Album permission to save photos</string>
+	<string>기록을 위해 사진을 선택할 수 있도록 허용해주세요.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
