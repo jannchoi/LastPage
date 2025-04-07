@@ -29,7 +29,6 @@ final class StatsViewModel:BaseViewModel {
         self.getAllBooksUseCase = getAllBooksUseCase
         self.internalData = InternalData()
         bookDeletedSubject.sink{ _ in
-            print("stats deleted")
             self.getBookData()
         }.store(in: &cancellables)
     }
