@@ -28,9 +28,9 @@ final class CategoryListViewModel:BaseViewModel {
         self.type = type
         switch type {
         case .category:
-            categories = CategoryDataManager.allBookGenres
+            categories = TextDataStorage.allBookGenres
         case .feeling:
-            categories = CategoryDataManager.allFeelings
+            categories = TextDataStorage.allFeelings
         }
         
     }

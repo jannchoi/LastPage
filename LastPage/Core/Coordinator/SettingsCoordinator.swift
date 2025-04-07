@@ -32,6 +32,14 @@ final class SettingsCoordinator: Coordinator {
         vc.coordinator = self
         navigationController.viewControllers = [vc]
     }
+    func showHelpFAQ() {
+        let vc = HelpFAQViewController()
+        navigationController.pushViewController(vc, animated: true)
+    }
+    func showAbout() {
+        let vc = AboutViewController()
+        navigationController.pushViewController(vc, animated: true)
+    }
 
 }
 

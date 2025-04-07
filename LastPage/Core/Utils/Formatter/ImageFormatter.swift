@@ -13,12 +13,12 @@ class ImageFormatter {
     @MainActor
     func setImage(target: UIImageView, path: String?) {
         guard let path = path, !path.isEmpty else {
-            target.image = UIImage(systemName: "person")
+            target.image = nil
             return
         }
 
         if path.hasPrefix("https://"), let url = URL(string: path) {
-            target.kf.setImage(with: url, placeholder: UIImage(systemName: "person"))
+            target.kf.setImage(with: url)
         } else if path.hasPrefix("local://") {
             let fileName = path.replacingOccurrences(of: "local://", with: "")
             if let documentPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
@@ -26,11 +26,11 @@ class ImageFormatter {
                 if let image = UIImage(contentsOfFile: fileURL.path) {
                     target.image = image
                 } else {
-                    target.image = UIImage(systemName: "person")
+                    target.image = nil
                 }
             }
         } else {
-            target.image = UIImage(systemName: "person")
+            target.image = nil
         }
     }
     func saveImageToLocal(image: UIImage) -> String {

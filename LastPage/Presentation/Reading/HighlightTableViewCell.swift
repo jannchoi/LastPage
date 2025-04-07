@@ -55,11 +55,7 @@ final class HighlightTableViewCell: UITableViewCell{
     private func styleComponents() {
         // Container styling
         containerView.backgroundColor = .white
-        containerView.layer.cornerRadius = 12
-        containerView.layer.shadowColor = UIColor.black.withAlphaComponent(0.1).cgColor
-        containerView.layer.shadowOffset = CGSize(width: 0, height: 1)
-        containerView.layer.shadowOpacity = 1
-        containerView.layer.shadowRadius = 3
+        containerView.makeShadow()
 
 
         
@@ -70,27 +66,27 @@ final class HighlightTableViewCell: UITableViewCell{
         
         // Date label
         dateLabel.font = .systemFont(ofSize: 14, weight: .medium)
-        dateLabel.textColor = .darkGray
+        dateLabel.textColor = .mainText
         
         // Page range label
         pageRangeLabel.font = .systemFont(ofSize: 14, weight: .medium)
-        pageRangeLabel.textColor = .darkGray
+        pageRangeLabel.textColor = .mainText
         
         // Pages count label
         pagesCountLabel.font = .systemFont(ofSize: 14, weight: .regular)
-        pagesCountLabel.textColor = .gray
+        pagesCountLabel.textColor = .mainText
         pagesCountLabel.textAlignment = .right
         
         // Memo label
         memoLabel.font = .systemFont(ofSize: 14, weight: .regular)
-        memoLabel.textColor = .darkGray
+        memoLabel.textColor = .mainText
         memoLabel.numberOfLines = 0
         //memoContainerView
         memoContainerView.backgroundColor = .systemGray6
         memoContainerView.layer.cornerRadius = 8
         // Edit button
         editButton.setImage(UIImage(systemName: "pencil"), for: .normal)
-        editButton.tintColor = .gray
+        editButton.tintColor = .btnTint
         editButton.addTarget(self, action: #selector(editButtonTapped), for: .touchUpInside)
     }
     @objc func editButtonTapped() {
@@ -144,11 +140,18 @@ final class HighlightTableViewCell: UITableViewCell{
         dateLabel.text = DateFormattManager.shared.dateToStr(item.date)
         memoLabel.text = item.memo
         cellIndex = index
-        pageRangeLabel.text = "Pages \(item.startPage) ~ \(item.endPage)"
-        guard let st = item.startPage, let stInt = Int(st), let end = item.endPage, let endInt = Int(end) else {return}
-        
-        let pageCount = stInt - endInt + 1
-        pageRangeLabel.text = "\(pageCount) pages"
+        if let start = item.startPage, let end = item.endPage {
+            pageRangeLabel.text = "Pages \(start) ~ \(end)"
+            
+            if let startInt = Int(start), let endInt = Int(end) {
+                let pageCount = endInt - startInt + 1
+                pagesCountLabel.text = "\(pageCount) pages"
+            } else {
+                pagesCountLabel.text = "Page count unknown"
+            }
+        } else {
+            pageRangeLabel.text = "Page range unknown"
+        }
         
     }
 }

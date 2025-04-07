@@ -23,21 +23,22 @@ final class ReadingViewController: BaseViewController {
     
     private let bookCoverImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFit
+        imageView.contentMode = .scaleAspectFill
         imageView.layer.cornerRadius = 8
         imageView.clipsToBounds = true
+        imageView.backgroundColor = .backgroundBase
         return imageView
     }()
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 20, weight: .bold)
+        label.font = .systemFont(ofSize: 15, weight: .bold)
         return label
     }()
     
     private let authorLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 16)
+        label.font = .systemFont(ofSize: 14)
         label.textColor = .darkGray
         return label
     }()
@@ -45,14 +46,14 @@ final class ReadingViewController: BaseViewController {
     private let editButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "pencil"), for: .normal)
-        button.tintColor = .darkGray
+        button.tintColor = .btnTint
         return button
     }()
     
     private let deleteButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "trash"), for: .normal)
-        button.tintColor = .darkGray
+        button.tintColor = .btnTint
         return button
     }()
 
@@ -60,25 +61,21 @@ final class ReadingViewController: BaseViewController {
     private let metadataView: UIView = {
         let view = UIView()
         view.backgroundColor = .white
-        view.layer.cornerRadius = 12
-        view.layer.shadowColor = UIColor.black.cgColor
-        view.layer.shadowOpacity = 0.1
-        view.layer.shadowOffset = CGSize(width: 0, height: 1)
-        view.layer.shadowRadius = 4
+        view.makeShadow()
         return view
     }()
     
     private let dateAddedLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15)
-        label.textColor = .darkGray
+        label.font = .systemFont(ofSize: 14)
+        label.textColor = .mainText
         return label
     }()
 
     private let progressLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15)
-        label.textColor = .darkGray
+        label.font = .systemFont(ofSize: 14)
+        label.textColor = .mainText
         return label
     }()
     
@@ -86,25 +83,21 @@ final class ReadingViewController: BaseViewController {
     private let notesCardView: UIView = {
         let view = UIView()
         view.backgroundColor = .white
-        view.layer.cornerRadius = 12
-        view.layer.shadowColor = UIColor.black.cgColor
-        view.layer.shadowOpacity = 0.1
-        view.layer.shadowOffset = CGSize(width: 0, height: 1)
-        view.layer.shadowRadius = 4
+        view.makeShadow()
         return view
     }()
     
     private let notesTitleLabel: UILabel = {
         let label = UILabel()
         label.text = "Notes"
-        label.font = .systemFont(ofSize: 18, weight: .semibold)
+        label.font = .systemFont(ofSize: 15, weight: .semibold)
         return label
     }()
     
     private let notesContentLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15)
-        label.textColor = .darkGray
+        label.textColor = .mainText
         label.numberOfLines = 0
         return label
     }()
@@ -113,18 +106,14 @@ final class ReadingViewController: BaseViewController {
     private let feelingsCardView: UIView = {
         let view = UIView()
         view.backgroundColor = .white
-        view.layer.cornerRadius = 12
-        view.layer.shadowColor = UIColor.black.cgColor
-        view.layer.shadowOpacity = 0.1
-        view.layer.shadowOffset = CGSize(width: 0, height: 1)
-        view.layer.shadowRadius = 4
+        view.makeShadow()
         return view
     }()
     
     private let feelingsTitleLabel: UILabel = {
         let label = UILabel()
         label.text = "Feelings"
-        label.font = .systemFont(ofSize: 18, weight: .semibold)
+        label.font = .systemFont(ofSize: 15, weight: .semibold)
         return label
     }()
     
@@ -146,7 +135,7 @@ final class ReadingViewController: BaseViewController {
     private let memoTitleLabel: UILabel = {
         let label = UILabel()
         label.text = "Notes"
-        label.font = .systemFont(ofSize: 18, weight: .semibold)
+        label.font = .systemFont(ofSize: 15, weight: .semibold)
         return label
     }()
 
@@ -171,7 +160,7 @@ final class ReadingViewController: BaseViewController {
     private let memoEditButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Edit", for: .normal)
-        button.backgroundColor = .systemBlue
+        button.backgroundColor = .btnTint
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 8
         return button
@@ -224,10 +213,14 @@ final class ReadingViewController: BaseViewController {
     // MARK: - UI Setup
     
     override func configureView() {
-        view.backgroundColor = .systemGray6
+        view.backgroundColor = .backgroundBase
         readingInProgressView.delegate = self
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
+       
     }
-    
+    @objc private func backButtonTapped() {
+        navigationController?.popViewController(animated: true)
+    }
     override func configureHierarchy() {
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
@@ -316,7 +309,7 @@ final class ReadingViewController: BaseViewController {
         metadataView.snp.makeConstraints { make in
             make.top.equalTo(bookDetailView.snp.bottom).offset(16)
             make.leading.trailing.equalToSuperview().inset(16)
-            make.height.equalTo(90)
+            make.height.equalTo(70)
         }
         
         dateAddedLabel.snp.makeConstraints { make in
@@ -326,8 +319,8 @@ final class ReadingViewController: BaseViewController {
         }
 
         progressLabel.snp.makeConstraints { make in
-            make.top.equalTo(dateAddedLabel.snp.bottom).offset(12)
             make.trailing.equalToSuperview().offset(-16)
+            make.bottom.equalToSuperview().offset(-16)
         }
         
         // Notes layout
@@ -373,7 +366,7 @@ final class ReadingViewController: BaseViewController {
             make.top.equalToSuperview().inset(8)
             make.trailing.equalTo(feelingsCardView.snp.trailing).inset(16)
             make.leading.equalTo(contentView.snp.centerX).offset(4)
-            make.height.equalTo(40)
+            make.height.equalTo(25)
             
         }
         memoTitleLabel.snp.makeConstraints { make in
@@ -381,7 +374,7 @@ final class ReadingViewController: BaseViewController {
             make.leading.equalTo(feelingsTitleLabel)
             make.trailing.equalTo(contentView.snp.centerX).inset(4)
             make.centerY.equalTo(memoEditButton)
-            make.height.equalTo(20)
+            make.height.equalTo(25)
         }
 
         
@@ -438,13 +431,12 @@ final class ReadingViewController: BaseViewController {
     }
 
     private func updateUI(with item: BookEntity) {
+        navigationItem.title = item.bookDetail.title
         titleLabel.text = item.bookDetail.title
         authorLabel.text = item.bookDetail.author
         
         let imgPath = item.bookDetail.imagePath ?? TextResource.Global.empty.text
         ImageFormatter.shared.setImage(target: bookCoverImageView, path: imgPath)
-        // Format date
-
         dateAddedLabel.text = DateFormattManager.shared.dateToStr(item.bookDetail.addedDate)
         progressLabel.text = item.bookDetail.status.rawValue
         readingInProgressView.updateData(data: item.inProgressMemo)
@@ -492,24 +484,26 @@ final class ReadingViewController: BaseViewController {
 
     private func createChipView(with text: String) -> UIView {
         let containerView = UIView()
-        containerView.backgroundColor = .systemGray5
+        containerView.backgroundColor = .tagBackground
+        containerView.layer.borderColor = UIColor.tagBorder.cgColor
+        containerView.layer.borderWidth = 0.5
         containerView.layer.cornerRadius = 16
         
         let label = UILabel()
         label.text = text
-        label.font = .systemFont(ofSize: 14)
-        label.textColor = .darkGray
+        label.font = .systemFont(ofSize: 13)
+        label.textColor = .mainText
         label.textAlignment = .center
         
         containerView.addSubview(label)
         label.snp.makeConstraints { make in
             make.center.equalToSuperview()
             make.leading.trailing.equalToSuperview().inset(12)
-            make.height.equalTo(17)
+            make.height.equalTo(15)
             make.top.bottom.equalToSuperview().inset(8)
         }
         containerView.snp.makeConstraints { make in
-                make.height.greaterThanOrEqualTo(32)
+                make.height.greaterThanOrEqualTo(21)
             }
         return containerView
     }
@@ -570,13 +564,13 @@ final class ReadingViewController: BaseViewController {
     
     @objc private func deleteButtonTapped() {
         let alert = UIAlertController(
-            title: "Delete Book",
-            message: "Are you sure you want to delete this book?",
+            title: "도서 삭제",
+            message: "해당 도서를 삭제하시겠습니까?",
             preferredStyle: .alert
         )
         
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        alert.addAction(UIAlertAction(title: "Delete", style: .destructive) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        alert.addAction(UIAlertAction(title: "삭제", style: .destructive) { [weak self] _ in
             // Implement delete functionality
             guard let self = self, let bookId = self.viewModel.bookDetail?.id else { return }
             viewModel.deleteBook(targetId: bookId)

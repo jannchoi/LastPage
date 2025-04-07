@@ -70,7 +70,7 @@ class TextSelectionViewController: UIViewController {
             "원하는 문장을 여러 개 선택한 후 '적용'을 눌러주세요." :
             "원하는 문장을 선택해주세요."
         instructionLabel.textAlignment = .center
-        instructionLabel.textColor = .darkGray
+        instructionLabel.textColor = .mainText
         instructionLabel.font = .systemFont(ofSize: 14)
         instructionLabel.backgroundColor = UIColor.lightGray.withAlphaComponent(0.2)
         instructionLabel.numberOfLines = 0

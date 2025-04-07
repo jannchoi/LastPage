@@ -13,7 +13,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor.backgroundBase // 배경색
+        appearance.titleTextAttributes = [.foregroundColor: UIColor.mainText] // 제목 텍스트 색상
+        appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.mainText] // 큰 제목 텍스트 색상
+        
+        // 적용 대상 설정
+        UINavigationBar.appearance().standardAppearance = appearance
+        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+        UINavigationBar.appearance().compactAppearance = appearance
+        UINavigationBar.appearance().tintColor = .mainText // back 버튼 및 bar button item 색상
         return true
     }
 

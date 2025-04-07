@@ -19,7 +19,7 @@ class SettingViewController: BaseViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "SettingsCell")
-        tableView.backgroundColor = .systemGroupedBackground
+        tableView.backgroundColor = .backgroundBase
         return tableView
     }()
     
@@ -61,7 +61,7 @@ class SettingViewController: BaseViewController {
     
     // MARK: - 프로퍼티 속성 설정
     override func configureView() {
-        view.backgroundColor = .white
+        view.backgroundColor = .backgroundBase
         version.text = "Version 1.0.0"
         version.textColor = .secondaryLabel
         version.font = .systemFont(ofSize: 14)
@@ -75,7 +75,7 @@ extension SettingViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 4
+        return 3
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -83,42 +83,26 @@ extension SettingViewController: UITableViewDataSource {
         cell.accessoryType = .disclosureIndicator
         
         var content = cell.defaultContentConfiguration()
-        
         switch indexPath.row {
         case 0:
-            content.text = "Notifications"
-            content.image = UIImage(systemName: "bell")
-            
-            let switchView = UISwitch()
-            switchView.isOn = true
-            switchView.onTintColor = .systemGreen
-            switchView.addTarget(self, action: #selector(notificationSwitchChanged(_:)), for: .valueChanged)
-            cell.accessoryView = switchView
-            cell.accessoryType = .none
-            
-        case 1:
             content.text = "Help & FAQ"
             content.image = UIImage(systemName: "questionmark.circle")
-            
-        case 2:
+            content.textProperties.color = .mainText
+        case 1:
             content.text = "About"
             content.image = UIImage(systemName: "info.circle")
-            
-        case 3:
+            content.textProperties.color = .mainText
+        case 2:
             content.text = "Reset"
             content.image = UIImage(systemName: "arrow.right.square")
-            content.textProperties.color = .systemRed
+            content.textProperties.color = .burgundy
             
         default:
             break
         }
-        
+        content.imageProperties.tintColor = .btnTint
         cell.contentConfiguration = content
         return cell
-    }
-    
-    @objc private func notificationSwitchChanged(_ sender: UISwitch) {
-        print(#function)
     }
 }
 
@@ -128,11 +112,11 @@ extension SettingViewController: UITableViewDelegate {
         tableView.deselectRow(at: indexPath, animated: true)
         
         switch indexPath.row {
+        case 0:
+            coordinator?.showHelpFAQ()
         case 1:
-            print(#function)
+            coordinator?.showAbout()
         case 2:
-            print(#function)
-        case 3:
             showResetConfirmation()
         default:
             break
@@ -141,13 +125,13 @@ extension SettingViewController: UITableViewDelegate {
     
     private func showResetConfirmation() {
         let alert = UIAlertController(
-            title: "Reset App",
-            message: "Are you sure you want to reset the app? This action cannot be undone.",
+            title: "초기화",
+            message: "데이터를 초기화하시겠습니까? 다시 데이터를 되돌릴 수 없습니다.",
             preferredStyle: .alert
         )
         
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        alert.addAction(UIAlertAction(title: "Reset", style: .destructive) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        alert.addAction(UIAlertAction(title: "초기화", style: .destructive) { [weak self] _ in
             guard let self = self else {return}
             self.viewModel.resetBooks()
         })

@@ -27,155 +27,30 @@ class StatisticsViewController: BaseViewController, UIViewControllerTransitionin
         return view
     }()
     
-    private lazy var titleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Reading Statistics"
-        label.font = .systemFont(ofSize: 24, weight: .bold)
-        return label
-    }()
-    
-    // Book count this month view
-    private lazy var booksThisMonthView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .systemBackground
-        view.layer.cornerRadius = 12
-        view.layer.shadowColor = UIColor.black.cgColor
-        view.layer.shadowOpacity = 0.1
-        view.layer.shadowOffset = CGSize(width: 0, height: 2)
-        view.layer.shadowRadius = 4
-        return view
-    }()
-    
-    private lazy var booksThisMonthTitleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Books This Month"
-        label.textColor = .systemGray
-        label.font = .systemFont(ofSize: 16)
-        return label
-    }()
-    
-    private lazy var booksThisMonthCountLabel: UILabel = {
-        let label = UILabel()
-        label.text = "5"
-        label.font = .systemFont(ofSize: 32, weight: .bold)
-        return label
-    }()
-    
-    private lazy var booksThisMonthIconImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.image = UIImage(systemName: "book")
-        imageView.tintColor = .systemBlue
-        imageView.contentMode = .scaleAspectFit
-        return imageView
-    }()
-    
-    // Total books view
-    private lazy var totalBooksView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .systemBackground
-        view.layer.cornerRadius = 12
-        view.layer.shadowColor = UIColor.black.cgColor
-        view.layer.shadowOpacity = 0.1
-        view.layer.shadowOffset = CGSize(width: 0, height: 2)
-        view.layer.shadowRadius = 4
-        return view
-    }()
-    
-    private lazy var totalBooksTitleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Total Books"
-        label.textColor = .systemGray
-        label.font = .systemFont(ofSize: 16)
-        return label
-    }()
-    
-    private lazy var totalBooksCountLabel: UILabel = {
-        let label = UILabel()
-        label.text = "10"
-        label.font = .systemFont(ofSize: 32, weight: .bold)
-        return label
-    }()
-    
-    private lazy var totalBooksIconImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.image = UIImage(systemName: "chart.bar.fill")
-        imageView.tintColor = .systemBlue
-        imageView.contentMode = .scaleAspectFit
-        return imageView
-    }()
-    
-    // Reading streak view
-    private lazy var booksThisYearhView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .systemBackground
-        view.layer.cornerRadius = 12
-        view.layer.shadowColor = UIColor.black.cgColor
-        view.layer.shadowOpacity = 0.1
-        view.layer.shadowOffset = CGSize(width: 0, height: 2)
-        view.layer.shadowRadius = 4
-        return view
-    }()
-    
-    private lazy var booksThisYearTitleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Reading Streak"
-        label.textColor = .systemGray
-        label.font = .systemFont(ofSize: 16)
-        return label
-    }()
-    
-    private lazy var booksThisYearhCountLabel: UILabel = {
-        let label = UILabel()
-        label.text = "7 days"
-        label.font = .systemFont(ofSize: 32, weight: .bold)
-        return label
-    }()
-    
-    private lazy var readingStreakIconImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.image = UIImage(systemName: "calendar")
-        imageView.tintColor = .systemBlue
-        imageView.contentMode = .scaleAspectFit
-        return imageView
-    }()
-    
+    private lazy var titleLabel = UILabel()
+    private lazy var booksThisMonthView = UIView()
+    private lazy var booksThisMonthTitleLabel = UILabel()
+    private lazy var booksThisMonthCountLabel = UILabel()
+    private lazy var booksThisMonthIconImageView = UIImageView()
+    private lazy var totalBooksView = UIView()
+    private lazy var totalBooksTitleLabel = UILabel()
+    private lazy var totalBooksCountLabel = UILabel()
+    private lazy var totalBooksIconImageView = UIImageView()
+    private lazy var booksThisYearhView = UIView()
+    private lazy var booksThisYearTitleLabel = UILabel()
+    private lazy var booksThisYearCountLabel = UILabel()
+    private lazy var booksThisYearIconImageView = UIImageView()
     // Calendar
     private lazy var calendarContainerView: UIView = {
         let view = UIView()
         view.backgroundColor = .systemBackground
-        view.layer.cornerRadius = 12
-        view.layer.shadowColor = UIColor.black.cgColor
-        view.layer.shadowOpacity = 0.1
-        view.layer.shadowOffset = CGSize(width: 0, height: 2)
-        view.layer.shadowRadius = 4
+        view.makeShadow()
         return view
     }()
-    
-    private lazy var calendarTitleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "June 2023"
-        label.font = .systemFont(ofSize: 18, weight: .semibold)
-        return label
-    }()
-    
-    private lazy var calendarPrevButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setImage(UIImage(systemName: "chevron.left"), for: .normal)
-        button.tintColor = .systemBlue
-        button.addTarget(self, action: #selector(previousMonthTapped), for: .touchUpInside)
-        return button
-    }()
-    
-    private lazy var calendarNextButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setImage(UIImage(systemName: "chevron.right"), for: .normal)
-        button.tintColor = .systemBlue
-        button.addTarget(self, action: #selector(nextMonthTapped), for: .touchUpInside)
-        return button
-    }()
-    
+
     private lazy var calendarView: UIDatePicker = {
         let datePicker = UIDatePicker()
+        datePicker.tintColor = .btnTint
         datePicker.datePickerMode = .date
         datePicker.preferredDatePickerStyle = .inline
         datePicker.addTarget(self, action: #selector(dateSelected), for: .valueChanged)
@@ -200,7 +75,13 @@ class StatisticsViewController: BaseViewController, UIViewControllerTransitionin
         title = "Statistics"
 
     }
-    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        booksThisMonthView.silverFrame()
+        booksThisYearhView.silverFrame()
+        totalBooksView.silverFrame()
+        calendarContainerView.silverFrame()
+    }
     override func bind() {
         let input = StatsViewModel.Input()
         let output = viewModel.transform(input: input)
@@ -218,6 +99,12 @@ class StatisticsViewController: BaseViewController, UIViewControllerTransitionin
                  self.showBooksInDate(books: books)
              }
              .store(in: &cancellables)
+        viewModel.$fetchError.compactMap{$0}
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] errorMessage in
+                self?.showAlert(text: errorMessage)
+            }.store(in: &cancellables)
+        
         NotificationCenter.default.publisher(for: NSNotification.Name("BooksInDateViewDismissed"))
             .sink { [weak self] _ in
                 self?.resetContentViewPosition()
@@ -249,7 +136,7 @@ class StatisticsViewController: BaseViewController, UIViewControllerTransitionin
     private func setupUI(stats: BookStats) {
         booksThisMonthCountLabel.text = String(stats.monthCount)
         totalBooksCountLabel.text = String(stats.totalCount)
-        booksThisYearhCountLabel.text = String(stats.yearCount)
+        booksThisYearCountLabel.text = String(stats.yearCount)
     }
     // MARK: - View 계층 구조 설정
     override func configureHierarchy() {
@@ -265,21 +152,20 @@ class StatisticsViewController: BaseViewController, UIViewControllerTransitionin
         booksThisMonthView.addSubview(booksThisMonthCountLabel)
         booksThisMonthView.addSubview(booksThisMonthIconImageView)
         
+        contentView.addSubview(booksThisYearhView)
+        booksThisYearhView.addSubview(booksThisYearTitleLabel)
+        booksThisYearhView.addSubview(booksThisYearCountLabel)
+        booksThisYearhView.addSubview(booksThisYearIconImageView)
+        
         contentView.addSubview(totalBooksView)
         totalBooksView.addSubview(totalBooksTitleLabel)
         totalBooksView.addSubview(totalBooksCountLabel)
         totalBooksView.addSubview(totalBooksIconImageView)
         
-        contentView.addSubview(booksThisYearhView)
-        booksThisYearhView.addSubview(booksThisYearTitleLabel)
-        booksThisYearhView.addSubview(booksThisYearhCountLabel)
-        booksThisYearhView.addSubview(readingStreakIconImageView)
+       
         
         // Add calendar
         contentView.addSubview(calendarContainerView)
-        calendarContainerView.addSubview(calendarTitleLabel)
-        calendarContainerView.addSubview(calendarPrevButton)
-        calendarContainerView.addSubview(calendarNextButton)
         calendarContainerView.addSubview(calendarView)
     }
     
@@ -326,7 +212,7 @@ class StatisticsViewController: BaseViewController, UIViewControllerTransitionin
         }
         
         // Total books view
-        totalBooksView.snp.makeConstraints { make in
+        booksThisYearhView.snp.makeConstraints { make in
             make.top.equalTo(booksThisMonthView.snp.bottom).offset(16)
             make.leading.equalTo(contentView).offset(20)
             make.trailing.equalTo(contentView).offset(-20)
@@ -350,8 +236,8 @@ class StatisticsViewController: BaseViewController, UIViewControllerTransitionin
         }
         
         // Reading streak view
-        booksThisYearhView.snp.makeConstraints { make in
-            make.top.equalTo(totalBooksView.snp.bottom).offset(16)
+        totalBooksView.snp.makeConstraints { make in
+            make.top.equalTo(booksThisYearhView.snp.bottom).offset(16)
             make.leading.equalTo(contentView).offset(20)
             make.trailing.equalTo(contentView).offset(-20)
             make.height.equalTo(100)
@@ -362,45 +248,27 @@ class StatisticsViewController: BaseViewController, UIViewControllerTransitionin
             make.leading.equalTo(booksThisYearhView).offset(20)
         }
         
-        booksThisYearhCountLabel.snp.makeConstraints { make in
+        booksThisYearCountLabel.snp.makeConstraints { make in
             make.top.equalTo(booksThisYearTitleLabel.snp.bottom).offset(5)
             make.leading.equalTo(booksThisYearhView).offset(20)
         }
         
-        readingStreakIconImageView.snp.makeConstraints { make in
+        booksThisYearIconImageView.snp.makeConstraints { make in
             make.centerY.equalTo(booksThisYearhView)
             make.trailing.equalTo(booksThisYearhView).offset(-20)
             make.width.height.equalTo(40)
         }
-        
-        // Calendar container
+
         calendarContainerView.snp.makeConstraints { make in
-            make.top.equalTo(booksThisYearhView.snp.bottom).offset(20)
+            make.top.equalTo(totalBooksView.snp.bottom).offset(20)
             make.leading.equalTo(contentView).offset(20)
             make.trailing.equalTo(contentView).offset(-20)
             make.height.equalTo(350)
             make.bottom.equalTo(contentView).offset(-20)
         }
-        
-        calendarTitleLabel.snp.makeConstraints { make in
-            make.top.equalTo(calendarContainerView).offset(16)
-            make.centerX.equalTo(calendarContainerView)
-        }
-        
-        calendarPrevButton.snp.makeConstraints { make in
-            make.centerY.equalTo(calendarTitleLabel)
-            make.leading.equalTo(calendarContainerView).offset(20)
-            make.width.height.equalTo(30)
-        }
-        
-        calendarNextButton.snp.makeConstraints { make in
-            make.centerY.equalTo(calendarTitleLabel)
-            make.trailing.equalTo(calendarContainerView).offset(-20)
-            make.width.height.equalTo(30)
-        }
-        
+
         calendarView.snp.makeConstraints { make in
-            make.top.equalTo(calendarTitleLabel.snp.bottom).offset(10)
+            make.top.equalTo(calendarContainerView).offset(10)
             make.leading.equalTo(calendarContainerView).offset(10)
             make.trailing.equalTo(calendarContainerView).offset(-10)
             make.bottom.equalTo(calendarContainerView).offset(-10)
@@ -409,8 +277,58 @@ class StatisticsViewController: BaseViewController, UIViewControllerTransitionin
     
     // MARK: - 프로퍼티 속성 설정
     override func configureView() {
-        view.backgroundColor = .white
+        view.backgroundColor = .backgroundBase // 쿨톤 밝은 회색 배경
         
+        titleLabel.text = "Reading Statistics"
+        titleLabel.font = .systemFont(ofSize: 24, weight: .bold)
+        titleLabel.textColor = .mainText
+        
+        [booksThisMonthView, totalBooksView, booksThisYearhView, calendarContainerView].forEach {
+            $0.backgroundColor = UIColor.white
+            $0.layer.cornerRadius = 16
+            $0.layer.shadowColor = UIColor.black.cgColor
+            $0.layer.shadowOpacity = 0.05
+            $0.layer.shadowRadius = 6
+            $0.layer.shadowOffset = CGSize(width: 0, height: 4)
+        }
+        
+        booksThisMonthTitleLabel.text = TextResource.Stats.forMonth.text
+        booksThisMonthTitleLabel.font = .systemFont(ofSize: 16, weight: .medium)
+        booksThisMonthTitleLabel.textColor = .textSecondary
+        
+        booksThisMonthCountLabel.font = .systemFont(ofSize: 32, weight: .bold)
+        booksThisMonthCountLabel.textColor = .mainText
+        
+        booksThisMonthIconImageView.image = UIImage(systemName: "calendar")
+        booksThisMonthIconImageView.tintColor = .accentTint
+        booksThisMonthIconImageView.contentMode = .scaleAspectFit
+
+        totalBooksTitleLabel.text = TextResource.Stats.total.text
+        totalBooksTitleLabel.font = .systemFont(ofSize: 16, weight: .medium)
+        totalBooksTitleLabel.textColor = .textSecondary
+
+        totalBooksCountLabel.font = .systemFont(ofSize: 32, weight: .bold)
+        totalBooksCountLabel.textColor = .mainText
+        
+        totalBooksIconImageView.image = UIImage(systemName: "books.vertical")
+        totalBooksIconImageView.tintColor = .accentTint
+        totalBooksIconImageView.contentMode = .scaleAspectFit
+
+        booksThisYearTitleLabel.text = TextResource.Stats.forYear.text
+        booksThisYearTitleLabel.font = .systemFont(ofSize: 16, weight: .medium)
+        booksThisYearTitleLabel.textColor = .textSecondary
+
+        booksThisYearCountLabel.font = .systemFont(ofSize: 32, weight: .bold)
+        booksThisYearCountLabel.textColor = .mainText
+        
+        booksThisYearIconImageView.image = UIImage(systemName: "clock.arrow.circlepath")
+        booksThisYearIconImageView.tintColor = .accentTint
+        booksThisYearIconImageView.contentMode = .scaleAspectFit
+        
+        calendarContainerView.backgroundColor = .white
+        calendarView.datePickerMode = .date
+        calendarView.preferredDatePickerStyle = .inline
+        calendarView.tintColor = .accentTint
     }
 
   
@@ -490,6 +408,7 @@ class PartialPresentationController: UIPresentationController {
             NotificationCenter.default.post(name: NSNotification.Name("BooksInDateViewDismissed"), object: nil)
         }
     }
+    
     
     override func containerViewWillLayoutSubviews() {
         presentedView?.frame = frameOfPresentedViewInContainerView

@@ -29,8 +29,8 @@ class BookMemoMapper: BookMemoMapperProtocol {
         },
         inProgressMemo: realmModel.inProgressMemo.map {
             ProgressMemoEntity(
-                startPage: "\($0.startPage)",
-                endPage: "\($0.endPage)",
+                startPage: $0.startPage != nil ? String($0.startPage!) : nil,
+                endPage: $0.endPage != nil ? String($0.endPage!) : nil,
                 date: $0.date,
                 memo: $0.memo
             )
@@ -77,8 +77,17 @@ class BookMemoMapper: BookMemoMapperProtocol {
         domainModel.inProgressMemo.forEach { item in
             let progressMemo = ProgressMemo()
 
-            progressMemo.startPage = Int(item.startPage ?? TextResource.Global.none.text)
-            progressMemo.endPage = Int(item.endPage ?? TextResource.Global.none.text)
+            if let startPageStr = item.startPage, let startPageInt = Int(startPageStr) {
+                progressMemo.startPage = startPageInt
+            } else {
+                progressMemo.startPage = nil
+            }
+
+            if let endPageStr = item.endPage, let endPageInt = Int(endPageStr) {
+                progressMemo.endPage = endPageInt
+            } else {
+                progressMemo.endPage = nil
+            }
             progressMemo.date = item.date
             progressMemo.memo = item.memo
             bookMemo.inProgressMemo.append(progressMemo)

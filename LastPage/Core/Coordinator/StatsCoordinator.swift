@@ -24,7 +24,7 @@ final class StatsCoordinator: Coordinator {
     }
 
     func start() {
-        let viewModel = StatsViewModel(bookDeletedSubject : bookDeletedSubject, getAllBooksUseCase: diContainer.makeGetAllBooksUseCase() )
+        let viewModel = StatsViewModel(bookDeletedSubject : bookDeletedSubject,bookAddedSubject: bookAddedSubject, getAllBooksUseCase: diContainer.makeGetAllBooksUseCase() )
         let vc = StatisticsViewController(viewModel: viewModel)
         vc.coordinator = self
         navigationController.viewControllers = [vc]

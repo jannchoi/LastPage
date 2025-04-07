@@ -154,34 +154,52 @@ extension InfoFieldView {
         private let padding = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)
         private let imagePadding: CGFloat = 6
         private let imageSize: CGFloat = 13
-        
+
         init(title: String) {
             super.init(frame: .zero)
-            
+
             var config = UIButton.Configuration.filled()
             config.title = title
-            config.baseForegroundColor = .white
-            config.baseBackgroundColor = .systemGray
+            config.baseForegroundColor = .textSecondary
+            config.baseBackgroundColor = .tagBackground
             config.cornerStyle = .capsule
             config.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12)
-            
+
             let imageConfig = UIImage.SymbolConfiguration(pointSize: imageSize, weight: .bold)
             let xImage = UIImage(systemName: "xmark", withConfiguration: imageConfig)
-            
             config.image = xImage
             config.imagePlacement = .trailing
             config.imagePadding = imagePadding
-            
+
             self.configuration = config
-            self.setAttributedTitle(NSAttributedString(string: title, attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 13), NSAttributedString.Key.foregroundColor : UIColor.white]), for: .normal)
-            
+
+            self.setAttributedTitle(
+                NSAttributedString(
+                    string: title,
+                    attributes: [
+                        .font: UIFont.systemFont(ofSize: 13),
+                        .foregroundColor: UIColor.textSecondary
+                    ]
+                ),
+                for: .normal
+            )
+
             self.setContentHuggingPriority(.required, for: .horizontal)
+
+            // border 설정 (캡슐 형태 유지 위해 clipsToBounds도 설정)
+            self.layer.borderWidth = 0.5
+            self.layer.borderColor = UIColor.tagBorder.cgColor
+            self.clipsToBounds = true
         }
-        
+
         required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
         }
-        
+
+        override func layoutSubviews() {
+            super.layoutSubviews()
+            self.layer.cornerRadius = self.bounds.height / 2
+        }
     }
-    
+
 }
