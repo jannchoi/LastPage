@@ -234,9 +234,17 @@ final class EditReadingInProgressViewController: BaseViewController {
     private func setupUI(item: ProgressMemoEntity) {
         dateField.textField.text = DateFormattManager.shared.dateToStr(item.date)
         textView.text = item.memo
-        startPage.text = "\(item.startPage!)"
-        endPage.text = "\(item.endPage!)"
-        
+        if let start = item.startPage {
+            startPage.text = start
+        } else {
+            startPage.text = "-"
+        }
+
+        if let end = item.endPage {
+            endPage.text = end
+        } else {
+            endPage.text = "-"
+        }
         // Trigger text view height update when setting text initially
         textViewDidChange(textView)
     }

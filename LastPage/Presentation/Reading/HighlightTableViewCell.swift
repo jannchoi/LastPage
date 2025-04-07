@@ -140,11 +140,18 @@ final class HighlightTableViewCell: UITableViewCell{
         dateLabel.text = DateFormattManager.shared.dateToStr(item.date)
         memoLabel.text = item.memo
         cellIndex = index
-        pageRangeLabel.text = "Pages \(item.startPage) ~ \(item.endPage)"
-        guard let st = item.startPage, let stInt = Int(st), let end = item.endPage, let endInt = Int(end) else {return}
-        
-        let pageCount = stInt - endInt + 1
-        pageRangeLabel.text = "\(pageCount) pages"
+        if let start = item.startPage, let end = item.endPage {
+            pageRangeLabel.text = "Pages \(start) ~ \(end)"
+            
+            if let startInt = Int(start), let endInt = Int(end) {
+                let pageCount = endInt - startInt + 1
+                pagesCountLabel.text = "\(pageCount) pages"
+            } else {
+                pagesCountLabel.text = "Page count unknown"
+            }
+        } else {
+            pageRangeLabel.text = "Page range unknown"
+        }
         
     }
 }
