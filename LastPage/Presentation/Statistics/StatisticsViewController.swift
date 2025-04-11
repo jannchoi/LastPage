@@ -339,11 +339,12 @@ class StatisticsViewController: BaseViewController, UIViewControllerTransitionin
         separatorLine.snp.makeConstraints { make in
             
             make.horizontalEdges.equalTo(totalBooksView)
-            make.top.equalTo(totalBooksView.snp.bottom).offset(8)
+            make.top.equalTo(totalBooksView.snp.bottom).offset(12)
             make.height.equalTo(1)
         }
+        
         yearLabel.snp.makeConstraints {
-            $0.top.equalTo(separatorLine.snp.bottom).offset(10)
+            $0.top.equalTo(separatorLine.snp.bottom).offset(8)
             $0.centerX.equalToSuperview()
         }
 
