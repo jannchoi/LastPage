@@ -12,6 +12,7 @@ import SnapKit
 final class RecommendViewController: BaseViewController {
     var viewModel: RecommendViewModel
     private var cancellables: Set<AnyCancellable> = []
+    private var activityIndicator = LoadingIndicator(frame: .zero)
     private let scrollView = UIScrollView()
     private let contentView = UIView()
     private let bookRecommendView = UIView()
@@ -45,14 +46,17 @@ final class RecommendViewController: BaseViewController {
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        activityIndicator.startAnimating()
+        print(#function)
         configureKeywords()
     }
+
     override func bind() {
         viewModel.$keywordData.receive(on: DispatchQueue.main)
             .sink { [weak self] keywords in
-            guard let self = self else {return}
-            self.bookKeywordStackView.configure(with: keywords ?? [])
+            guard let self = self, let keywords = keywords else {return}
+            self.bookKeywordStackView.configure(with: keywords)
+                self.activityIndicator.stopAnimating()
         }.store(in: &cancellables)
         
         viewModel.$bookTitle.sink {[weak self] booktitle in
@@ -78,6 +82,8 @@ final class RecommendViewController: BaseViewController {
     }
     override func configureHierarchy() {
         view.addSubview(scrollView)
+        view.addSubview(activityIndicator)
+        view.bringSubviewToFront(activityIndicator)
         scrollView.addSubview(contentView)
         
         contentView.addSubview(bookLabel)
@@ -125,6 +131,7 @@ final class RecommendViewController: BaseViewController {
     
     override func configureView() {
         view.backgroundColor = .backgroundBase
+        activityIndicator.center = view.center
         bookRecommendView.backgroundColor = .backgroundBase
         bookRecommendView.layer.cornerRadius = 10
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
