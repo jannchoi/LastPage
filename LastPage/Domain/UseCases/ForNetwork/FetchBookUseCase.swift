@@ -15,8 +15,8 @@ class FetchBookUseCase: FetchBookUseCaseProtocol {
         self.bookRepository = bookRepository
     }
     
-    func execute(query: String) -> AnyPublisher<BookInfo, NetworkError> {
-        return bookRepository.fetchBooks(query: query)
+    func execute(query: String, page: Int) -> AnyPublisher<BookInfo, NetworkError> {
+        return bookRepository.fetchBooks(query: query, page: page)
     }
 }
 

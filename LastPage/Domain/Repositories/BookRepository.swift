@@ -15,8 +15,8 @@ class BookRepository: BookRepositoryProtocol {
         self.networkManagerRepository = networkManagerRepository
     }
     
-    func fetchBooks(query: String) -> AnyPublisher<BookInfo, NetworkError> {
-        let target = NetworkRouter.aladin(query: query)
+    func fetchBooks(query: String, page: Int) -> AnyPublisher<BookInfo, NetworkError> {
+        let target = NetworkRouter.aladin(query: query, page: page)
         return networkManagerRepository.callRequest(target: target, model: BookInfoDTO.self)
             .map { dtoBook in
                 return dtoBook.toDomain()

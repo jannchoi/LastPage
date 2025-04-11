@@ -30,33 +30,32 @@ class NetworkManager {
                     throw self?.getError(code: httpResponse.statusCode) ?? .customError(code: httpResponse.statusCode, message: "HTTP Error \(httpResponse.statusCode)")
                 }
 
-                // 1️⃣ 원본 Data 출력
-                print("📦 [원본 Data (UTF-8 추정)] size: \(data.count) bytes")
-                
                 // 2️⃣ Data → String 변환 (UTF-8 시도 + fallback)
                 var jsonString: String
                 if let decoded = String(data: data, encoding: .utf8) {
                     jsonString = decoded
-                    print("✅ [UTF-8 디코딩 성공] 문자열 일부:\n\(jsonString.prefix(300))...")
+
                 } else {
-                    print("❌ [UTF-8 디코딩 실패], fallback 시도")
+
                     jsonString = String(decoding: data, as: UTF8.self)
-                    print("⚠️ [Fallback 디코딩된 문자열 일부]:\n\(jsonString.prefix(300))...")
+
                 }
 
                 // 4️⃣ sanitize 이전 상태 출력
-                print("🧪 [sanitize 이전 JSON 문자열 prefix 300자]:\n\(jsonString.prefix(300))...")
 
-                // 5️⃣ sanitize 적용
+                let invalidControlChars = jsonString.filter { char in
+                    let scalars = String(char).unicodeScalars
+                    return scalars.contains { $0.value < 0x20 && $0.value != 0x09 && $0.value != 0x0A && $0.value != 0x0D }
+                }
+
+                if !invalidControlChars.isEmpty {
+                    print("🚫 [비정상 제어 문자 포함]: \(invalidControlChars.count)개 감지됨 — 예시: \(invalidControlChars.prefix(10))")}
                 jsonString = self?.sanitizeJSON(jsonString) ?? jsonString
 
-                // 6️⃣ sanitize 이후 상태 출력
-                print("🧴 [sanitize 이후 JSON 문자열 prefix 300자]:\n\(jsonString.prefix(300))...")
 
                 // 7️⃣ JSON 구조 검증 (선택)
                 do {
                     let jsonObject = try JSONSerialization.jsonObject(with: Data(jsonString.utf8), options: [])
-                    print("✅ [JSON 구조 파싱 성공] 타입: \(type(of: jsonObject))")
                 } catch {
                     if let match = error.localizedDescription.range(of: #"column (\d+)"#, options: .regularExpression) {
                         let numberString = String(error.localizedDescription[match])
@@ -101,6 +100,9 @@ class NetworkManager {
 
         let invalidEscapeRegex = try! NSRegularExpression(pattern: #"\\[^"\\/bfnrtu]"#, options: [])
         cleaned = invalidEscapeRegex.stringByReplacingMatches(in: cleaned, options: [], range: NSRange(0..<cleaned.utf16.count), withTemplate: "")
+        // 🔥 3. 개행 문자 제거 or 이스케이프
+            cleaned = cleaned.replacingOccurrences(of: "\n", with: "\\n")
+            cleaned = cleaned.replacingOccurrences(of: "\r", with: "\\r")
         if cleaned.hasSuffix(";") {
             cleaned.removeLast()
             }
