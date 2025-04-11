@@ -183,7 +183,7 @@ class HomeViewController: BaseViewController {
         
         //centerview
         centerView.backgroundColor = .white
-
+        centerView.makeShadow()
         
         centerTextLabel.text = TextDataStorage.mainCenterSentence.randomElement()
         centerTextLabel.font = .systemFont(ofSize: 15, weight: .medium)
@@ -192,10 +192,10 @@ class HomeViewController: BaseViewController {
         //bottomView
         // Bottom Left Tag View
         bottomLeftTagView.backgroundColor = .white
-
+        bottomLeftTagView.makeShadow()
         // Bottom Right View
         bottomRightView.backgroundColor = .white
-
+        bottomRightView.makeShadow()
         // Right View Text Label
         rightViewTextLabel.text = TextDataStorage.mainBookSentence.randomElement()
         rightViewTextLabel.font = .systemFont(ofSize: 14, weight: .medium)

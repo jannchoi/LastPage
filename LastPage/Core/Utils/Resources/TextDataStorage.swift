@@ -212,5 +212,6 @@ final class TextDataStorage {
         "이 책으로부터 배운 점이 있다면?",
         "이 책을 읽고 난 후 내 삶의 변화가 있다면?",
     ]
+    static let months: [String] = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     private init() {}
 }

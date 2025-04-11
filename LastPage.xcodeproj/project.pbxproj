@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CE0A244C2DA991E60095BA5A /* FSCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = CE0A244B2DA991E60095BA5A /* FSCalendar */; };
 		CE0A73202D956FE400CFA9E9 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = CE0A731F2D956FE400CFA9E9 /* .gitignore */; };
 		CE0A75292D96FEFE00CFA9E9 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = CE0A75282D96FEFE00CFA9E9 /* SnapKit */; };
 		CE2C22AB2D9AEBB900211B65 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = CE2C22AA2D9AEBB900211B65 /* RealmSwift */; };
@@ -60,6 +61,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CE2C25822D9BF80C00211B65 /* Kingfisher in Frameworks */,
+				CE0A244C2DA991E60095BA5A /* FSCalendar in Frameworks */,
 				CE2C22AB2D9AEBB900211B65 /* RealmSwift in Frameworks */,
 				CE0A75292D96FEFE00CFA9E9 /* SnapKit in Frameworks */,
 			);
@@ -109,6 +111,7 @@
 				CE0A75282D96FEFE00CFA9E9 /* SnapKit */,
 				CE2C22AA2D9AEBB900211B65 /* RealmSwift */,
 				CE2C25812D9BF80C00211B65 /* Kingfisher */,
+				CE0A244B2DA991E60095BA5A /* FSCalendar */,
 			);
 			productName = LastPage;
 			productReference = CE0A72832D9540C400CFA9E9 /* LastPage.app */;
@@ -142,6 +145,7 @@
 				CE0A75272D96FEFE00CFA9E9 /* XCRemoteSwiftPackageReference "SnapKit" */,
 				CE2C22A92D9AEBB900211B65 /* XCRemoteSwiftPackageReference "realm-swift" */,
 				CE2C25802D9BF80C00211B65 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				CE0A244A2DA991E60095BA5A /* XCRemoteSwiftPackageReference "FSCalendar" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = CE0A72842D9540C400CFA9E9 /* Products */;
@@ -390,6 +394,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		CE0A244A2DA991E60095BA5A /* XCRemoteSwiftPackageReference "FSCalendar" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/WenchaoD/FSCalendar.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.8.4;
+			};
+		};
 		CE0A75272D96FEFE00CFA9E9 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
@@ -417,6 +429,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		CE0A244B2DA991E60095BA5A /* FSCalendar */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CE0A244A2DA991E60095BA5A /* XCRemoteSwiftPackageReference "FSCalendar" */;
+			productName = FSCalendar;
+		};
 		CE0A75282D96FEFE00CFA9E9 /* SnapKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = CE0A75272D96FEFE00CFA9E9 /* XCRemoteSwiftPackageReference "SnapKit" */;

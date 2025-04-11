@@ -1,6 +1,15 @@
 {
-  "originHash" : "d86bd2f2464f9714dc07b8b1f68021fa90a9b17c052ff4db5f0d47b45f65c14c",
+  "originHash" : "bcd66fda3fe061482f6d809eb33c6c6a356356a75e78d5113054218a559e915b",
   "pins" : [
+    {
+      "identity" : "fscalendar",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/WenchaoD/FSCalendar.git",
+      "state" : {
+        "revision" : "0fbdec5172fccb90f707472eeaea4ffe095278f6",
+        "version" : "2.8.4"
+      }
+    },
     {
       "identity" : "kingfisher",
       "kind" : "remoteSourceControl",
