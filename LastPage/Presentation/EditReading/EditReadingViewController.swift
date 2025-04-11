@@ -58,6 +58,11 @@ final class EditReadingViewController: BaseViewController {
             self.setupUI(item: memoDetail)
         }.store(in: &cancellables)
         
+        viewModel.$bookTitle.sink {[weak self] booktitle in
+            guard let self = self else {return}
+            self.setNavTiitle(title: booktitle)
+        }.store(in: &cancellables)
+        
         viewModel.$fetchError.compactMap{$0}
             .receive(on: DispatchQueue.main)
             .sink { [weak self] errorMessage in
@@ -73,7 +78,9 @@ final class EditReadingViewController: BaseViewController {
                 })
             }.store(in: &cancellables)
     }
-    
+    private func setNavTiitle(title: String?) {
+        navigationItem.title = title != nil ? title : "Edit Reading"
+    }
     @objc private func saveButtonTapped() {
         guard let newMemo = textView.text else {return}
         let newValue = MemoEntity(date: DateFormattManager.shared.strToDate(dateField.textField.text) , memo: newMemo)
@@ -83,7 +90,6 @@ final class EditReadingViewController: BaseViewController {
     private func setupUI(item: MemoEntity) {
         dateField.textField.text = DateFormattManager.shared.dateToStr(item.date)
         textView.text = item.memo
-        // Trigger text view height update when setting text initially
         textViewDidChange(textView)
     }
     

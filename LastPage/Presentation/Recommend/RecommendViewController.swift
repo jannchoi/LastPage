@@ -35,16 +35,6 @@ final class RecommendViewController: BaseViewController {
     
     private let commonKeywordStackView = KeywordStackView(isVertical: true)
     
-    private var commonKeywordMockData = [
-        "이 책을 다른 누군가에게 추천한다면?",
-        "주인공에게 해주고 싶은 말",
-        "책을 읽게 된 계기",
-        "이 책을 다른 물건이나, 색깔, 동식물에 비유해본다면?",
-        "이해가 되지 않았던 부분이 있다면?",
-        "주인공의 미래를 상상해 본다면?",
-        "이 책으로부터 배운 점이 있다면?",
-        "이 책을 읽고 난 후 내 삶의 변화가 있다면?",
-    ]
     init(viewModel: RecommendViewModel) {
             self.viewModel = viewModel
             super.init(nibName: nil, bundle: nil)
@@ -64,6 +54,13 @@ final class RecommendViewController: BaseViewController {
             guard let self = self else {return}
             self.bookKeywordStackView.configure(with: keywords ?? [])
         }.store(in: &cancellables)
+        
+        viewModel.$bookTitle.sink {[weak self] booktitle in
+            guard let self = self else {return}
+            self.setNavTiitle(title: booktitle)
+        }.store(in: &cancellables)
+        
+        
         viewModel.$error.compactMap{$0}
             .receive(on: DispatchQueue.main)
             .sink { [weak self] networkError in
@@ -75,6 +72,9 @@ final class RecommendViewController: BaseViewController {
             .sink { [weak self] errorMessage in
                 self?.showAlert(text: errorMessage)
             }.store(in: &cancellables)
+    }
+    private func setNavTiitle(title: String?) {
+        navigationItem.title = title != nil ? title : "Edit Reading"
     }
     override func configureHierarchy() {
         view.addSubview(scrollView)
@@ -127,10 +127,13 @@ final class RecommendViewController: BaseViewController {
         view.backgroundColor = .backgroundBase
         bookRecommendView.backgroundColor = .backgroundBase
         bookRecommendView.layer.cornerRadius = 10
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
     }
-    
+    @objc private func backButtonTapped() {
+        navigationController?.popViewController(animated: true)
+    }
     private func configureKeywords() {
-        commonKeywordStackView.configure(with: commonKeywordMockData)
+        commonKeywordStackView.configure(with: TextDataStorage.commonKeywordMockData)
     }
 }
 

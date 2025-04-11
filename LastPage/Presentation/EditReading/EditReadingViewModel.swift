@@ -13,6 +13,7 @@ final class EditReadingViewModel:BaseViewModel {
     let updateBookUsecase: UpdateBookUseCaseProtocol
     @Published private(set) var fetchError: String? = nil
     @Published var bookDetail: MemoEntity?
+    @Published var bookTitle: String?
     let bookId : String?
     let status : UpdateTarget?
     @Published var popVCTrigger: String?
@@ -62,7 +63,7 @@ final class EditReadingViewModel:BaseViewModel {
                 }
             } receiveValue: { [weak self] book in
                 guard let self = self, let book = book else {return}
-
+                self.bookTitle = book.bookDetail.title
                 switch status {
                 case .unread:
                     self.bookDetail = book.beforeMemo
