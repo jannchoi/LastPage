@@ -53,6 +53,7 @@ final class RecommendViewModel:BaseViewModel {
             case .failure(let error):
                 guard let self = self else {return}
                 self.error = error
+                self.keywordData = []
             case .finished:
                 break
             }
