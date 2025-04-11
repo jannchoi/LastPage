@@ -17,12 +17,7 @@ final class EditReadingViewController: BaseViewController {
 
     private let containerScrollView = UIScrollView()
     private let textView = UITextView()
-    private let helpButton : UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle(TextResource.ButtonTitle.help.text, for: .normal)
-        button.setTitleColor(.btnTint, for: .normal)
-        return button
-    }()
+    private let helpButton = UIButton()
     private let saveButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle(TextResource.ButtonTitle.save.text, for: .normal)
@@ -95,6 +90,7 @@ final class EditReadingViewController: BaseViewController {
     
     override func configureHierarchy() {
         view.addSubview(dateField)
+        dateField.addSubview(helpButton)
         view.addSubview(containerScrollView)
         containerScrollView.addSubview(textView)
     }
@@ -102,14 +98,14 @@ final class EditReadingViewController: BaseViewController {
     override func configureLayout() {
         // Date field constraints
         dateField.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(16)
+            make.top.equalTo(view.safeAreaLayoutGuide).offset(20)
             make.leading.trailing.equalToSuperview().inset(16)
             make.height.equalTo(50)
         }
 
         // Container scroll view constraints
         containerScrollView.snp.makeConstraints { make in
-            make.top.equalTo(dateField.snp.bottom).offset(16)
+            make.top.equalTo(dateField.snp.bottom).offset(34)
             make.horizontalEdges.bottom.equalTo(view.safeAreaLayoutGuide).inset(16)
         }
         
@@ -120,6 +116,10 @@ final class EditReadingViewController: BaseViewController {
             make.width.equalTo(containerScrollView.snp.width).inset(16)
             make.height.equalTo(40)
             make.bottom.equalToSuperview().offset(-16) // Add bottom padding
+        }
+        helpButton.snp.makeConstraints { make in
+            make.centerY.height.equalTo(dateField.infoLabel)
+            make.trailing.equalTo(dateField.textField.snp.trailing)
         }
     }
 
@@ -167,18 +167,30 @@ final class EditReadingViewController: BaseViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         // Add text selection notification
         NotificationCenter.default.addObserver(self, selector: #selector(textViewTextDidChange), name: UITextView.textDidChangeNotification, object: nil)
+        var config = UIButton.Configuration.filled()
+        config.baseForegroundColor = .btnTint
+        config.baseBackgroundColor = .white
+
+        // 테두리 스타일
+        config.background.strokeColor = .btnTint.withAlphaComponent(0.5)
+        config.background.strokeWidth = 1
+
+        // 폰트 설정 (필요 시)
+        let titleAttr = AttributeContainer([
+            .font: UIFont.systemFont(ofSize: 14, weight: .medium)
+        ])
+        config.attributedTitle = AttributedString(TextResource.ButtonTitle.reconmmend.text, attributes: titleAttr)
+
+        helpButton.configuration = config
+        helpButton.layer.cornerRadius = 8
+        helpButton.layer.masksToBounds = true
         
         helpButton.addTarget(self, action: #selector(helpButtonTapped), for: .touchUpInside)
         saveButton.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
-        let helpBtn = UIBarButtonItem(customView: helpButton)
         let saveBtn = UIBarButtonItem(customView: saveButton)
-        
-        
-        if viewModel.status == .unread {
-            navigationItem.rightBarButtonItem = saveBtn
-        } else {
-            navigationItem.rightBarButtonItems = [saveBtn, helpBtn]
-        }
+        navigationItem.rightBarButtonItem = saveBtn
+
+        helpButton.isHidden = viewModel.status == .unread
     }
     @objc private func backButtonTapped() {
         navigationController?.popViewController(animated: true)

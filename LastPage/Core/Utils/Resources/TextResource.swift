@@ -52,8 +52,9 @@ enum TextResource {
     enum ButtonTitle {
         case edit
         case add
-        case help
+        case reconmmend
         case save
+        case scan
         
         var text: String {
             switch self {
@@ -61,10 +62,12 @@ enum TextResource {
                 "Edit"
             case .add:
                 "Add"
-            case .help:
-                "Help"
+            case .reconmmend:
+                "추천 키워드 보기"
             case .save :
                 "Save"
+            case .scan :
+                "구절 스캔하기"
             }
         }
     }

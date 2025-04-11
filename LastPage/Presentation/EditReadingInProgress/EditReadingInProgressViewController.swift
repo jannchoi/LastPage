@@ -39,12 +39,7 @@ final class EditReadingInProgressViewController: BaseViewController {
     private let containerScrollView = UIScrollView()
     private let textView = UITextView()
 
-    private let cameraButton : UIButton = {
-        let button = UIButton(type: .system)
-        button.setImage(UIImage(systemName: "camera.viewfinder"), for: .normal)
-        button.tintColor = .btnTint
-        return button
-    }()
+    private let cameraButton = UIButton()
     
     private var scannedText: String = ""
     private var extractedSentences: [String] = []
@@ -264,6 +259,7 @@ final class EditReadingInProgressViewController: BaseViewController {
     
     override func configureHierarchy() {
         view.addSubview(dateField)
+        dateField.addSubview(cameraButton)
         view.addSubview(pageLabel)
         view.addSubview(startPage)
         view.addSubview(separatorLabel)
@@ -275,14 +271,18 @@ final class EditReadingInProgressViewController: BaseViewController {
     override func configureLayout() {
         // Date field constraints
         dateField.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(16)
+            make.top.equalTo(view.safeAreaLayoutGuide).offset(20)
             make.leading.trailing.equalToSuperview().inset(16)
             make.height.equalTo(50)
+        }
+        cameraButton.snp.makeConstraints { make in
+            make.centerY.height.equalTo(dateField.infoLabel)
+            make.trailing.equalTo(dateField.textField.snp.trailing)
         }
         
         // Page label constraints
         pageLabel.snp.makeConstraints { make in
-            make.top.equalTo(dateField.snp.bottom).offset(16)
+            make.top.equalTo(dateField.snp.bottom).offset(39)
             make.leading.equalToSuperview().offset(16)
             make.width.equalTo(40)
             make.height.equalTo(30)
@@ -377,10 +377,26 @@ final class EditReadingInProgressViewController: BaseViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         // Add text change notification
         NotificationCenter.default.addObserver(self, selector: #selector(textViewTextDidChange), name: UITextView.textDidChangeNotification, object: nil)
-        
+        var config = UIButton.Configuration.filled()
+        config.baseForegroundColor = .btnTint
+        config.baseBackgroundColor = .white
+        config.image = UIImage(systemName: "camera.viewfinder")
+        // 테두리 스타일
+        config.background.strokeColor = .btnTint.withAlphaComponent(0.5)
+        config.background.strokeWidth = 1
+
+        // 폰트 설정 (필요 시)
+        let titleAttr = AttributeContainer([
+            .font: UIFont.systemFont(ofSize: 14, weight: .medium)
+        ])
+        config.attributedTitle = AttributedString(TextResource.ButtonTitle.scan.text, attributes: titleAttr)
+
+        cameraButton.configuration = config
+        cameraButton.layer.cornerRadius = 8
+        cameraButton.layer.masksToBounds = true
         saveButton.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
         cameraButton.addTarget(self, action: #selector(cameraButtonTapped), for: .touchUpInside)
-        navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: cameraButton), UIBarButtonItem(customView: saveButton)]
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: saveButton)
     }
     @objc private func backButtonTapped() {
         navigationController?.popViewController(animated: true)
