@@ -13,6 +13,7 @@ final class EditReadingInProgressViewModel: BaseViewModel {
     let getBookUseCase: GetBookUseCaseProtocol
     let updateBookUsecase: UpdateBookUseCaseProtocol
     @Published var bookDetail: ProgressMemoEntity?
+    @Published var bookTitle: String?
     let bookId : String?
     let index : Int?
     @Published private(set) var fetchError: String?
@@ -71,6 +72,7 @@ final class EditReadingInProgressViewModel: BaseViewModel {
                 }
             } receiveValue: { [weak self] book in
                 guard let self = self, let book = book else {return}
+                self.bookTitle = book.bookDetail.title
                 if index < book.inProgressMemo.count {
                     self.bookDetail = book.inProgressMemo[index]
                 } else {

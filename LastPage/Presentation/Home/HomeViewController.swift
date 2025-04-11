@@ -14,7 +14,12 @@ class HomeViewController: BaseViewController {
     weak var coordinator: HomeCoordinator?
     var viewModel: HomeViewModel
     private var cancellables: Set<AnyCancellable> = []
-    // MARK: - Properties
+
+    // MARK: - Scroll Components
+    private let scrollView = UIScrollView()
+    private let contentView = UIView()
+
+    // MARK: - UI Properties
     private let settingsButton = UIButton()
     private let horizontalCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -22,11 +27,11 @@ class HomeViewController: BaseViewController {
         layout.minimumLineSpacing = 10
         return UICollectionView(frame: .zero, collectionViewLayout: layout)
     }()
-    
+
     private let centerView = UIView()
     private let centerTextLabel = UILabel()
 
-    private let jarImageView = UIImageView() // 병 이미지를 위한 ImageView 추가
+    private let jarImageView = UIImageView()
     private let bottomLeftTagView = UIView()
     private let bottomRightView = UIView()
     private let bookCoverImageView = UIImageView()
@@ -38,14 +43,14 @@ class HomeViewController: BaseViewController {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
-    
+
     @MainActor required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-
     }
     override func bind() {
         let input = HomeViewModel.Input()
@@ -75,66 +80,89 @@ class HomeViewController: BaseViewController {
                 self?.showAlert(text: errorMessage)
             }.store(in: &cancellables)
     }
+    
     override func configureHierarchy() {
-        view.addSubview(settingsButton)
-        view.addSubview(horizontalCollectionView)
-        view.addSubview(centerView)
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+
+        contentView.addSubview(settingsButton)
+        contentView.addSubview(horizontalCollectionView)
+        contentView.addSubview(centerView)
         centerView.addSubview(centerTextLabel)
-        view.addSubview(bottomLeftTagView)
-        view.addSubview(bottomRightView)
+        contentView.addSubview(bottomLeftTagView)
+        contentView.addSubview(bottomRightView)
         bottomRightView.addSubview(rightViewTextLabel)
         bottomRightView.addSubview(bookCoverImageView)
-        view.addSubview(searchButton)
-
+        contentView.addSubview(searchButton)
     }
+
     override func configureLayout() {
+        scrollView.snp.makeConstraints { make in
+            make.edges.equalTo(view.safeAreaLayoutGuide)
+        }
+
+        contentView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+            make.width.equalToSuperview()
+        }
+
 
         horizontalCollectionView.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(20)
-            make.leading.equalToSuperview().offset(0)
-            make.trailing.equalToSuperview().offset(0)
+            make.top.equalToSuperview().offset(20)
+            make.leading.trailing.equalToSuperview()
             make.height.equalTo(186)
         }
+
         centerView.snp.makeConstraints { make in
             make.top.equalTo(horizontalCollectionView.snp.bottom).offset(20)
             make.leading.equalToSuperview().offset(20)
             make.trailing.equalToSuperview().offset(-20)
             make.height.equalTo(80)
         }
+
         centerTextLabel.snp.makeConstraints { make in
             make.center.equalToSuperview()
             make.horizontalEdges.equalToSuperview().inset(8)
         }
+
         bottomLeftTagView.snp.makeConstraints { make in
             make.top.equalTo(centerView.snp.bottom).offset(20)
             make.leading.equalToSuperview().offset(20)
-            make.width.equalTo((view.frame.width - 50) * 0.5)
+            make.width.equalTo((UIScreen.main.bounds.width - 50) * 0.5)
             make.height.equalTo(200)
         }
+
         bottomRightView.snp.makeConstraints { make in
             make.top.equalTo(centerView.snp.bottom).offset(20)
             make.trailing.equalToSuperview().offset(-20)
-            make.width.equalTo((view.frame.width - 50) * 0.5)
+            make.width.equalTo((UIScreen.main.bounds.width - 50) * 0.5)
             make.height.equalTo(200)
         }
+
         rightViewTextLabel.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(20)
             make.centerX.equalToSuperview()
             make.leading.equalToSuperview().offset(10)
             make.trailing.equalToSuperview().offset(-10)
         }
+
         bookCoverImageView.snp.makeConstraints { make in
             make.top.equalTo(rightViewTextLabel.snp.bottom).offset(15)
             make.centerX.equalToSuperview()
             make.width.equalTo(80)
             make.height.equalTo(120)
         }
+
         searchButton.snp.makeConstraints { make in
             make.top.equalTo(bottomLeftTagView.snp.bottom).offset(16)
             make.horizontalEdges.equalTo(centerView)
             make.height.equalTo(40)
+            make.bottom.equalToSuperview().offset(-30)
         }
     }
+
+
+    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         horizontalCollectionView.silverFrame(horizontalOnly: true)  // Only top and bottom borders

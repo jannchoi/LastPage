@@ -80,6 +80,11 @@ final class EditReadingInProgressViewController: BaseViewController {
                 self?.showAlert(text: errorMessage)
             }.store(in: &cancellables)
         
+        viewModel.$bookTitle.sink {[weak self] booktitle in
+            guard let self = self else {return}
+            self.setNavTiitle(title: booktitle)
+        }.store(in: &cancellables)
+        
         viewModel.$popVCTrigger.compactMap{$0}
             .receive(on: DispatchQueue.main)
             .sink { [weak self] message in
@@ -89,7 +94,9 @@ final class EditReadingInProgressViewController: BaseViewController {
                 })
             }.store(in: &cancellables)
     }
-    
+    private func setNavTiitle(title: String?) {
+        navigationItem.title = title != nil ? title : "Edit Reading"
+    }
     @objc private func cameraButtonTapped() {
         // Check if document scanning is available
         if VNDocumentCameraViewController.isSupported {

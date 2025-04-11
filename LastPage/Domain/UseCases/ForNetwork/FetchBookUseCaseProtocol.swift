@@ -8,5 +8,5 @@
 import Foundation
 import Combine
 protocol FetchBookUseCaseProtocol {
-    func execute(query: String) -> AnyPublisher<BookInfo, NetworkError>
+    func execute(query: String, page: Int) -> AnyPublisher<BookInfo, NetworkError>
 }

@@ -138,7 +138,7 @@ class MockBookRepository: BookRepositoryProtocol {
         self.mockFileName = mockFileName
     }
     
-    func fetchBooks(query: String) -> AnyPublisher<BookInfo, NetworkError> {
+    func fetchBooks(query: String, page: Int) -> AnyPublisher<BookInfo, NetworkError> {
         // 파일에서 JSON 데이터 로드
         guard let url = Bundle.main.url(forResource: mockFileName, withExtension: nil),
               let data = try? Data(contentsOf: url) else {

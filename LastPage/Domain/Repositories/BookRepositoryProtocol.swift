@@ -9,5 +9,5 @@ import Foundation
 import Combine
 
 protocol BookRepositoryProtocol {
-    func fetchBooks(query: String) -> AnyPublisher<BookInfo, NetworkError>
+    func fetchBooks(query: String, page: Int) -> AnyPublisher<BookInfo, NetworkError>
 }

@@ -15,6 +15,7 @@ final class RecommendViewModel:BaseViewModel {
     @Published private(set) var fetchError: String? = nil
     @Published var keywordData: [String]?
     @Published private(set) var error: NetworkError? = nil
+    @Published var bookTitle: String?
     struct Input {
         
     }
@@ -45,6 +46,7 @@ final class RecommendViewModel:BaseViewModel {
             .store(in: &cancellables)
     }
     private func fetchKeyword(query: String) {
+        bookTitle = query
         makeFetchKeywordUseCase.execute(prompt: query).receive(on: DispatchQueue.main)
             .sink(receiveCompletion: {[weak self] completion in
             switch completion {
