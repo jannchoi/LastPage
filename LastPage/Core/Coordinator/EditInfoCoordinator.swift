@@ -9,9 +9,7 @@ import UIKit
 import Combine
 
 final class EditInfoCoordinator:Coordinator {
-    func start() {
-        //
-    }
+
     private weak var parentCoordinator: Coordinator?
     var childCoordinators: [Coordinator] = []
     private let navigationController: UINavigationController

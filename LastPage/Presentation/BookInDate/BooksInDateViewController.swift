@@ -11,6 +11,7 @@ import Combine
 
 class BooksInDateViewController: BaseViewController {
     // MARK: - Properties
+    weak var coordinator: BooksInDateCoordinator?
     private var viewModel: BooksInDateViewModel
     private var cancellables: Set<AnyCancellable> = []
     
@@ -143,7 +144,9 @@ extension BooksInDateViewController: UICollectionViewDataSource {
 // MARK: - UICollectionViewDelegate
 extension BooksInDateViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        // Handle book selection if needed
+        let bookId = viewModel.books[indexPath.item].id
+        coordinator?.showReading(bookId: bookId)
+        dismissViewController()
     }
 }
 

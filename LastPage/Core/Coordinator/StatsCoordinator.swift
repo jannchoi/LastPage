@@ -30,10 +30,9 @@ final class StatsCoordinator: Coordinator {
         navigationController.viewControllers = [vc]
     }
     func showBooksInDate(books: [HomeBookEntity]) {
-        let viewModel = BooksInDateViewModel(books: books)
-        let vc = BooksInDateViewController(viewModel: viewModel)
-        
-        navigationController.present(vc, animated: true)
+        let booksInDateCoordinator = BooksInDateCoordinator(bookDeletedSubject: bookDeletedSubject,bookAddedSubject : bookAddedSubject, parentCoordinator: parentCoordinator, navigationController: navigationController, diContainer: diContainer)
+        childCoordinators.append(booksInDateCoordinator)
+        booksInDateCoordinator.start(books: books)
         
     }
 

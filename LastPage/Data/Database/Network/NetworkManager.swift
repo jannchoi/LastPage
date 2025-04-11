@@ -42,15 +42,19 @@ class NetworkManager {
                 }
 
                 // 4️⃣ sanitize 이전 상태 출력
-
                 let invalidControlChars = jsonString.filter { char in
                     let scalars = String(char).unicodeScalars
                     return scalars.contains { $0.value < 0x20 && $0.value != 0x09 && $0.value != 0x0A && $0.value != 0x0D }
                 }
 
                 if !invalidControlChars.isEmpty {
-                    print("🚫 [비정상 제어 문자 포함]: \(invalidControlChars.count)개 감지됨 — 예시: \(invalidControlChars.prefix(10))")}
-                jsonString = self?.sanitizeJSON(jsonString) ?? jsonString
+                    print("🚫 [비정상 제어 문자 포함]: \(invalidControlChars.count)개 감지됨 — 예시: \(invalidControlChars.prefix(10))")
+                }
+
+                // 5️⃣ sanitize 적용 - target이 .aladin일 경우에만!
+                if case .aladin = target {
+                    jsonString = self?.sanitizeJSON(jsonString) ?? jsonString
+                }
 
 
                 // 7️⃣ JSON 구조 검증 (선택)

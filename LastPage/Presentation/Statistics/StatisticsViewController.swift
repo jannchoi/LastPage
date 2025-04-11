@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 import Combine
-
+import FSCalendar
 
 class StatisticsViewController: BaseViewController, UIViewControllerTransitioningDelegate {
     weak var coordinator: StatsCoordinator?
@@ -42,21 +42,55 @@ class StatisticsViewController: BaseViewController, UIViewControllerTransitionin
     private lazy var booksThisYearIconImageView = UIImageView()
     // Calendar
     private lazy var calendarContainerView: UIView = {
+         let view = UIView()
+         view.backgroundColor = .systemBackground
+         view.makeShadow()
+         return view
+     }()
+
+    private lazy var calendarView: FSCalendar = {
+        let calendar = FSCalendar()
+        calendar.delegate = self
+        calendar.dataSource = self
+        calendar.appearance.todayColor = .btnTint.withAlphaComponent(0.3)
+        calendar.appearance.selectionColor = .btnTint
+        calendar.appearance.eventDefaultColor = .accentTint
+        calendar.appearance.eventSelectionColor = .white
+        return calendar
+    }()
+    // 최상단에 다음 프로퍼티 추가
+    private lazy var monthYearPickerView: UIPickerView = {
+        let picker = UIPickerView()
+        picker.delegate = self
+        picker.dataSource = self
+        return picker
+    }()
+
+    private lazy var pickerContainerView: UIView = {
         let view = UIView()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 16
         view.makeShadow()
+        view.isHidden = true
         return view
     }()
 
-    private lazy var calendarView: UIDatePicker = {
-        let datePicker = UIDatePicker()
-        datePicker.tintColor = .btnTint
-        datePicker.datePickerMode = .date
-        datePicker.preferredDatePickerStyle = .inline
-        datePicker.addTarget(self, action: #selector(dateSelected), for: .valueChanged)
-        return datePicker
+    private lazy var pickerDoneButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Done", for: .normal)
+        button.setTitleColor(.accentTint, for: .normal)
+        button.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
+        return button
     }()
+    private let yearLabel = UILabel()
+    private let separatorLine = UIView()
+    private var years: [Int] = []
+    
+    private var selectedYear = Calendar.current.component(.year, from: Date())
+    private var selectedMonth = Calendar.current.component(.month, from: Date()) - 1 // 0-based index
+    
     private var contentViewOriginalCenter: CGPoint?
+    
     init(viewModel: StatsViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -73,6 +107,9 @@ class StatisticsViewController: BaseViewController, UIViewControllerTransitionin
         super.viewDidLoad()
         
         title = "Statistics"
+        setupYearsArray()
+        updateYearLabel()
+        
 
     }
     override func viewDidLayoutSubviews() {
@@ -81,6 +118,7 @@ class StatisticsViewController: BaseViewController, UIViewControllerTransitionin
         booksThisYearhView.silverFrame()
         totalBooksView.silverFrame()
         calendarContainerView.silverFrame()
+        
     }
     override func bind() {
         let input = StatsViewModel.Input()
@@ -105,11 +143,51 @@ class StatisticsViewController: BaseViewController, UIViewControllerTransitionin
                 self?.showAlert(text: errorMessage)
             }.store(in: &cancellables)
         
+        viewModel.$datesWithBooks
+                   .receive(on: DispatchQueue.main)
+                   .sink { [weak self] _ in
+                       self?.calendarView.reloadData()
+                   }
+                   .store(in: &cancellables)
+        
         NotificationCenter.default.publisher(for: NSNotification.Name("BooksInDateViewDismissed"))
             .sink { [weak self] _ in
                 self?.resetContentViewPosition()
             }
             .store(in: &cancellables)
+    }
+
+    @objc private func headerTapped() {
+        print(#function)
+        showMonthYearPicker()
+    }
+    private func showMonthYearPicker() {
+        // 현재 캘린더 페이지의 월과 연도 가져오기
+        let currentPage = calendarView.currentPage
+        selectedYear = Calendar.current.component(.year, from: currentPage)
+        selectedMonth = Calendar.current.component(.month, from: currentPage) - 1 // 0-based
+        
+        // 피커 초기 선택 설정
+        let yearIndex = years.firstIndex(of: selectedYear) ?? 0
+        monthYearPickerView.selectRow(yearIndex, inComponent: 0, animated: false)
+        monthYearPickerView.selectRow(selectedMonth, inComponent: 1, animated: false)
+        
+        // 피커 표시
+        pickerContainerView.isHidden = false
+    }
+    @objc private func doneButtonTapped() {
+        // 선택된 월과 년도로 달력 이동
+        let targetMonth = selectedMonth + 1 // Convert back to 1-based month
+        if let date = Calendar.current.date(from: DateComponents(year: selectedYear, month: targetMonth, day: 1)) {
+            calendarView.setCurrentPage(date, animated: true)
+        }
+        
+        // 피커 숨기기
+        pickerContainerView.isHidden = true
+    }
+    private func setupYearsArray() {
+        let currentYear = Calendar.current.component(.year, from: Date())
+        years = Array((currentYear-10)...(currentYear+1))
     }
     func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
         return PartialPresentationController(presentedViewController: presented, presenting: presenting)
@@ -163,10 +241,14 @@ class StatisticsViewController: BaseViewController, UIViewControllerTransitionin
         totalBooksView.addSubview(totalBooksIconImageView)
         
        
-        
+        contentView.addSubview(separatorLine)
         // Add calendar
         contentView.addSubview(calendarContainerView)
         calendarContainerView.addSubview(calendarView)
+        contentView.addSubview(yearLabel)
+        view.addSubview(pickerContainerView)
+        pickerContainerView.addSubview(monthYearPickerView)
+        pickerContainerView.addSubview(pickerDoneButton)
     }
     
     // MARK: - View 레이아웃 설정
@@ -218,7 +300,26 @@ class StatisticsViewController: BaseViewController, UIViewControllerTransitionin
             make.trailing.equalTo(contentView).offset(-20)
             make.height.equalTo(100)
         }
+        booksThisYearTitleLabel.snp.makeConstraints { make in
+            make.top.equalTo(booksThisYearhView).offset(20)
+            make.leading.equalTo(booksThisYearhView).offset(20)
+        }
+        booksThisYearCountLabel.snp.makeConstraints { make in
+            make.top.equalTo(booksThisYearTitleLabel.snp.bottom).offset(5)
+            make.leading.equalTo(booksThisYearhView).offset(20)
+        }
         
+        booksThisYearIconImageView.snp.makeConstraints { make in
+            make.centerY.equalTo(booksThisYearhView)
+            make.trailing.equalTo(booksThisYearhView).offset(-20)
+            make.width.height.equalTo(40)
+        }
+        totalBooksView.snp.makeConstraints { make in
+            make.top.equalTo(booksThisYearhView.snp.bottom).offset(16)
+            make.leading.equalTo(contentView).offset(20)
+            make.trailing.equalTo(contentView).offset(-20)
+            make.height.equalTo(100)
+        }
         totalBooksTitleLabel.snp.makeConstraints { make in
             make.top.equalTo(totalBooksView).offset(20)
             make.leading.equalTo(totalBooksView).offset(20)
@@ -234,33 +335,21 @@ class StatisticsViewController: BaseViewController, UIViewControllerTransitionin
             make.trailing.equalTo(totalBooksView).offset(-20)
             make.width.height.equalTo(40)
         }
-        
-        // Reading streak view
-        totalBooksView.snp.makeConstraints { make in
-            make.top.equalTo(booksThisYearhView.snp.bottom).offset(16)
-            make.leading.equalTo(contentView).offset(20)
-            make.trailing.equalTo(contentView).offset(-20)
-            make.height.equalTo(100)
+
+        separatorLine.snp.makeConstraints { make in
+            
+            make.horizontalEdges.equalTo(totalBooksView)
+            make.top.equalTo(totalBooksView.snp.bottom).offset(12)
+            make.height.equalTo(1)
         }
         
-        booksThisYearTitleLabel.snp.makeConstraints { make in
-            make.top.equalTo(booksThisYearhView).offset(20)
-            make.leading.equalTo(booksThisYearhView).offset(20)
-        }
-        
-        booksThisYearCountLabel.snp.makeConstraints { make in
-            make.top.equalTo(booksThisYearTitleLabel.snp.bottom).offset(5)
-            make.leading.equalTo(booksThisYearhView).offset(20)
-        }
-        
-        booksThisYearIconImageView.snp.makeConstraints { make in
-            make.centerY.equalTo(booksThisYearhView)
-            make.trailing.equalTo(booksThisYearhView).offset(-20)
-            make.width.height.equalTo(40)
+        yearLabel.snp.makeConstraints {
+            $0.top.equalTo(separatorLine.snp.bottom).offset(8)
+            $0.centerX.equalToSuperview()
         }
 
         calendarContainerView.snp.makeConstraints { make in
-            make.top.equalTo(totalBooksView.snp.bottom).offset(20)
+            make.top.equalTo(yearLabel.snp.bottom).offset(8)
             make.leading.equalTo(contentView).offset(20)
             make.trailing.equalTo(contentView).offset(-20)
             make.height.equalTo(350)
@@ -272,6 +361,27 @@ class StatisticsViewController: BaseViewController, UIViewControllerTransitionin
             make.leading.equalTo(calendarContainerView).offset(10)
             make.trailing.equalTo(calendarContainerView).offset(-10)
             make.bottom.equalTo(calendarContainerView).offset(-10)
+        }
+
+        // 피커 컨테이너 레이아웃
+        pickerContainerView.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.width.equalTo(280)
+            make.height.equalTo(260)
+        }
+        
+        // 피커 뷰 레이아웃
+        monthYearPickerView.snp.makeConstraints { make in
+            make.top.equalTo(pickerContainerView).offset(20)
+            make.left.right.equalTo(pickerContainerView)
+            make.height.equalTo(180)
+        }
+        
+        // 완료 버튼 레이아웃
+        pickerDoneButton.snp.makeConstraints { make in
+            make.top.equalTo(monthYearPickerView.snp.bottom).offset(10)
+            make.centerX.equalTo(pickerContainerView)
+            make.height.equalTo(44)
         }
     }
     
@@ -326,25 +436,65 @@ class StatisticsViewController: BaseViewController, UIViewControllerTransitionin
         booksThisYearIconImageView.contentMode = .scaleAspectFit
         
         calendarContainerView.backgroundColor = .white
-        calendarView.datePickerMode = .date
-        calendarView.preferredDatePickerStyle = .inline
+        calendarView.appearance.headerTitleColor = .mainText
+        calendarView.appearance.weekdayTextColor = .textSecondary
+        calendarView.appearance.titleDefaultColor = .mainText
+        calendarView.appearance.headerDateFormat = "M월"
+        calendarView.appearance.headerMinimumDissolvedAlpha = 0.0
         calendarView.tintColor = .accentTint
-    }
+        
+        yearLabel.font = UIFont.boldSystemFont(ofSize: 20)
+        yearLabel.textAlignment = .left
+        yearLabel.textColor = .mainText
 
-  
-    // MARK: - Actions
-    @objc private func dateSelected(_ sender: UIDatePicker) {
-        viewModel.getBooksInDate(target: sender.date)
-    }
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(headerTapped))
+        yearLabel.isUserInteractionEnabled = true
+        yearLabel.addGestureRecognizer(tapGesture)
+        separatorLine.backgroundColor = .textSecondary
 
-    @objc private func previousMonthTapped() {
-        guard let currentDate = Calendar.current.date(byAdding: .month, value: -1, to: calendarView.date) else { return }
-        calendarView.setDate(currentDate, animated: true)
+    }
+    func updateYearLabel() {
+        let currentDate = calendarView.currentPage
+        let calendar = Calendar.current
+        let year = calendar.component(.year, from: currentDate)
+        yearLabel.text = "\(year)"
+    }
+}
+extension StatisticsViewController: FSCalendarDelegate, FSCalendarDataSource{
+    // MARK: - FSCalendar DataSource
+    func calendar(_ calendar: FSCalendar, numberOfEventsFor date: Date) -> Int {
+        // Check if this date has books
+        let startOfDay = Calendar.current.startOfDay(for: date)
+        return viewModel.datesWithBooks.contains(startOfDay) ? 1 : 0
     }
     
-    @objc private func nextMonthTapped() {
-        guard let currentDate = Calendar.current.date(byAdding: .month, value: 1, to: calendarView.date) else { return }
-        calendarView.setDate(currentDate, animated: true)
+    // MARK: - FSCalendar Delegate
+    func calendar(_ calendar: FSCalendar, didSelect date: Date, at monthPosition: FSCalendarMonthPosition) {
+        viewModel.getBooksInDate(target: date)
+    }
+    func calendarCurrentPageDidChange(_ calendar: FSCalendar) {
+        updateYearLabel()
+    }
+}
+extension StatisticsViewController: UIPickerViewDelegate, UIPickerViewDataSource {
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 2
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return component == 0 ? years.count : TextDataStorage.months.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return component == 0 ? "\(years[row])" : TextDataStorage.months[row]
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        if component == 0 {
+            selectedYear = years[row]
+        } else {
+            selectedMonth = row
+        }
     }
 }
 class PartialPresentationController: UIPresentationController {
@@ -357,9 +507,8 @@ class PartialPresentationController: UIPresentationController {
     
     override var frameOfPresentedViewInContainerView: CGRect {
         guard let containerView = containerView else { return .zero }
-        
-        // 화면 하단에 표시될 높이 계산 (원하는 높이로 조정 가능)
-        let height: CGFloat = 300 // 책 리스트가 보일 정도의 높이
+
+        let height: CGFloat = 300
         
         return CGRect(
             x: 0,

@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import FSCalendar
 
 final class StatsViewModel:BaseViewModel {
     private var internalData : InternalData
@@ -15,6 +16,7 @@ final class StatsViewModel:BaseViewModel {
     @Published private(set) var bookDetail : [HomeBookEntity]? = nil
     @Published private(set) var fetchError: String? = nil
     @Published private(set) var bookStats: BookStats? = nil
+    @Published private(set) var datesWithBooks: [Date] = []
     struct Input {
         
     }
@@ -70,6 +72,10 @@ final class StatsViewModel:BaseViewModel {
         let totalCount = validBooks.count
 
         bookStats = BookStats(monthCount: monthCount, yearCount: yearCount, totalCount: totalCount)
+        let uniqueDates = Set(validBooks.map {
+                    calendar.startOfDay(for: $0)
+                })
+        datesWithBooks = Array(uniqueDates).sorted()
     }
     func getBooksInDate(target: Date) {
         let calendar = Calendar.current

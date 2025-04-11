@@ -393,7 +393,7 @@ final class EditInfoViewController: BaseViewController {
                 }
                 
                 let newValue = BookDetailEntity(
-                    imagePath: imagePath, addedDate: Date(),
+                    imagePath: imagePath, addedDate: viewModel.bookDetail?.addedDate,
                     title: trimmedTitle,
                     author: trimmedAuthor,
                     status: ReadingStatusEntity.from(index: readingStatusSegmentControl.selectedSegmentIndex),
