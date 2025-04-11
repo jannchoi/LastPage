@@ -52,7 +52,35 @@ class HomeViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
     }
-
+    override func bind() {
+        let input = HomeViewModel.Input()
+        let output = viewModel.transform(input: input)
+        viewModel.$bookDetail.receive(on: DispatchQueue.main)
+            .sink { [weak self] books in
+                guard let self = self else {return}
+                self.horizontalCollectionView.reloadData()
+            }
+            .store(in: &cancellables)
+        viewModel.$selectedTags.receive(on: DispatchQueue.main)
+            .sink { [weak self] tags in
+                guard let self = self else {return}
+                self.setupTagsInView(with: tags)
+                
+            }
+            .store(in: &cancellables)
+        viewModel.$sampleBook.receive(on: DispatchQueue.main)
+            .sink { [weak self] book in
+                guard let self = self else {return}
+                ImageFormatter.shared.setImage(target: self.bookCoverImageView, path: book?.bookDetail.imagePath)
+            }
+            .store(in: &cancellables)
+        viewModel.$fetchError.compactMap{$0}
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] errorMessage in
+                self?.showAlert(text: errorMessage)
+            }.store(in: &cancellables)
+    }
+    
     override func configureHierarchy() {
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
@@ -134,34 +162,6 @@ class HomeViewController: BaseViewController {
     }
 
 
-    override func bind() {
-        let input = HomeViewModel.Input()
-        let output = viewModel.transform(input: input)
-        viewModel.$bookDetail.receive(on: DispatchQueue.main)
-            .sink { [weak self] books in
-                guard let self = self else {return}
-                self.horizontalCollectionView.reloadData()
-            }
-            .store(in: &cancellables)
-        viewModel.$selectedTags.receive(on: DispatchQueue.main)
-            .sink { [weak self] tags in
-                guard let self = self else {return}
-                self.setupTagsInView(with: tags)
-                
-            }
-            .store(in: &cancellables)
-        viewModel.$sampleBook.receive(on: DispatchQueue.main)
-            .sink { [weak self] book in
-                guard let self = self else {return}
-                ImageFormatter.shared.setImage(target: self.bookCoverImageView, path: book?.bookDetail.imagePath)
-            }
-            .store(in: &cancellables)
-        viewModel.$fetchError.compactMap{$0}
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] errorMessage in
-                self?.showAlert(text: errorMessage)
-            }.store(in: &cancellables)
-    }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()

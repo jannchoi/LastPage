@@ -95,7 +95,109 @@ final class EditInfoViewController: BaseViewController {
         super.viewDidLoad()
         setupKeyboardObservers()
     }
-
+    override func bind() {
+        viewModel.$bookDetail.sink {[weak self] bookDetail in
+            guard let self = self, let bookDetail = bookDetail else {return}
+            self.setupUI(item: bookDetail)
+        }.store(in: &cancellables)
+        viewModel.$fetchError.compactMap{$0}
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] errorMessage in
+                self?.showAlert(text: errorMessage)
+            }.store(in: &cancellables)
+        viewModel.$popVCTrigger.compactMap{$0}
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] message in
+                guard let self = self else {return}
+                self.showAlert(text: message, action: {
+                    self.navigationController?.popViewController(animated: true)
+                })
+            }.store(in: &cancellables)
+    }
+    
+    // MARK: - View 계층 구조 설정
+    override func configureHierarchy() {
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        
+        [bookCoverImageView,changeImageButton,clearImageButton, bookCoverLabel, titleField, authorField,
+         readingStatusSegmentControl, shortMemoField, categoryField,
+         feelingsField].forEach {
+            contentView.addSubview($0)
+        }
+    }
+    
+    // MARK: - View 레이아웃 설정
+    override func configureLayout() {
+        scrollView.snp.makeConstraints { make in
+            make.edges.equalTo(view.safeAreaLayoutGuide)
+        }
+        
+        contentView.snp.makeConstraints { make in
+            make.top.horizontalEdges.equalToSuperview()
+            make.width.equalTo(scrollView)
+            make.bottom.equalToSuperview()
+        }
+        
+        bookCoverImageView.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(16)
+            make.centerX.equalToSuperview()
+            make.width.equalTo(100)
+            make.height.equalTo(145)
+        }
+        changeImageButton.snp.makeConstraints { make in
+            make.bottom.equalTo(bookCoverImageView.snp.bottom)
+            make.leading.equalTo(bookCoverImageView.snp.trailing).offset(16)
+            make.size.equalTo(32)
+        }
+        clearImageButton.snp.makeConstraints { make in
+            make.bottom.equalTo(bookCoverImageView.snp.bottom)
+            make.leading.equalTo(changeImageButton.snp.trailing).offset(16)
+            make.size.equalTo(32)
+        }
+        bookCoverLabel.snp.makeConstraints { make in
+            make.centerX.equalTo(bookCoverImageView)
+            make.centerY.equalTo(bookCoverImageView)
+        }
+        
+        titleField.snp.makeConstraints { make in
+            make.top.equalTo(bookCoverImageView.snp.bottom).offset(24)
+            make.height.equalTo(50)
+            make.left.equalToSuperview().offset(16)
+            make.right.equalToSuperview().offset(-16)
+        }
+        
+        authorField.snp.makeConstraints { make in
+            make.top.equalTo(titleField.snp.bottom).offset(16)
+            make.height.equalTo(50)
+            make.horizontalEdges.equalTo(titleField)
+        }
+        
+        readingStatusSegmentControl.snp.makeConstraints { make in
+            make.top.equalTo(authorField.snp.bottom).offset(18)
+            make.horizontalEdges.equalTo(titleField)
+        }
+        
+        shortMemoField.snp.makeConstraints { make in
+            make.top.equalTo(readingStatusSegmentControl.snp.bottom).offset(6)
+            make.height.equalTo(50)
+            make.horizontalEdges.equalTo(titleField)
+        }
+        
+        categoryField.snp.makeConstraints { make in
+            make.top.equalTo(shortMemoField.snp.bottom).offset(16)
+            make.height.equalTo(90)
+            make.horizontalEdges.equalTo(titleField)
+        }
+        
+        feelingsField.snp.makeConstraints { make in
+            make.top.equalTo(categoryField.snp.bottom).offset(16)
+            make.height.equalTo(90)
+            make.horizontalEdges.equalTo(titleField)
+            make.bottom.equalToSuperview().inset(32)
+        }
+    }
+    
     private func setupKeyboardObservers() {
         // Register for keyboard notifications
         NotificationCenter.default.addObserver(
@@ -257,26 +359,7 @@ final class EditInfoViewController: BaseViewController {
         NotificationCenter.default.removeObserver(self)
     }
     
-    override func bind() {
-        viewModel.$bookDetail.sink {[weak self] bookDetail in
-            guard let self = self, let bookDetail = bookDetail else {return}
-            self.setupUI(item: bookDetail)
-        }.store(in: &cancellables)
-        viewModel.$fetchError.compactMap{$0}
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] errorMessage in
-                self?.showAlert(text: errorMessage)
-            }.store(in: &cancellables)
-        viewModel.$popVCTrigger.compactMap{$0}
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] message in
-                guard let self = self else {return}
-                self.showAlert(text: message, action: {
-                    self.navigationController?.popViewController(animated: true)
-                })
-            }.store(in: &cancellables)
-    }
-    
+   
     func setupUI(item: BookDetailEntity) {
         originalImagePath = item.imagePath
         ImageFormatter.shared.setImage(target: bookCoverImageView, path: originalImagePath)
@@ -341,88 +424,7 @@ final class EditInfoViewController: BaseViewController {
         bookCoverLabel.isHidden = false
     }
     
-    // MARK: - View 계층 구조 설정
-    override func configureHierarchy() {
-        view.addSubview(scrollView)
-        scrollView.addSubview(contentView)
-        
-        [bookCoverImageView,changeImageButton,clearImageButton, bookCoverLabel, titleField, authorField,
-         readingStatusSegmentControl, shortMemoField, categoryField,
-         feelingsField].forEach {
-            contentView.addSubview($0)
-        }
-    }
-    
-    // MARK: - View 레이아웃 설정
-    override func configureLayout() {
-        scrollView.snp.makeConstraints { make in
-            make.edges.equalTo(view.safeAreaLayoutGuide)
-        }
-        
-        contentView.snp.makeConstraints { make in
-            make.top.horizontalEdges.equalToSuperview()
-            make.width.equalTo(scrollView)
-            make.bottom.equalTo(view.safeAreaLayoutGuide)
-        }
-        
-        bookCoverImageView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(16)
-            make.centerX.equalToSuperview()
-            make.width.equalTo(100)
-            make.height.equalTo(145)
-        }
-        changeImageButton.snp.makeConstraints { make in
-            make.bottom.equalTo(bookCoverImageView.snp.bottom)
-            make.leading.equalTo(bookCoverImageView.snp.trailing).offset(16)
-            make.size.equalTo(32)
-        }
-        clearImageButton.snp.makeConstraints { make in
-            make.bottom.equalTo(bookCoverImageView.snp.bottom)
-            make.leading.equalTo(changeImageButton.snp.trailing).offset(16)
-            make.size.equalTo(32)
-        }
-        bookCoverLabel.snp.makeConstraints { make in
-            make.centerX.equalTo(bookCoverImageView)
-            make.centerY.equalTo(bookCoverImageView)
-        }
-        
-        titleField.snp.makeConstraints { make in
-            make.top.equalTo(bookCoverImageView.snp.bottom).offset(24)
-            make.height.equalTo(50)
-            make.left.equalToSuperview().offset(16)
-            make.right.equalToSuperview().offset(-16)
-        }
-        
-        authorField.snp.makeConstraints { make in
-            make.top.equalTo(titleField.snp.bottom).offset(16)
-            make.height.equalTo(50)
-            make.horizontalEdges.equalTo(titleField)
-        }
-        
-        readingStatusSegmentControl.snp.makeConstraints { make in
-            make.top.equalTo(authorField.snp.bottom).offset(18)
-            make.horizontalEdges.equalTo(titleField)
-        }
-        
-        shortMemoField.snp.makeConstraints { make in
-            make.top.equalTo(readingStatusSegmentControl.snp.bottom).offset(6)
-            make.height.equalTo(50)
-            make.horizontalEdges.equalTo(titleField)
-        }
-        
-        categoryField.snp.makeConstraints { make in
-            make.top.equalTo(shortMemoField.snp.bottom).offset(16)
-            make.height.equalTo(90)
-            make.horizontalEdges.equalTo(titleField)
-        }
-        
-        feelingsField.snp.makeConstraints { make in
-            make.top.equalTo(categoryField.snp.bottom).offset(16)
-            make.height.equalTo(90)
-            make.horizontalEdges.equalTo(titleField)
-        }
-    }
-    
+
     // MARK: - 프로퍼티 속성 설정
     override func configureView() {
         view.backgroundColor = .backgroundBase
