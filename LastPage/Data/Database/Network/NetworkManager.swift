@@ -80,8 +80,6 @@ class NetworkManager {
                     throw NetworkError.customError(code: 500, message: "문자열을 Data로 변환하는 데 실패했습니다.")
                 }
 
-                print("📤 [최종 반환될 Data size]: \(sanitizedData.count) bytes")
-
                 return sanitizedData
             }
             .decode(type: T.self, decoder: Self.makeDecoder())

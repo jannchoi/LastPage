@@ -36,7 +36,7 @@ final class EditReadingCoordinator:Coordinator {
     }
 
     func showRecommend(bookId: String) {
-        let viewModel = RecommendViewModel(bookId: bookId,makeFetchKeywordUseCase: diContainer.makeFetchKeywordUseCase(), getBookUseCase: diContainer.makeGetBookUseCase())
+        let viewModel = RecommendViewModel(bookId: bookId,makeFetchKeywordUseCase: diContainer.makeFetchKeywordUseCase(), getBookUseCase: diContainer.makeGetBookUseCase(), updateBookUsecase : diContainer.makeUpdateBookUseCase())
         let recommendVC = RecommendViewController(viewModel: viewModel)
         navigationController.pushViewController(recommendVC, animated: true)
     }

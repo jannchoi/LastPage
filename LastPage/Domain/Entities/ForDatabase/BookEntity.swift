@@ -12,4 +12,5 @@ struct BookEntity {
     var beforeMemo: MemoEntity?
     var inProgressMemo: [ProgressMemoEntity]
     var afterMemo: MemoEntity?
+    var keywords: [String]
 }

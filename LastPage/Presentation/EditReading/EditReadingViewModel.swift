@@ -71,7 +71,7 @@ final class EditReadingViewModel:BaseViewModel {
                     return
                 case .completed:
                     self.bookDetail = book.afterMemo
-                case .detail:
+                case .detail, .keywords:
                     return
                 }
             }

@@ -14,13 +14,14 @@ class BookMemo: Object {
     @Persisted var addedDate: Date
     @Persisted var title: String
     @Persisted var author: String
-    @Persisted var status: String // Enum은 직접 저장할 수 없으므로 String으로 변환
+    @Persisted var status: String
     @Persisted var shortMemo: String
     @Persisted var categories: List<String>
     @Persisted var feelings: List<String>
     @Persisted var beforeMemo: Memo?
     @Persisted var inProgressMemo: List<ProgressMemo>
     @Persisted var afterMemo: Memo?
+    @Persisted var keywords: List<String>
 
     convenience init(
         imagePath: String?,
@@ -32,7 +33,8 @@ class BookMemo: Object {
         feelings: [String],
         beforeMemo: Memo?,
         inProgressMemo: [ProgressMemo],
-        afterMemo: Memo?
+        afterMemo: Memo?,
+        keywords: [String]
     ) {
         self.init()
         self.imagePath = imagePath
@@ -46,5 +48,6 @@ class BookMemo: Object {
         self.beforeMemo = beforeMemo
         self.inProgressMemo.append(objectsIn: inProgressMemo)
         self.afterMemo = afterMemo
+        self.keywords.append(objectsIn: keywords)
     }
 }

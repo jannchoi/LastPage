@@ -6,13 +6,25 @@
 //
 
 import UIKit
-
+import RealmSwift
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        
+        migration()
+        
+        let realm = try! Realm()
+        // 현재 사용자가 쓰고 있는 DB Schema Version
+        do {
+            let version = try schemaVersionAtURL(realm.configuration.fileURL!)
+            print("Schema Version", version)
+        } catch {
+            print("Schema Failed")
+        }
+        
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.backgroundColor = UIColor.backgroundBase // 배경색
@@ -25,6 +37,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UINavigationBar.appearance().compactAppearance = appearance
         UINavigationBar.appearance().tintColor = .mainText // back 버튼 및 bar button item 색상
         return true
+    }
+    func migration() {
+        let config = Realm.Configuration(schemaVersion: 1) { // 첫 번째 마이그레이션이므로 schemaVersion은 1
+            migration, oldSchemaVersion in
+            
+            // 0 -> 1: BookMemo에 keywords 추가
+            if oldSchemaVersion < 1 {
+                // 단순히 필드를 추가하는 것이므로 추가 코드는 필요 없음
+                // Realm이 자동으로 새 필드를 추가하고 기본값(빈 List)으로 초기화함
+            }
+        }
+        
+        Realm.Configuration.defaultConfiguration = config
     }
 
     // MARK: UISceneSession Lifecycle

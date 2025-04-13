@@ -37,7 +37,8 @@ class BookMemoMapper: BookMemoMapperProtocol {
         },
         afterMemo: realmModel.afterMemo.map {
             MemoEntity(date: $0.date, memo: $0.memo)
-        })
+        }, keywords: realmModel.keywords.map{$0}
+        )
 
     }
     
@@ -102,6 +103,8 @@ class BookMemoMapper: BookMemoMapperProtocol {
         } else {
             bookMemo.afterMemo = nil
         }
+        bookMemo.keywords.removeAll()
+        bookMemo.keywords.append(objectsIn: domainModel.keywords)
         return bookMemo
     }
     func updateBookEntity<T>(existing: BookEntity, newValue: T?, field: UpdateTarget, index: Int? = nil) -> BookEntity {
@@ -133,6 +136,10 @@ class BookMemoMapper: BookMemoMapperProtocol {
         case .detail:
             if let newDetail = newValue as? BookDetailEntity {
                 updatedBook.bookDetail = newDetail
+            }
+        case .keywords:
+            if let newKeywords = newValue as? [String] {
+                updatedBook.keywords = newKeywords
             }
         }
         return updatedBook
