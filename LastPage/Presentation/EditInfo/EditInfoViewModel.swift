@@ -56,7 +56,7 @@ final class EditInfoViewModel:BaseViewModel {
                 }.store(in: &cancellables)
 
         } else {
-            let newBook = BookEntity(id: nil, bookDetail: newValue, inProgressMemo: [])
+            let newBook = BookEntity(id: nil, bookDetail: newValue, inProgressMemo: [], keywords: [])
             saveBookUsecase.execute(newBook).sink { [weak self] completion in
             if case .failure(let error) = completion {
                 self?.fetchError = TextResource.DataError.updateError.text

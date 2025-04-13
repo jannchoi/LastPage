@@ -24,6 +24,7 @@ final class RecommendViewController: BaseViewController {
         label.font = .systemFont(ofSize: 16, weight: .bold)
         return label
     }()
+    private let updateKeywordsButton = UIButton()
     
     private let bookKeywordStackView = KeywordStackView()
     
@@ -47,7 +48,6 @@ final class RecommendViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         activityIndicator.startAnimating()
-        print(#function)
         configureKeywords()
     }
 
@@ -87,6 +87,7 @@ final class RecommendViewController: BaseViewController {
         scrollView.addSubview(contentView)
         
         contentView.addSubview(bookLabel)
+        contentView.addSubview(updateKeywordsButton)
         contentView.addSubview(bookRecommendView)
         bookRecommendView.addSubview(bookKeywordStackView)
         contentView.addSubview(commonLabel)
@@ -106,6 +107,10 @@ final class RecommendViewController: BaseViewController {
         bookLabel.snp.makeConstraints { make in
             make.top.equalTo(contentView.safeAreaLayoutGuide).offset(20)
             make.leading.equalToSuperview().offset(16)
+        }
+        updateKeywordsButton.snp.makeConstraints { make in
+            make.centerY.equalTo(bookLabel)
+            make.trailing.equalToSuperview().inset(16)
         }
         
         bookRecommendView.snp.makeConstraints { make in
@@ -135,6 +140,30 @@ final class RecommendViewController: BaseViewController {
         bookRecommendView.backgroundColor = .backgroundBase
         bookRecommendView.layer.cornerRadius = 10
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
+        
+        var config = UIButton.Configuration.filled()
+        config.baseForegroundColor = .btnTint
+        config.baseBackgroundColor = .white
+        // 테두리 스타일
+        config.background.strokeColor = .btnTint.withAlphaComponent(0.5)
+        config.background.strokeWidth = 1
+
+        // 폰트 설정 (필요 시)
+        let titleAttr = AttributeContainer([
+            .font: UIFont.systemFont(ofSize: 14, weight: .medium)
+        ])
+        config.attributedTitle = AttributedString(TextResource.ButtonTitle.updateKeywords.text, attributes: titleAttr)
+
+        updateKeywordsButton.configuration = config
+        updateKeywordsButton.layer.cornerRadius = 8
+        updateKeywordsButton.layer.masksToBounds = true
+        updateKeywordsButton.addTarget(self, action: #selector(updateKeywordsButtonTapped), for: .touchUpInside)
+        
+    }
+    @objc private func updateKeywordsButtonTapped() {
+        guard let title = viewModel.bookTitle else {return}
+        activityIndicator.startAnimating()
+        viewModel.fetchKeyword(query: title)
     }
     @objc private func backButtonTapped() {
         navigationController?.popViewController(animated: true)
@@ -162,8 +191,9 @@ extension RecommendViewController {
         
         func configure(with keywords: [String]) {
             self.arrangedSubviews.forEach { $0.removeFromSuperview() }
-            
+            var keywords = keywords
             if isVertical {
+                if keywords.isEmpty {keywords.append("도서에 대한 정보가 없습니다.")}
                 for keyword in keywords {
                     let keywordView = KeywordView(text: keyword)
                     self.addArrangedSubview(keywordView)

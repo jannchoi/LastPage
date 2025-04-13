@@ -12,4 +12,5 @@ enum UpdateTarget {
     case unread
     case reading
     case completed
+    case keywords
 }

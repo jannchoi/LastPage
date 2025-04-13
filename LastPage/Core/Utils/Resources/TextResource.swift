@@ -55,6 +55,7 @@ enum TextResource {
         case reconmmend
         case save
         case scan
+        case updateKeywords
         
         var text: String {
             switch self {
@@ -68,6 +69,8 @@ enum TextResource {
                 "Save"
             case .scan :
                 "구절 스캔하기"
+            case .updateKeywords:
+                "새로운 키워드 불러오기"
             }
         }
     }
