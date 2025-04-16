@@ -114,10 +114,10 @@ class StatisticsViewController: BaseViewController, UIViewControllerTransitionin
     }
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        booksThisMonthView.silverFrame()
-        booksThisYearhView.silverFrame()
-        totalBooksView.silverFrame()
-        calendarContainerView.silverFrame()
+        //booksThisMonthView.silverFrame()
+        //booksThisYearhView.silverFrame()
+        //totalBooksView.silverFrame()
+        //calendarContainerView.silverFrame()
         
     }
     override func bind() {

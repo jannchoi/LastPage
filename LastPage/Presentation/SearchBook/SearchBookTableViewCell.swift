@@ -63,7 +63,7 @@ final class SearchBookTableViewCell: UITableViewCell {
     }
     override func layoutSubviews() {
         super.layoutSubviews()
-        highlightContainerView.silverFrame()
+        //highlightContainerView.silverFrame()
         firstTagView.layer.cornerRadius = firstTagView.frame.height / 2
     }
     func configure(item: BookDetail) {

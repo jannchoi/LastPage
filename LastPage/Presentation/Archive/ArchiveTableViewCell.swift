@@ -174,7 +174,7 @@ final class ArchiveTableViewCell: UITableViewCell {
     }
     override func layoutSubviews() {
         super.layoutSubviews()
-        highlightContainerView.silverFrame()
+        //highlightContainerView.silverFrame()
         [firstTagView, secondTagView, statusContainerView].forEach{
             $0.layer.cornerRadius = $0.frame.height / 2
         }

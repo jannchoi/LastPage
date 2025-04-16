@@ -49,6 +49,9 @@ class BookMemoMapper: BookMemoMapperProtocol {
         } else {
             bookMemo.id = ObjectId.generate()
         }
+        if let addedDate = domainModel.bookDetail.addedDate {
+            bookMemo.addedDate = addedDate
+        }
         bookMemo.imagePath = domainModel.bookDetail.imagePath
         bookMemo.title = domainModel.bookDetail.title
         bookMemo.author = domainModel.bookDetail.author
