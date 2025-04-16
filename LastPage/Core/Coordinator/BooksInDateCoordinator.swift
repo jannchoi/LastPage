@@ -25,6 +25,7 @@ final class BooksInDateCoordinator: Coordinator {
     func start(books: [HomeBookEntity]) {
         let viewModel = BooksInDateViewModel(books: books)
         let vc = BooksInDateViewController(viewModel: viewModel)
+        vc.hidesBottomBarWhenPushed = true
         vc.coordinator = self
         navigationController.present(vc, animated: true)
     }

@@ -32,12 +32,14 @@ final class EditReadingCoordinator:Coordinator {
         .store(in: &viewModel.cancellables)
         let editReadingVC = EditReadingViewController(viewModel: viewModel)
         editReadingVC.coordinator = self
+        editReadingVC.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(editReadingVC, animated: true)
     }
 
     func showRecommend(bookId: String) {
         let viewModel = RecommendViewModel(bookId: bookId,makeFetchKeywordUseCase: diContainer.makeFetchKeywordUseCase(), getBookUseCase: diContainer.makeGetBookUseCase(), updateBookUsecase : diContainer.makeUpdateBookUseCase())
         let recommendVC = RecommendViewController(viewModel: viewModel)
+        recommendVC.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(recommendVC, animated: true)
     }
     func popVC() {

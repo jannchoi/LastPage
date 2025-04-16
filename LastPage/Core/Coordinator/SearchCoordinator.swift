@@ -27,6 +27,7 @@ final class SearchCoordinator:Coordinator {
         let viewModel = SearchBookViewModel(fetchBookUseCase: diContainer.makeFetchBookUseCase())
         let searchVC = SearchBookViewController(viewModel: viewModel)
         searchVC.coordinator = self
+        searchVC.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(searchVC, animated: true)
     }
 

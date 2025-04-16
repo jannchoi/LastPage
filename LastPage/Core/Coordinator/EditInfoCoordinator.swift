@@ -32,6 +32,7 @@ final class EditInfoCoordinator:Coordinator {
         .store(in: &viewModel.cancellables)
         let editInfoVC = EditInfoViewController(viewModel: viewModel)
         editInfoVC.coordinator = self
+        editInfoVC.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(editInfoVC, animated: true)
     }
     func showCategories() {
