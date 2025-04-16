@@ -121,7 +121,6 @@ final class SearchBookViewController: BaseViewController {
         viewModel.$bookList
             .receive(on: DispatchQueue.main)
             .sink { [weak self] bookList in
-                print(bookList.item.count)
                 self?.tableView.reloadData()
                 self?.updateFooterVisibility(isEmpty: bookList.item.isEmpty)
             }

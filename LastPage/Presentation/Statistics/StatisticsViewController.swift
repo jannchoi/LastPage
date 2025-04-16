@@ -158,7 +158,6 @@ class StatisticsViewController: BaseViewController, UIViewControllerTransitionin
     }
 
     @objc private func headerTapped() {
-        print(#function)
         showMonthYearPicker()
     }
     private func showMonthYearPicker() {

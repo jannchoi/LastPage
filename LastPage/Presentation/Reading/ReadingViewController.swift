@@ -618,7 +618,6 @@ final class ReadingViewController: BaseViewController {
         memoEditButton.showsMenuAsPrimaryAction = false
     }
     @objc private func memoEditButtonTapped() {
-        print("함수 시작 - bookId: \(String(describing: viewModel.bookDetail?.id))")
         guard let bookId = viewModel.bookDetail?.id else {
             showAlert(text: "도서 저장 후 이용 가능합니다.")
             return

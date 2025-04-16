@@ -55,8 +55,6 @@ class NetworkManager {
                 if case .aladin = target {
                     jsonString = self?.sanitizeJSON(jsonString) ?? jsonString
                 }
-
-
                 // 7️⃣ JSON 구조 검증 (선택)
                 do {
                     let jsonObject = try JSONSerialization.jsonObject(with: Data(jsonString.utf8), options: [])
@@ -92,24 +90,93 @@ class NetworkManager {
             }
             .eraseToAnyPublisher()
     }
-
     func sanitizeJSON(_ jsonString: String) -> String {
         var cleaned = jsonString
-
-
-        cleaned = cleaned.replacingOccurrences(of: #"\\'"#, with: "'")
-
-        cleaned = cleaned.replacingOccurrences(of: "\t", with: "")
+        
+        // 1. 제어 문자 처리 (0x00-0x1F)
+        for i in 0..<32 {
+            if i != 9 && i != 10 && i != 13 { // 탭(0x9), 개행(0xA), 캐리지리턴(0xD) 제외
+                if let unicodeScalar = UnicodeScalar(i) {
+                    cleaned = cleaned.replacingOccurrences(of: String(unicodeScalar), with: "")
+                }
+            }
+        }
+        
+        // 2. 탭 문자를 공백으로 대체
+        cleaned = cleaned.replacingOccurrences(of: "\t", with: " ")
+        
+        // 3. 개행 및 캐리지리턴 적절히 이스케이프
+        cleaned = cleaned.replacingOccurrences(of: "\n", with: "\\n")
+        cleaned = cleaned.replacingOccurrences(of: "\r", with: "\\r")
+        
+        // 4. 잘못된 이스케이프 시퀀스 처리
+        // 유효한 이스케이프 시퀀스: \", \\, \/, \b, \f, \n, \r, \t, \uXXXX
+        cleaned = cleaned.replacingOccurrences(of: #"\\'"#, with: "'") // \' -> '
         let invalidEscapeRegex = try! NSRegularExpression(pattern: #"\\[^"\\/bfnrtu]"#, options: [])
         cleaned = invalidEscapeRegex.stringByReplacingMatches(in: cleaned, options: [], range: NSRange(0..<cleaned.utf16.count), withTemplate: "")
-        // 🔥 3. 개행 문자 제거 or 이스케이프
-            cleaned = cleaned.replacingOccurrences(of: "\n", with: "\\n")
-            cleaned = cleaned.replacingOccurrences(of: "\r", with: "\\r")
-        if cleaned.hasSuffix(";") {
+        
+        // 5. 문자열 내 따옴표 이스케이프 확인
+        cleaned = cleaned.replacingOccurrences(of: #"(?<=[^\\])"(?=[^"])"#, with: #"\""#, options: .regularExpression)
+        
+        // 6. 문자열 시작/끝 처리
+        cleaned = cleaned.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        // 7. JSON 객체가 아닌 경우 처리
+        if cleaned.isEmpty {
+            cleaned = "{}"
+        }
+        
+        // 8. 후행 세미콜론/쉼표 제거
+        if cleaned.hasSuffix(";") || cleaned.hasSuffix(",") {
             cleaned.removeLast()
+        }
+        
+        // 9. 손상된 유니코드 이스케이프 시퀀스 처리
+        let unicodeEscapeRegex = try! NSRegularExpression(pattern: #"\\u[0-9a-fA-F]{0,3}[^0-9a-fA-F]"#, options: [])
+        cleaned = unicodeEscapeRegex.stringByReplacingMatches(in: cleaned, options: [], range: NSRange(0..<cleaned.utf16.count), withTemplate: "")
+        
+        // 10. 불완전한 객체/배열 닫기 확인 (고급 처리)
+        let brackets = cleaned.filter { "{}[]".contains($0) }
+        var stack = [Character]()
+        for char in brackets {
+            if "{[".contains(char) {
+                stack.append(char)
+            } else if char == "}" && stack.last == "{" {
+                stack.removeLast()
+            } else if char == "]" && stack.last == "[" {
+                stack.removeLast()
             }
+        }
+        
+        // 누락된 닫는 괄호 추가
+        for char in stack.reversed() {
+            if char == "{" {
+                cleaned += "}"
+            } else if char == "[" {
+                cleaned += "]"
+            }
+        }
+        
         return cleaned
     }
+
+//    func sanitizeJSON(_ jsonString: String) -> String {
+//        var cleaned = jsonString
+//
+//
+//        cleaned = cleaned.replacingOccurrences(of: #"\\'"#, with: "'")
+//
+//        cleaned = cleaned.replacingOccurrences(of: "\t", with: "")
+//        let invalidEscapeRegex = try! NSRegularExpression(pattern: #"\\[^"\\/bfnrtu]"#, options: [])
+//        cleaned = invalidEscapeRegex.stringByReplacingMatches(in: cleaned, options: [], range: NSRange(0..<cleaned.utf16.count), withTemplate: "")
+//        // 🔥 3. 개행 문자 제거 or 이스케이프
+//            cleaned = cleaned.replacingOccurrences(of: "\n", with: "\\n")
+//            cleaned = cleaned.replacingOccurrences(of: "\r", with: "\\r")
+//        if cleaned.hasSuffix(";") {
+//            cleaned.removeLast()
+//            }
+//        return cleaned
+//    }
 
 
     private static func makeDecoder() -> JSONDecoder {
