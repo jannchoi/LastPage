@@ -34,10 +34,12 @@ final class SettingsCoordinator: Coordinator {
     }
     func showHelpFAQ() {
         let vc = HelpFAQViewController()
+        vc.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(vc, animated: true)
     }
     func showAbout() {
         let vc = AboutViewController()
+        vc.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(vc, animated: true)
     }
 

@@ -31,6 +31,7 @@ final class ReadingCoordinator:Coordinator {
         }.store(in: &viewModel.cancellables)
         let readingVC = ReadingViewController(viewModel: viewModel)
         readingVC.coordinator = self
+        readingVC.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(readingVC, animated: true)
     }
     func start(bookId: String?) {
@@ -40,8 +41,8 @@ final class ReadingCoordinator:Coordinator {
             self.bookDeletedSubject.send()
         }.store(in: &viewModel.cancellables)
         let readingVC = ReadingViewController(viewModel: viewModel)
-        
         readingVC.coordinator = self
+        readingVC.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(readingVC, animated: true)
     }
     func start(bookDetail: BookDetail) {
@@ -52,6 +53,7 @@ final class ReadingCoordinator:Coordinator {
         }.store(in: &viewModel.cancellables)
         let readingVC = ReadingViewController(viewModel: viewModel)
         readingVC.coordinator = self
+        readingVC.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(readingVC, animated: true)
     }
     
@@ -76,6 +78,7 @@ final class ReadingCoordinator:Coordinator {
         }
         .store(in: &viewModel.cancellables)
         let editReadingInProgressVC = EditReadingInProgressViewController(viewModel: viewModel)
+        editReadingInProgressVC.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(editReadingInProgressVC, animated: true)
     }
     func popVC() {

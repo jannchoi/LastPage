@@ -68,7 +68,6 @@ final class RecommendViewModel:BaseViewModel {
             }
         }, receiveValue: {[weak self] result in
             guard let self = self else {return}
-            print("fetched keywords")
             self.keywordData = result.keywords
             self.updateKeywords(newValue: self.keywordData)
         })
