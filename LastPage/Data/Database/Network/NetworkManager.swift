@@ -99,7 +99,7 @@ class NetworkManager {
 
         cleaned = cleaned.replacingOccurrences(of: #"\\'"#, with: "'")
 
-
+        cleaned = cleaned.replacingOccurrences(of: "\t", with: "")
         let invalidEscapeRegex = try! NSRegularExpression(pattern: #"\\[^"\\/bfnrtu]"#, options: [])
         cleaned = invalidEscapeRegex.stringByReplacingMatches(in: cleaned, options: [], range: NSRange(0..<cleaned.utf16.count), withTemplate: "")
         // 🔥 3. 개행 문자 제거 or 이스케이프

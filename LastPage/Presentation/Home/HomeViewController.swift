@@ -165,11 +165,11 @@ class HomeViewController: BaseViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        horizontalCollectionView.silverFrame(horizontalOnly: true)  // Only top and bottom borders
-        centerView.silverFrame()
-        bottomLeftTagView.silverFrame()
-        bottomRightView.silverFrame()
-        searchButton.silverFrame()
+        //horizontalCollectionView.silverFrame(horizontalOnly: true)  // Only top and bottom borders
+        //centerView.silverFrame()
+        //bottomLeftTagView.silverFrame()
+        //bottomRightView.silverFrame()
+        //searchButton.silverFrame()
     }
     override func configureView() {
         view.backgroundColor = .backgroundBase
@@ -391,7 +391,7 @@ class BookCell: UICollectionViewCell {
     }
     override func layoutSubviews() {
         super.layoutSubviews()
-        highlightContainerView.silverFrame()
+        //highlightContainerView.silverFrame()
         contentView.clipsToBounds = true
         layer.masksToBounds = true
     }

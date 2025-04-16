@@ -205,11 +205,11 @@ final class ReadingViewController: BaseViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.navigationBar.prefersLargeTitles = false
-        setMemoEditIsAvailable()
+        //setMemoEditIsAvailable()
     }
-    private func setMemoEditIsAvailable() {
-        memoEditButton.isEnabled = viewModel.bookDetail?.id != nil
-    }
+//    private func setMemoEditIsAvailable() {
+//        memoEditButton.isEnabled = viewModel.bookDetail?.id != nil
+//    }
     // MARK: - UI Setup
     
     override func configureView() {
@@ -419,7 +419,7 @@ final class ReadingViewController: BaseViewController {
                 self.updateUI(with: bookEntity)
                 
                 // Enable memo edit button if book ID exists
-                self.setMemoEditIsAvailable()
+                //self.setMemoEditIsAvailable()
             }
             .store(in: &cancellables)
         
@@ -618,6 +618,11 @@ final class ReadingViewController: BaseViewController {
         memoEditButton.showsMenuAsPrimaryAction = false
     }
     @objc private func memoEditButtonTapped() {
+        print("함수 시작 - bookId: \(String(describing: viewModel.bookDetail?.id))")
+        guard let bookId = viewModel.bookDetail?.id else {
+            showAlert(text: "도서 저장 후 이용 가능합니다.")
+            return
+        }
         // 삭제 모드 체크
         if readingInProgressView.isDeleteMode {
             exitDeleteMode()
@@ -626,7 +631,6 @@ final class ReadingViewController: BaseViewController {
         
         // 현재 세그먼트 확인
         let currentSegmentIndex = readingStatusControl.selectedSegmentIndex
-        guard let bookId = viewModel.bookDetail?.id else { return }
         
         // 세그먼트에 따른 처리
         switch currentSegmentIndex {
@@ -648,6 +652,11 @@ final class ReadingViewController: BaseViewController {
         }
     }
     private func configureMenuForEditButton() {
+        guard let bookId = viewModel.bookDetail?.id else {
+                // bookId가 nil이면 메뉴를 구성하지 않음
+                clearButtonMenu()
+                return
+            }
         let addAction = UIAction(title: "Add ", image: UIImage(systemName: "plus")) { [weak self] _ in
             let indexToAppend = (self?.viewModel.bookDetail?.inProgressMemo.count ?? 0) + 1
             
