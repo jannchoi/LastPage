@@ -50,7 +50,8 @@ extension BookDetailDTO {
             categoryList = []
         } else {
             // 첫 번째 ">" 다음 값 (예: "소설/시/희곡", "예술/대중문화")을 "/"로 다시 분리
-            let secondComponent = components[1]
+            let idx = min(components.count - 1, 1)
+            let secondComponent = components[idx]
             categoryList = secondComponent.components(separatedBy: "/")
         }
 
