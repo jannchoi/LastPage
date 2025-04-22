@@ -6,7 +6,7 @@
 //
 
 import Foundation
-struct BookStats {
+struct BookStats: Codable {
     let monthCount: Int
     let yearCount: Int
     let totalCount: Int

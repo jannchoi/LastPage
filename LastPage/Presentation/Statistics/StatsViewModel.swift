@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import FSCalendar
+import WidgetKit
 
 final class StatsViewModel:BaseViewModel {
     private var internalData : InternalData
@@ -71,11 +72,20 @@ final class StatsViewModel:BaseViewModel {
 
         let totalCount = validBooks.count
 
-        bookStats = BookStats(monthCount: monthCount, yearCount: yearCount, totalCount: totalCount)
+        let resultBookStats = BookStats(monthCount: monthCount, yearCount: yearCount, totalCount: totalCount)
+        bookStats = resultBookStats
+        saveBookStatsToUserDetaults(resultBookStats)
         let uniqueDates = Set(validBooks.map {
                     calendar.startOfDay(for: $0)
                 })
         datesWithBooks = Array(uniqueDates).sorted()
+    }
+    private func saveBookStatsToUserDetaults(_ stats: BookStats) {
+        let groupDefaults = UserDefaults(suiteName: "group.com.jannchoi.readingStats")
+        if let data = try? JSONEncoder().encode(stats) {
+            groupDefaults?.set(data, forKey: "bookStats")
+            WidgetCenter.shared.reloadAllTimelines()
+        }
     }
     func getBooksInDate(target: Date) {
         let calendar = Calendar.current
