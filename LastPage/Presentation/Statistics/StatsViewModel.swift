@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import FSCalendar
+import WidgetKit
 
 final class StatsViewModel:BaseViewModel {
     private var internalData : InternalData
@@ -71,12 +72,24 @@ final class StatsViewModel:BaseViewModel {
 
         let totalCount = validBooks.count
 
-        bookStats = BookStats(monthCount: monthCount, yearCount: yearCount, totalCount: totalCount)
+        let resultBookStats = BookStats(monthCount: monthCount, yearCount: yearCount, totalCount: totalCount)
+        bookStats = resultBookStats
+        saveBookStatsToUserDetaults(resultBookStats)
         let uniqueDates = Set(validBooks.map {
                     calendar.startOfDay(for: $0)
                 })
         datesWithBooks = Array(uniqueDates).sorted()
     }
+    private func saveBookStatsToUserDetaults(_ stats: BookStats) {
+        // 새로 만든 정적 메서드 사용
+        BookStats.saveToUserDefaults(stats)
+        
+        // 로그로 확인
+        print("📊 앱에서 통계 데이터 저장: \(stats)")
+    }
+
+
+
     func getBooksInDate(target: Date) {
         let calendar = Calendar.current
         let result = internalData.bookList.filter {
