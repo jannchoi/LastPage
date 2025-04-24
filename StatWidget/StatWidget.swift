@@ -19,18 +19,13 @@ struct Provider: AppIntentTimelineProvider {
     }
     
     func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
-        var entries: [SimpleEntry] = []
-
-        // Generate a timeline consisting of five entries an hour apart, starting from the current date.
         let currentDate = Date()
-        let bookStats = BookStats.loadFromUserDefaults()
-        for hourOffset in 0 ..< 5 {
-            let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-            let entry = SimpleEntry(date: entryDate, configuration: configuration, bookStats: bookStats)
-            entries.append(entry)
-        }
-
-        return Timeline(entries: entries, policy: .atEnd)
+        let entry = SimpleEntry(
+            date: currentDate,
+            configuration: configuration,
+            bookStats: BookStats.loadFromUserDefaults() // 하드코딩 테스트
+        )
+        return Timeline(entries: [entry], policy: .after(currentDate.addingTimeInterval(60)))
     }
 
 //    func relevances() async -> WidgetRelevances<ConfigurationAppIntent> {
@@ -71,6 +66,8 @@ struct StatWidget: Widget {
                 .containerBackground(.fill.tertiary, for: .widget)
         }
         .supportedFamilies([.systemSmall, .systemMedium])
+        .contentMarginsDisabled()
+        .containerBackgroundRemovable(false)
     }
 }
 
@@ -91,11 +88,22 @@ extension ConfigurationAppIntent {
 
 extension BookStats {
     static func loadFromUserDefaults() -> BookStats {
-        let defaults = UserDefaults(suiteName: "group.com.jannchoi.readingStats")
-        if let data = defaults?.data(forKey: "bookStats"),
-           let stats = try? JSONDecoder().decode(BookStats.self, from: data) {
+        guard let defaults = UserDefaults(suiteName: "group.com.jannchoi.readingStats") else {
+            print("📛 App Group 설정 안됨!")
+            return BookStats(monthCount: 0, yearCount: 0, totalCount: 0)
+        }
+        
+        guard let data = defaults.data(forKey: "bookStats") else {
+            print("📛 데이터 없음")
+            return BookStats(monthCount: 0, yearCount: 0, totalCount: 0)
+        }
+        
+        do {
+            let stats = try JSONDecoder().decode(BookStats.self, from: data)
+            print(stats)
             return stats
-        } else {
+        } catch {
+            print("📛 디코딩 실패: \(error)")
             return BookStats(monthCount: 0, yearCount: 0, totalCount: 0)
         }
     }

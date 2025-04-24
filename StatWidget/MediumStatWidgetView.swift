@@ -12,32 +12,42 @@ struct MediumStatWidgetView: View {
 
     var body: some View {
         ZStack {
-            Color(.background)
-            VStack(alignment: .leading, spacing: 8) {
-                Text("📚 기록 통계")
-                    .font(.headline)
-                    .foregroundColor(Color("btnTint"))
-
-                HStack {
-                    statBox(title: "이번 달", count: stats.monthCount)
-                    Spacer()
-                    statBox(title: "올해", count: stats.yearCount)
-                    Spacer()
-                    statBox(title: "전체", count: stats.totalCount)
+            if #available(iOSApplicationExtension 17.0, *) {
+                containerBackground(for: .widget) {
+                    content
                 }
+            } else {
+                Color("background")
+                content
             }
-            .padding()
         }
+    }
+
+    private var content: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("📚 기록 통계")
+                .font(.headline)
+                .foregroundColor(Color("btnTint"))
+
+            HStack {
+                statBox(title: "이번 달", count: stats.monthCount)
+                Spacer()
+                statBox(title: "올해", count: stats.yearCount)
+                Spacer()
+                statBox(title: "전체", count: stats.totalCount)
+            }
+        }
+        .padding()
     }
 
     private func statBox(title: String, count: Int) -> some View {
         VStack(spacing: 4) {
             Text(title)
                 .font(.caption2)
-                .foregroundColor(Color(.mainText))
+                .foregroundColor(Color("mainText"))
             Text("\(count)")
                 .font(.title2.bold())
-                .foregroundColor(Color(.btnTint))
+                .foregroundColor(Color("btnTint"))
         }
     }
 }
