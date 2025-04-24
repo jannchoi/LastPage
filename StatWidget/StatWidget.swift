@@ -9,33 +9,35 @@ import WidgetKit
 import SwiftUI
 
 struct Provider: AppIntentTimelineProvider {
+    // UserDefaults에서 데이터를 가져오는 헬퍼 메서드
+    private func getBookStats() -> BookStats {
+        return BookStats.loadFromUserDefaults()
+    }
+    
     func placeholder(in context: Context) -> SimpleEntry {
         SimpleEntry(date: Date(), configuration: ConfigurationAppIntent(), bookStats: BookStats(monthCount: 0, yearCount: 0, totalCount: 0))
     }
 
     func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> SimpleEntry {
-        let stats = BookStats.loadFromUserDefaults()
-           return SimpleEntry(date: Date(), configuration: configuration, bookStats: stats)
+        // 최신 데이터를 가져옵니다
+        let stats = getBookStats()
+        return SimpleEntry(date: Date(), configuration: configuration, bookStats: stats)
     }
     
     func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
-        var entries: [SimpleEntry] = []
-
-        // Generate a timeline consisting of five entries an hour apart, starting from the current date.
         let currentDate = Date()
-        let bookStats = BookStats.loadFromUserDefaults()
-        for hourOffset in 0 ..< 5 {
-            let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-            let entry = SimpleEntry(date: entryDate, configuration: configuration, bookStats: bookStats)
-            entries.append(entry)
-        }
-
-        return Timeline(entries: entries, policy: .atEnd)
+        
+        // 최신 데이터를 가져옵니다
+        let stats = getBookStats()
+        let entry = SimpleEntry(
+            date: currentDate,
+            configuration: configuration,
+            bookStats: stats
+        )
+        
+        // 더 짧은 간격으로 업데이트 (30초로 변경)
+        return Timeline(entries: [entry], policy: .after(currentDate.addingTimeInterval(30)))
     }
-
-//    func relevances() async -> WidgetRelevances<ConfigurationAppIntent> {
-//        // Generate a list containing the contexts this widget is relevant in.
-//    }
 }
 
 struct SimpleEntry: TimelineEntry {
@@ -47,19 +49,20 @@ struct SimpleEntry: TimelineEntry {
 struct StatWidgetEntryView : View {
     var entry: Provider.Entry
     @Environment(\.widgetFamily) var family
+    
     var body: some View {
-        let stats = entry.bookStats
         VStack {
             switch family {
             case .systemSmall:
-                SmallStatWidgetView(stats: stats)
+                smallStatWidgetView(entry.bookStats)
             case .systemMedium:
-                MediumStatWidgetView(stats: stats)
+                mediumStatWidgetView(entry.bookStats)
             @unknown default:
-                SmallStatWidgetView(stats: stats)
+                smallStatWidgetView(entry.bookStats)
             }
         }
     }
+
 }
 
 struct StatWidget: Widget {
@@ -71,6 +74,8 @@ struct StatWidget: Widget {
                 .containerBackground(.fill.tertiary, for: .widget)
         }
         .supportedFamilies([.systemSmall, .systemMedium])
+        .contentMarginsDisabled()
+        .containerBackgroundRemovable(false)
     }
 }
 
@@ -85,18 +90,5 @@ extension ConfigurationAppIntent {
         let intent = ConfigurationAppIntent()
         intent.favoriteEmoji = "🤩"
         return intent
-    }
-}
-
-
-extension BookStats {
-    static func loadFromUserDefaults() -> BookStats {
-        let defaults = UserDefaults(suiteName: "group.com.jannchoi.readingStats")
-        if let data = defaults?.data(forKey: "bookStats"),
-           let stats = try? JSONDecoder().decode(BookStats.self, from: data) {
-            return stats
-        } else {
-            return BookStats(monthCount: 0, yearCount: 0, totalCount: 0)
-        }
     }
 }

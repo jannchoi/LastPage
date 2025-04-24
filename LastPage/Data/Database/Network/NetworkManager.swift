@@ -126,6 +126,8 @@ class NetworkManager {
             cleaned = "{}"
         }
         
+        // [신간] 어쩌고
+        
         // 8. 후행 세미콜론/쉼표 제거
         if cleaned.hasSuffix(";") || cleaned.hasSuffix(",") {
             cleaned.removeLast()
@@ -147,36 +149,32 @@ class NetworkManager {
                 stack.removeLast()
             }
         }
-        
-        // 누락된 닫는 괄호 추가
-        for char in stack.reversed() {
-            if char == "{" {
-                cleaned += "}"
-            } else if char == "[" {
-                cleaned += "]"
-            }
-        }
-        
+//        
+//        // 누락된 닫는 괄호 추가
+//        for char in stack.reversed() {
+//            if char == "{" {
+//                cleaned += "}"
+//            } else if char == "[" {
+//                cleaned += "]"
+//            }
+//        }
+//        
+//        if let lastValidIndex = cleaned.lastIndex(of: "]") {
+//            let suffix = cleaned.suffix(from: cleaned.index(after: lastValidIndex))
+//            if suffix.contains("]") || suffix.contains("{") || suffix.contains("}") {
+//                // 닫힌 뒤에도 괄호가 있으면 잘못된 구조로 판단
+//                cleaned = String(cleaned.prefix(upTo: cleaned.index(after: lastValidIndex)))
+//            }
+//        } else if let lastValidIndex = cleaned.lastIndex(of: "}") {
+//            let suffix = cleaned.suffix(from: cleaned.index(after: lastValidIndex))
+//            if suffix.contains("]") || suffix.contains("{") || suffix.contains("}") {
+//                cleaned = String(cleaned.prefix(upTo: cleaned.index(after: lastValidIndex)))
+//            }
+//        }
+//        
         return cleaned
     }
 
-//    func sanitizeJSON(_ jsonString: String) -> String {
-//        var cleaned = jsonString
-//
-//
-//        cleaned = cleaned.replacingOccurrences(of: #"\\'"#, with: "'")
-//
-//        cleaned = cleaned.replacingOccurrences(of: "\t", with: "")
-//        let invalidEscapeRegex = try! NSRegularExpression(pattern: #"\\[^"\\/bfnrtu]"#, options: [])
-//        cleaned = invalidEscapeRegex.stringByReplacingMatches(in: cleaned, options: [], range: NSRange(0..<cleaned.utf16.count), withTemplate: "")
-//        // 🔥 3. 개행 문자 제거 or 이스케이프
-//            cleaned = cleaned.replacingOccurrences(of: "\n", with: "\\n")
-//            cleaned = cleaned.replacingOccurrences(of: "\r", with: "\\r")
-//        if cleaned.hasSuffix(";") {
-//            cleaned.removeLast()
-//            }
-//        return cleaned
-//    }
 
 
     private static func makeDecoder() -> JSONDecoder {

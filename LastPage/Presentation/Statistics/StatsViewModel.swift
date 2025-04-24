@@ -81,12 +81,15 @@ final class StatsViewModel:BaseViewModel {
         datesWithBooks = Array(uniqueDates).sorted()
     }
     private func saveBookStatsToUserDetaults(_ stats: BookStats) {
-        let groupDefaults = UserDefaults(suiteName: "group.com.jannchoi.readingStats")
-        if let data = try? JSONEncoder().encode(stats) {
-            groupDefaults?.set(data, forKey: "bookStats")
-            WidgetCenter.shared.reloadAllTimelines()
-        }
+        // 새로 만든 정적 메서드 사용
+        BookStats.saveToUserDefaults(stats)
+        
+        // 로그로 확인
+        print("📊 앱에서 통계 데이터 저장: \(stats)")
     }
+
+
+
     func getBooksInDate(target: Date) {
         let calendar = Calendar.current
         let result = internalData.bookList.filter {
