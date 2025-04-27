@@ -18,6 +18,8 @@
 		CE2C22AB2D9AEBB900211B65 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = CE2C22AA2D9AEBB900211B65 /* RealmSwift */; };
 		CE2C25822D9BF80C00211B65 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = CE2C25812D9BF80C00211B65 /* Kingfisher */; };
 		CE2C27BA2DA152A100211B65 /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = CE2C22AA2D9AEBB900211B65 /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		CE8EE0122DBE5EAB00ADAA2C /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */ = {isa = PBXBuildFile; productRef = CE8EE0112DBE5EAB00ADAA2C /* FirebaseAnalyticsWithoutAdIdSupport */; };
+		CE8EE0142DBE5EAB00ADAA2C /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = CE8EE0132DBE5EAB00ADAA2C /* FirebaseCrashlytics */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -126,7 +128,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				CE2C25822D9BF80C00211B65 /* Kingfisher in Frameworks */,
+				CE8EE0122DBE5EAB00ADAA2C /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
 				CE0A244C2DA991E60095BA5A /* FSCalendar in Frameworks */,
+				CE8EE0142DBE5EAB00ADAA2C /* FirebaseCrashlytics in Frameworks */,
 				CE2C22AB2D9AEBB900211B65 /* RealmSwift in Frameworks */,
 				CE0A75292D96FEFE00CFA9E9 /* SnapKit in Frameworks */,
 			);
@@ -201,6 +205,8 @@
 				CE2C22AA2D9AEBB900211B65 /* RealmSwift */,
 				CE2C25812D9BF80C00211B65 /* Kingfisher */,
 				CE0A244B2DA991E60095BA5A /* FSCalendar */,
+				CE8EE0112DBE5EAB00ADAA2C /* FirebaseAnalyticsWithoutAdIdSupport */,
+				CE8EE0132DBE5EAB00ADAA2C /* FirebaseCrashlytics */,
 			);
 			productName = LastPage;
 			productReference = CE0A72832D9540C400CFA9E9 /* LastPage.app */;
@@ -261,6 +267,7 @@
 				CE2C22A92D9AEBB900211B65 /* XCRemoteSwiftPackageReference "realm-swift" */,
 				CE2C25802D9BF80C00211B65 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				CE0A244A2DA991E60095BA5A /* XCRemoteSwiftPackageReference "FSCalendar" */,
+				CE8EE0102DBE5EAB00ADAA2C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = CE0A72842D9540C400CFA9E9 /* Products */;
@@ -633,6 +640,14 @@
 				minimumVersion = 8.3.1;
 			};
 		};
+		CE8EE0102DBE5EAB00ADAA2C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.12.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -655,6 +670,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CE2C25802D9BF80C00211B65 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		CE8EE0112DBE5EAB00ADAA2C /* FirebaseAnalyticsWithoutAdIdSupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CE8EE0102DBE5EAB00ADAA2C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsWithoutAdIdSupport;
+		};
+		CE8EE0132DBE5EAB00ADAA2C /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CE8EE0102DBE5EAB00ADAA2C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
