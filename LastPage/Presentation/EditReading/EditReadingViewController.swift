@@ -7,6 +7,7 @@
 
 import UIKit
 import Combine
+import FirebaseAnalytics
 import SnapKit
 
 final class EditReadingViewController: BaseViewController {
@@ -205,6 +206,10 @@ final class EditReadingViewController: BaseViewController {
     }
     
     @objc private func helpButtonTapped() {
+        Analytics.logEvent("button_click", parameters: [
+            "button_name": "keywordRecommendButton",
+            "screen_name": "EditAfterReadingView"
+        ])
         guard let bookId = viewModel.bookId else {return}
         coordinator?.showRecommend(bookId: bookId)
     }

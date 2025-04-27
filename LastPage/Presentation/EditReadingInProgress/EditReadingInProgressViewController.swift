@@ -6,6 +6,7 @@
 //
 import UIKit
 import Combine
+import FirebaseAnalytics
 import SnapKit
 import VisionKit
 import Vision
@@ -93,6 +94,10 @@ final class EditReadingInProgressViewController: BaseViewController {
         navigationItem.title = title != nil ? title : "Edit Reading"
     }
     @objc private func cameraButtonTapped() {
+        Analytics.logEvent("button_click", parameters: [
+            "button_name": "scanButton",
+            "screen_name": "EditReadingInProgressView"
+        ])
         // Check if document scanning is available
         if VNDocumentCameraViewController.isSupported {
             let scannerViewController = VNDocumentCameraViewController()
