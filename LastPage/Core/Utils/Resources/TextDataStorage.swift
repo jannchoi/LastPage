@@ -195,13 +195,7 @@ final class TextDataStorage {
         "마지막 페이지엔 네가 있어야지.",
         "책이 말을 멈췄을 때, 너의 기록이 시작돼.",
     ]
-    static let searchButtonTitle: [String] = [
-        "새 이야기, 네 서재에 입장!",
-        "또 어떤 책이 널 바꿔놓을까?",
-        "책 찾자, 네 다음 감상을 위해.",
-        "책장을 채울 준비됐어?",
-        "새로운 문장, 너를 기다리는 중.",
-    ]
+
     static let commonKeywordMockData: [String] =  [
         "이 책을 다른 누군가에게 추천한다면?",
         "주인공에게 해주고 싶은 말",
