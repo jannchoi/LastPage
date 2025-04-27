@@ -17,7 +17,7 @@ struct Provider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> SimpleEntry {
         SimpleEntry(date: Date(), configuration: ConfigurationAppIntent(), bookStats: BookStats(monthCount: 0, yearCount: 0, totalCount: 0))
     }
-
+    
     func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> SimpleEntry {
         // 최신 데이터를 가져옵니다
         let stats = getBookStats()
@@ -46,12 +46,12 @@ struct SimpleEntry: TimelineEntry {
     let bookStats: BookStats
 }
 
-struct StatWidgetEntryView : View {
+struct StatWidgetEntryView: View {
     var entry: Provider.Entry
     @Environment(\.widgetFamily) var family
     
     var body: some View {
-        VStack {
+        ZStack {
             switch family {
             case .systemSmall:
                 smallStatWidgetView(entry.bookStats)
@@ -62,16 +62,14 @@ struct StatWidgetEntryView : View {
             }
         }
     }
-
 }
 
 struct StatWidget: Widget {
     let kind: String = "StatWidget"
-
     var body: some WidgetConfiguration {
         AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: Provider()) { entry in
             StatWidgetEntryView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
+            // 시스템 배경 설정을 제거하여 커스텀 배경만 적용되도록 함
         }
         .supportedFamilies([.systemSmall, .systemMedium])
         .contentMarginsDisabled()
@@ -92,3 +90,4 @@ extension ConfigurationAppIntent {
         return intent
     }
 }
+
