@@ -619,7 +619,7 @@ final class ReadingViewController: BaseViewController {
     }
     @objc private func memoEditButtonTapped() {
         guard let bookId = viewModel.bookDetail?.id else {
-            showAlert(text: "도서 저장 후 이용 가능합니다.")
+            showAlert(text: "도서 저장 후 이용 가능합니다. '연필'버튼을 클릭하세요.")
             return
         }
         // 삭제 모드 체크
