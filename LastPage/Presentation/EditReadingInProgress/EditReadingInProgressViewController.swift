@@ -512,7 +512,8 @@ extension EditReadingInProgressViewController: UITextViewDelegate {
 // MARK: - TextSelectionViewControllerDelegate
 extension EditReadingInProgressViewController: TextSelectionViewControllerDelegate {
     func didSelectTexts(_ texts: [String]) {
-        let selectedText = texts.joined(separator: "\n\n")
+        let reAlignTexts = texts.reversed()
+        let selectedText = texts.joined(separator: "\n")
         
         // Add the selected text to the existing text
         textView.text = textView.text.isEmpty ? selectedText : textView.text + "\n\n" + selectedText

@@ -95,12 +95,11 @@ class TextSelectionViewController: UIViewController {
         var selectedTexts: [String] = []
         
         if allowMultipleSelection {
-            // Get multiple selections
-            for indexPath in selectedRows {
+            let sortedSelectedRows = selectedRows.sorted(by: { $0.row < $1.row })
+            for indexPath in sortedSelectedRows {
                 selectedTexts.append(textItems[indexPath.row])
             }
         } else {
-            // Get single selection if available
             if let selectedRow = tableView.indexPathForSelectedRow {
                 selectedTexts.append(textItems[selectedRow.row])
             }
