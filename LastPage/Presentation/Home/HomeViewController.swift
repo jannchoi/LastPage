@@ -213,7 +213,7 @@ class HomeViewController: BaseViewController {
         bookCoverImageView.addGestureRecognizer(bookCoverTapGesture)
         
         //search
-        searchButton.setTitle(TextDataStorage.searchButtonTitle.randomElement(), for: .normal)
+        searchButton.setTitle("도서 추가하러 가기", for: .normal)
         searchButton.setTitleColor(.mainText, for: .normal)
         let cursorimg = UIImage(systemName: "cursorarrow")?.withTintColor(.mainText)
         searchButton.tintColor = .btnTint.withAlphaComponent(0.7)

@@ -4,6 +4,7 @@
 //
 //  Created by 최정안 on 3/29/25.
 //
+
 import UIKit
 import Combine
 import SnapKit
@@ -56,7 +57,7 @@ final class ReadingViewController: BaseViewController {
         button.tintColor = .btnTint
         return button
     }()
-
+    
     // Book Metadata Section
     private let metadataView: UIView = {
         let view = UIView()
@@ -71,7 +72,7 @@ final class ReadingViewController: BaseViewController {
         label.textColor = .mainText
         return label
     }()
-
+    
     private let progressLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14)
@@ -117,13 +118,27 @@ final class ReadingViewController: BaseViewController {
         return label
     }()
     
-    private let feelingsStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.spacing = 8
-        stackView.distribution = .fillProportionally
-        return stackView
+    // Replace stack view with a more flexible tags container
+    private let feelingsFlowLayout: UICollectionViewFlowLayout = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.minimumInteritemSpacing = 8
+        layout.minimumLineSpacing = 8
+        return layout
     }()
+    
+    private lazy var feelingsCollectionView: UICollectionView = {
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: feelingsFlowLayout)
+        collectionView.backgroundColor = .clear
+        collectionView.isScrollEnabled = false
+        collectionView.register(FeelingTagCell.self, forCellWithReuseIdentifier: "FeelingTagCell")
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        return collectionView
+    }()
+    
+    // Store feelings data
+    private var feelings: [String] = []
     
     // Reading Status Section
     private let memoContainerView: UIView = {
@@ -138,7 +153,7 @@ final class ReadingViewController: BaseViewController {
         label.font = .systemFont(ofSize: 15, weight: .semibold)
         return label
     }()
-
+    
     // Segment Control
     private let readingStatusControl: UISegmentedControl = {
         let items = [TextResource.ReadingStatus.before.text, TextResource.ReadingStatus.inProgress.text, TextResource.ReadingStatus.after.text]
@@ -176,6 +191,39 @@ final class ReadingViewController: BaseViewController {
     
     private let contentView = UIView()
     
+    // Custom cell for feeling tags
+    private class FeelingTagCell: UICollectionViewCell {
+        let tagLabel = UILabel()
+        
+        override init(frame: CGRect) {
+            super.init(frame: frame)
+            
+            contentView.backgroundColor = .tagBackground
+            contentView.layer.borderColor = UIColor.tagBorder.cgColor
+            contentView.layer.borderWidth = 0.5
+            contentView.layer.cornerRadius = 16
+            
+            tagLabel.font = .systemFont(ofSize: 13)
+            tagLabel.textColor = .mainText
+            tagLabel.textAlignment = .center
+            
+            contentView.addSubview(tagLabel)
+            tagLabel.snp.makeConstraints { make in
+                make.center.equalToSuperview()
+                make.leading.trailing.equalToSuperview().inset(12)
+                make.top.bottom.equalToSuperview().inset(8)
+            }
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
+        func configure(with text: String) {
+            tagLabel.text = text
+        }
+    }
+    
     // MARK: - Initialization
     
     init(viewModel: ReadingViewModel) {
@@ -200,69 +248,24 @@ final class ReadingViewController: BaseViewController {
         updateContentForSelectedSegment()
         bookDetailView.isUserInteractionEnabled = true
         memoContainerView.isUserInteractionEnabled = true
-
+        
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.navigationBar.prefersLargeTitles = false
-        //setMemoEditIsAvailable()
     }
-//    private func setMemoEditIsAvailable() {
-//        memoEditButton.isEnabled = viewModel.bookDetail?.id != nil
-//    }
     // MARK: - UI Setup
     
     override func configureView() {
         view.backgroundColor = .backgroundBase
         readingInProgressView.delegate = self
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
-       
+        
     }
     @objc private func backButtonTapped() {
         navigationController?.popViewController(animated: true)
     }
-    override func configureHierarchy() {
-        view.addSubview(scrollView)
-        scrollView.addSubview(contentView)
-        
-        // Add main sections to content view
-        contentView.addSubview(bookDetailView)
-        contentView.addSubview(metadataView)
-        contentView.addSubview(notesCardView)
-        contentView.addSubview(feelingsCardView)
-        contentView.addSubview(memoContainerView)
-        
-        // Book detail components
-        bookDetailView.addSubview(bookCoverImageView)
-        bookDetailView.addSubview(titleLabel)
-        bookDetailView.addSubview(authorLabel)
-        bookDetailView.addSubview(editButton)
-        
-        // Metadata components
-        metadataView.addSubview(dateAddedLabel)
-        metadataView.addSubview(progressLabel)
-        
-        // Notes components
-        notesCardView.addSubview(notesTitleLabel)
-        notesCardView.addSubview(notesContentLabel)
-        
-        // Feelings components
-        feelingsCardView.addSubview(feelingsTitleLabel)
-        feelingsCardView.addSubview(feelingsStackView)
-        
-        // Reading status components
-        memoContainerView.addSubview(memoTitleLabel)
-        memoContainerView.addSubview(readingStatusControl)
-        memoContainerView.addSubview(memoEditButton)
-       
-        // Reading status components
-        memoContainerView.addSubview(readingStatusControl)
-        memoContainerView.addSubview(segmentContentView)
-        segmentContentView.addSubview(beforeReadingView)
-        segmentContentView.addSubview(readingInProgressView)
-        segmentContentView.addSubview(afterReadingView)
-
-    }
+    
     
     override func configureLayout() {
         scrollView.snp.makeConstraints { make in
@@ -304,7 +307,7 @@ final class ReadingViewController: BaseViewController {
             make.trailing.equalToSuperview().offset(-16)
             make.width.height.equalTo(24)
         }
-       
+        
         // Metadata layout
         metadataView.snp.makeConstraints { make in
             make.top.equalTo(bookDetailView.snp.bottom).offset(16)
@@ -317,7 +320,7 @@ final class ReadingViewController: BaseViewController {
             make.leading.equalToSuperview().offset(16)
             make.trailing.lessThanOrEqualToSuperview().offset(-16)
         }
-
+        
         progressLabel.snp.makeConstraints { make in
             make.trailing.equalToSuperview().offset(-16)
             make.bottom.equalToSuperview().offset(-16)
@@ -341,7 +344,7 @@ final class ReadingViewController: BaseViewController {
             make.leading.trailing.equalToSuperview().inset(16)
             make.bottom.equalToSuperview().offset(-16)
         }
-
+        
         
         // Feelings layout
         feelingsCardView.snp.makeConstraints { make in
@@ -356,12 +359,12 @@ final class ReadingViewController: BaseViewController {
             make.height.equalTo(20)
         }
         
-        feelingsStackView.snp.makeConstraints { make in
+        feelingsCollectionView.snp.makeConstraints { make in
             make.top.equalTo(feelingsTitleLabel.snp.bottom).offset(12)
             make.leading.trailing.equalToSuperview().inset(16)
             make.bottom.equalToSuperview().offset(-16)
         }
-
+        
         memoEditButton.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(8)
             make.trailing.equalTo(feelingsCardView.snp.trailing).inset(16)
@@ -376,7 +379,7 @@ final class ReadingViewController: BaseViewController {
             make.centerY.equalTo(memoEditButton)
             make.height.equalTo(25)
         }
-
+        
         
         // Reading status layout
         memoContainerView.snp.makeConstraints { make in
@@ -429,7 +432,7 @@ final class ReadingViewController: BaseViewController {
                 self?.showAlert(text: errorMessage)
             }.store(in: &cancellables)
     }
-
+    
     private func updateUI(with item: BookEntity) {
         navigationItem.title = item.bookDetail.title
         titleLabel.text = item.bookDetail.title
@@ -442,14 +445,16 @@ final class ReadingViewController: BaseViewController {
         readingInProgressView.updateData(data: item.inProgressMemo)
         beforeReadingView.updateMemo(item: item.beforeMemo)
         afterReadingView.updateMemo(item: item.afterMemo)
-
+        
         updateNotesVisibility(notes: item.bookDetail.shortMemo)
         updateFeelingsVisibility(feelings: item.bookDetail.feelings)
         setupGenreLabels(genres: item.bookDetail.categories)
     }
-
-
+    
+    
     private func updateFeelingsVisibility(feelings: [String]) {
+        self.feelings = feelings
+        
         if feelings.isEmpty {
             // Hide feelings view if there are no feelings
             feelingsCardView.isHidden = true
@@ -458,30 +463,36 @@ final class ReadingViewController: BaseViewController {
         
         // Show feelings view
         feelingsCardView.isHidden = false
-
-        // Clear existing feelings
-        for subview in feelingsStackView.arrangedSubviews {
-            feelingsStackView.removeArrangedSubview(subview)
-            subview.removeFromSuperview()
-        }
         
-        // Add feeling chips
-        for feeling in feelings {
-            let chipView = createChipView(with: feeling)
-            feelingsStackView.addArrangedSubview(chipView)
-        }
-        // Calculate the proper height for the card
-        let totalHeight = feelingsTitleLabel.frame.height + feelingsStackView.frame.height + 40
-
+        // Reload collection view to display new feelings
+        feelingsCollectionView.reloadData()
+        
+        // Layout the collection view to calculate its size
+        feelingsCollectionView.layoutIfNeeded()
+        
+        // Calculate the height needed for all tags
+        let totalHeight = calculateFeelingsCardHeight()
+        
         // Update constraints with the proper height
         feelingsCardView.snp.updateConstraints { make in
-            make.height.equalTo(max(80, totalHeight)) // 최소 높이 80으로 설정
+            make.height.equalTo(totalHeight)
         }
+        
         view.setNeedsLayout()
         view.layoutIfNeeded()
-
     }
-
+    
+    private func calculateFeelingsCardHeight() -> CGFloat {
+        // Get the calculated content size of the collection view
+        let collectionViewHeight = feelingsCollectionView.collectionViewLayout.collectionViewContentSize.height
+        
+        // Add padding + title height + top/bottom margins
+        let totalHeight = 16 + feelingsTitleLabel.frame.height + 12 + collectionViewHeight + 16
+        
+        // Ensure minimum height
+        return max(80, totalHeight)
+    }
+    
     private func createChipView(with text: String) -> UIView {
         let containerView = UIView()
         containerView.backgroundColor = .tagBackground
@@ -503,8 +514,8 @@ final class ReadingViewController: BaseViewController {
             make.top.bottom.equalToSuperview().inset(8)
         }
         containerView.snp.makeConstraints { make in
-                make.height.greaterThanOrEqualTo(21)
-            }
+            make.height.greaterThanOrEqualTo(21)
+        }
         return containerView
     }
     
@@ -540,13 +551,54 @@ final class ReadingViewController: BaseViewController {
             make.leading.equalTo(bookCoverImageView.snp.trailing).offset(16)
             make.trailing.lessThanOrEqualToSuperview().offset(-16)
         }
-
+        
         for genre in genres {
             let genreChip = createChipView(with: genre)
             genreStackView.addArrangedSubview(genreChip)
         }
     }
-    
+    override func configureHierarchy() {
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        
+        // Add main sections to content view
+        contentView.addSubview(bookDetailView)
+        contentView.addSubview(metadataView)
+        contentView.addSubview(notesCardView)
+        contentView.addSubview(feelingsCardView)
+        contentView.addSubview(memoContainerView)
+        
+        // Book detail components
+        bookDetailView.addSubview(bookCoverImageView)
+        bookDetailView.addSubview(titleLabel)
+        bookDetailView.addSubview(authorLabel)
+        bookDetailView.addSubview(editButton)
+        
+        // Metadata components
+        metadataView.addSubview(dateAddedLabel)
+        metadataView.addSubview(progressLabel)
+        
+        // Notes components
+        notesCardView.addSubview(notesTitleLabel)
+        notesCardView.addSubview(notesContentLabel)
+        
+        // Feelings components
+        feelingsCardView.addSubview(feelingsTitleLabel)
+        feelingsCardView.addSubview(feelingsCollectionView)
+        
+        // Reading status components
+        memoContainerView.addSubview(memoTitleLabel)
+        memoContainerView.addSubview(readingStatusControl)
+        memoContainerView.addSubview(memoEditButton)
+        
+        // Reading status components
+        memoContainerView.addSubview(readingStatusControl)
+        memoContainerView.addSubview(segmentContentView)
+        segmentContentView.addSubview(beforeReadingView)
+        segmentContentView.addSubview(readingInProgressView)
+        segmentContentView.addSubview(afterReadingView)
+        
+    }
     // MARK: - Actions
     
     private func setupActions() {
@@ -558,7 +610,7 @@ final class ReadingViewController: BaseViewController {
     }
     
     @objc private func editButtonTapped() {
-
+        
         coordinator?.showEditInfo(passedBook: viewModel.bookDetail?.bookDetail, bookId: viewModel.bookDetail?.id)
     }
     
@@ -619,7 +671,7 @@ final class ReadingViewController: BaseViewController {
     }
     @objc private func memoEditButtonTapped() {
         guard let bookId = viewModel.bookDetail?.id else {
-            showAlert(text: "도서 저장 후 이용 가능합니다.")
+            showAlert(text: "도서 저장 후 이용 가능합니다. '연필'버튼을 클릭하세요.")
             return
         }
         // 삭제 모드 체크
@@ -652,10 +704,10 @@ final class ReadingViewController: BaseViewController {
     }
     private func configureMenuForEditButton() {
         guard let bookId = viewModel.bookDetail?.id else {
-                // bookId가 nil이면 메뉴를 구성하지 않음
-                clearButtonMenu()
-                return
-            }
+            // bookId가 nil이면 메뉴를 구성하지 않음
+            clearButtonMenu()
+            return
+        }
         let addAction = UIAction(title: "Add ", image: UIImage(systemName: "plus")) { [weak self] _ in
             let indexToAppend = (self?.viewModel.bookDetail?.inProgressMemo.count ?? 0) + 1
             
@@ -671,19 +723,19 @@ final class ReadingViewController: BaseViewController {
         memoEditButton.showsMenuAsPrimaryAction = true
         memoEditButton.menu = menu
     }
-
+    
     // Enter delete mode
     private func enterDeleteMode() {
         // Enable delete mode
         readingInProgressView.isDeleteMode = true
         
         clearButtonMenu()
-           memoEditButton.setTitle("Done", for: .normal)
-           
-           // Refresh table view to show delete buttons
+        memoEditButton.setTitle("Done", for: .normal)
+        
+        // Refresh table view to show delete buttons
         readingInProgressView.refreshTableViewForDeleteMode()
     }
-
+    
     // Exit delete mode
     private func exitDeleteMode() {
         
@@ -696,15 +748,51 @@ final class ReadingViewController: BaseViewController {
         // Refresh table view
         readingInProgressView.refreshTableViewForDeleteMode()
     }
-
+    
 }
+
+// MARK: - Collection View Data Source & Delegate
+
+extension ReadingViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return feelings.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FeelingTagCell", for: indexPath) as? FeelingTagCell else {
+            return UICollectionViewCell()
+        }
+        
+        cell.configure(with: feelings[indexPath.item])
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        // Calculate width based on text content
+        let text = feelings[indexPath.item]
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 13)
+        label.text = text
+        label.sizeToFit()
+        
+        // Add padding (12 points on each side) plus extra for safety
+        let width = label.frame.width + 24 + 8
+        
+        // Fixed height for consistent look (height = text + top/bottom padding)
+        let height: CGFloat = 32
+        
+        // Ensure minimum width
+        return CGSize(width: max(60, width), height: height)
+    }
+}
+
 extension ReadingViewController: ReadingInProgressViewDelegate {
     func deleteReadingCell(_ view: ReadingInProgressView, didSelectItemAt index: Int) {
         viewModel.deleteBook(targetIdx: index)
     }
     func editReadingCell(_ view: HighlightTableViewCell, didSelectItemAt index: Int) {
-
+        
         coordinator?.showEditReadingInProgress(bookId: viewModel.bookDetail?.id, index: index)
     }
-
+    
 }
