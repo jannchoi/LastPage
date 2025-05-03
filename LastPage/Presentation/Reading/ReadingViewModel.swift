@@ -13,10 +13,13 @@ final class ReadingViewModel: BaseViewModel {
     let getBookUseCase: GetBookUseCaseProtocol
     let updateBookUsecase: UpdateBookUseCaseProtocol
     let deleteBookUsecase: DeleteBookUseCaseProtocol
+    let fetchBackColorsUsecase: FetchBackColorsUseCaseProtocol
     var bookDeleted = PassthroughSubject<Void, Never>()
+    var oldFeelings: [String] = []
     @Published var bookDetail: BookEntity?
     @Published var isLoading: Bool = false
     @Published private(set) var fetchError: String? = nil
+    @Published var backColor: BackColorEntity?
     var bookId : String?
     struct Input {
 
@@ -24,10 +27,11 @@ final class ReadingViewModel: BaseViewModel {
     struct Output {
         
     }
-    init(bookAddedSubject: PassthroughSubject<String, Never>, bookId: String? = nil, bookDetail: BookDetail? = nil, getBookUseCase: GetBookUseCaseProtocol, updateBookUsecase: UpdateBookUseCaseProtocol, deleteBookUsecase: DeleteBookUseCaseProtocol) {
+    init(bookAddedSubject: PassthroughSubject<String, Never>, bookId: String? = nil, bookDetail: BookDetail? = nil, getBookUseCase: GetBookUseCaseProtocol, updateBookUsecase: UpdateBookUseCaseProtocol, deleteBookUsecase: DeleteBookUseCaseProtocol, fetchBackColorsUsecase: FetchBackColorsUseCaseProtocol) {
         self.getBookUseCase = getBookUseCase
         self.updateBookUsecase = updateBookUsecase
         self.deleteBookUsecase = deleteBookUsecase
+        self.fetchBackColorsUsecase = fetchBackColorsUsecase
         self.bookId = bookId
         bookAddedSubject.sink { newId in
             self.bookId = newId
@@ -92,10 +96,27 @@ final class ReadingViewModel: BaseViewModel {
             } receiveValue: { [weak self] book in
                 guard let self = self, let book = book else {return}
                 self.bookDetail = book
-
+                
+                let newFeelings = book.bookDetail.feelings
+                if !newFeelings.isEmpty && newFeelings != self.oldFeelings {
+                    self.oldFeelings = newFeelings
+                    self.fetchBackColors(newFeelings)
+                }
                 
             }
             .store(in: &cancellables)
+    }
+    private func fetchBackColors(_ feelings: [String]) {
+        fetchBackColorsUsecase.execute(feelings: feelings)
+            .sink { [weak self] completion in
+                if case .failure( _) = completion {
+                    self?.fetchError = TextResource.DataError.fetchError.text
+                }
+            } receiveValue: { [weak self]  backColorsEntity in
+                guard let self = self else {return}
+                self.backColor = backColorsEntity
+            }.store(in: &cancellables)
+
     }
     
 }

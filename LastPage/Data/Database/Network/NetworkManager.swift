@@ -40,7 +40,7 @@ class NetworkManager {
                     jsonString = String(decoding: data, as: UTF8.self)
 
                 }
-
+                print("RawData🪣🪣🪣🪣🪣🪣🪣\n",String(data: data, encoding: .utf8))
                 // 4️⃣ sanitize 이전 상태 출력
                 let invalidControlChars = jsonString.filter { char in
                     let scalars = String(char).unicodeScalars
@@ -149,29 +149,6 @@ class NetworkManager {
                 stack.removeLast()
             }
         }
-//        
-//        // 누락된 닫는 괄호 추가
-//        for char in stack.reversed() {
-//            if char == "{" {
-//                cleaned += "}"
-//            } else if char == "[" {
-//                cleaned += "]"
-//            }
-//        }
-//        
-//        if let lastValidIndex = cleaned.lastIndex(of: "]") {
-//            let suffix = cleaned.suffix(from: cleaned.index(after: lastValidIndex))
-//            if suffix.contains("]") || suffix.contains("{") || suffix.contains("}") {
-//                // 닫힌 뒤에도 괄호가 있으면 잘못된 구조로 판단
-//                cleaned = String(cleaned.prefix(upTo: cleaned.index(after: lastValidIndex)))
-//            }
-//        } else if let lastValidIndex = cleaned.lastIndex(of: "}") {
-//            let suffix = cleaned.suffix(from: cleaned.index(after: lastValidIndex))
-//            if suffix.contains("]") || suffix.contains("{") || suffix.contains("}") {
-//                cleaned = String(cleaned.prefix(upTo: cleaned.index(after: lastValidIndex)))
-//            }
-//        }
-//        
         return cleaned
     }
 

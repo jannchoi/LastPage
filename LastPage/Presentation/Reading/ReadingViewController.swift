@@ -417,12 +417,7 @@ final class ReadingViewController: BaseViewController {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] bookEntity in
                 guard let self = self, let bookEntity = bookEntity else { return }
-                
-                // Update UI with book details
                 self.updateUI(with: bookEntity)
-                
-                // Enable memo edit button if book ID exists
-                //self.setMemoEditIsAvailable()
             }
             .store(in: &cancellables)
         
@@ -431,8 +426,29 @@ final class ReadingViewController: BaseViewController {
             .sink { [weak self] errorMessage in
                 self?.showAlert(text: errorMessage)
             }.store(in: &cancellables)
+        viewModel.$backColor.receive(on: DispatchQueue.main)
+            .sink { [weak self] backColorEntity in
+                guard let self = self, let colorEntity = backColorEntity else {return}
+                self.updateBackgroundColor(colorEntity)
+            }.store(in: &cancellables)
     }
-    
+    private func updateBackgroundColor(_ colors: BackColorEntity) {
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.frame = view.bounds
+        gradientLayer.colors = colors.hexColors.map { UIColor(hex: $0).cgColor }
+        gradientLayer.startPoint = colors.startPoint
+        gradientLayer.endPoint = colors.endPoint
+
+        // 이전 그라데이션 레이어 제거 (중복 방지)
+        if let sublayers = view.layer.sublayers {
+            for layer in sublayers where layer is CAGradientLayer {
+                layer.removeFromSuperlayer()
+            }
+        }
+
+        view.layer.insertSublayer(gradientLayer, at: 0)
+    }
+
     private func updateUI(with item: BookEntity) {
         navigationItem.title = item.bookDetail.title
         titleLabel.text = item.bookDetail.title
@@ -450,7 +466,6 @@ final class ReadingViewController: BaseViewController {
         updateFeelingsVisibility(feelings: item.bookDetail.feelings)
         setupGenreLabels(genres: item.bookDetail.categories)
     }
-    
     
     private func updateFeelingsVisibility(feelings: [String]) {
         self.feelings = feelings

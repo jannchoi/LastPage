@@ -21,6 +21,10 @@ final class AppDIContainer {
         return networkDI.getFetchKeywordUseCase
     }
 
+    func makeFetchBackColorsUseCase() -> FetchBackColorsUseCaseProtocol {
+        return networkDI.getFetchBackColorsUseCase
+    }
+    
     func makeGetAllBooksUseCase() -> GetAllBooksUseCaseProtocol {
         return databaseDI.getGetAllBooksUseCase
     }

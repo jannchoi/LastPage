@@ -20,6 +20,9 @@ final class NetworkDIContainer {
     private lazy var keywordRepository: KeywordRepositoryProtocol = {
         return KeywordRepository()
     }()
+    private lazy var backColorsRepository: BackColorRepositoryProtocol = {
+        return BackColorRepository()
+    }()
 
     // UseCase
     private lazy var fetchBookUseCase: FetchBookUseCaseProtocol = {
@@ -29,6 +32,9 @@ final class NetworkDIContainer {
     private lazy var fetchKeywordUseCase: FetchKeywordUseCaseProtocol = {
         return FetchKeywordUseCase(keywordRepository: keywordRepository)
     }()
+    private lazy var fetchBackColorsUseCase: FetchBackColorsUseCaseProtocol = {
+        return FetchBackColorsUseCase(repository: backColorsRepository)
+    }()
 
     var getFetchBookUseCase: FetchBookUseCaseProtocol {
         return fetchBookUseCase
@@ -37,4 +43,9 @@ final class NetworkDIContainer {
     var getFetchKeywordUseCase: FetchKeywordUseCaseProtocol {
         return fetchKeywordUseCase
     }
+    
+    var getFetchBackColorsUseCase: FetchBackColorsUseCaseProtocol {
+        return fetchBackColorsUseCase
+    }
+    
 }

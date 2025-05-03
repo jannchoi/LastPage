@@ -15,8 +15,8 @@ class KeywordRepository: KeywordRepositoryProtocol {
         self.networkManagerRepository = networkManagerRepository
     }
     func fetchKeywords(prompt: String) -> AnyPublisher<KeywordEntity, NetworkError> {
-        let target = NetworkRouter.chatGPT(prompt: prompt)
-        return networkManagerRepository.callRequest(target: target, model: KeywordDTO.self)
+        let target = NetworkRouter.chatGPT(prompt: Strings.Network.gptPrompt(book: prompt))
+        return networkManagerRepository.callRequest(target: target, model: ChatGPTDTO.self)
             .map{ dtoKeyword in
                 guard let keywordEntity = dtoKeyword.toDomain() else {return KeywordEntity(id: dtoKeyword.id, keywords: [])}
                 return keywordEntity
