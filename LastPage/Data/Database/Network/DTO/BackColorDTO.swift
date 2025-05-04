@@ -18,7 +18,6 @@ struct BackColorDTO: Decodable {
 }
 extension BackColorDTO {
     func toEntity() -> BackColorEntity {
-        print(self)
         return BackColorEntity(
             hexColors: self.colors,
             startPoint: CGPoint(x: self.startPoint.x, y: self.startPoint.y),
