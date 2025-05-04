@@ -24,7 +24,7 @@ final class ReadingCoordinator:Coordinator {
     }
 
     func start() {
-        let viewModel = ReadingViewModel(bookAddedSubject: bookAddedSubject, getBookUseCase: diContainer.makeGetBookUseCase(), updateBookUsecase: diContainer.makeUpdateBookUseCase(), deleteBookUsecase: diContainer.makeDeleteBookUseCase())
+        let viewModel = ReadingViewModel(bookAddedSubject: bookAddedSubject, getBookUseCase: diContainer.makeGetBookUseCase(), updateBookUsecase: diContainer.makeUpdateBookUseCase(), deleteBookUsecase: diContainer.makeDeleteBookUseCase(), fetchBackColorsUsecase: diContainer.makeFetchBackColorsUseCase())
         viewModel.bookDeleted.sink { [weak self] bookId in
             guard let self = self else {return}
             self.bookDeletedSubject.send()
@@ -35,7 +35,7 @@ final class ReadingCoordinator:Coordinator {
         navigationController.pushViewController(readingVC, animated: true)
     }
     func start(bookId: String?) {
-        let viewModel = ReadingViewModel(bookAddedSubject: bookAddedSubject, bookId: bookId, getBookUseCase: diContainer.makeGetBookUseCase(), updateBookUsecase: diContainer.makeUpdateBookUseCase(), deleteBookUsecase: diContainer.makeDeleteBookUseCase())
+        let viewModel = ReadingViewModel(bookAddedSubject: bookAddedSubject, bookId: bookId, getBookUseCase: diContainer.makeGetBookUseCase(), updateBookUsecase: diContainer.makeUpdateBookUseCase(), deleteBookUsecase: diContainer.makeDeleteBookUseCase(), fetchBackColorsUsecase: diContainer.makeFetchBackColorsUseCase())
         viewModel.bookDeleted.sink { [weak self] bookId in
             guard let self = self else {return}
             self.bookDeletedSubject.send()
@@ -46,7 +46,7 @@ final class ReadingCoordinator:Coordinator {
         navigationController.pushViewController(readingVC, animated: true)
     }
     func start(bookDetail: BookDetail) {
-        let viewModel = ReadingViewModel(bookAddedSubject: bookAddedSubject, bookDetail: bookDetail,getBookUseCase: diContainer.makeGetBookUseCase(), updateBookUsecase: diContainer.makeUpdateBookUseCase(), deleteBookUsecase: diContainer.makeDeleteBookUseCase())
+        let viewModel = ReadingViewModel(bookAddedSubject: bookAddedSubject, bookDetail: bookDetail,getBookUseCase: diContainer.makeGetBookUseCase(), updateBookUsecase: diContainer.makeUpdateBookUseCase(), deleteBookUsecase: diContainer.makeDeleteBookUseCase(), fetchBackColorsUsecase: diContainer.makeFetchBackColorsUseCase())
         viewModel.bookDeleted.sink { [weak self] bookId in
             guard let self = self else {return}
             self.bookDeletedSubject.send()

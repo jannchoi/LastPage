@@ -13,4 +13,5 @@ class BookEntityMapper {
     static func map() -> BookEntity {
         return BookEntity(id: nil, bookDetail: BookDetailEntity( imagePath: TextResource.Global.empty.text, addedDate: nil, title: TextResource.Global.empty.text, author: TextResource.Global.empty.text, status: .unread, shortMemo: TextResource.Global.empty.text, categories: [], feelings: []), beforeMemo: nil, inProgressMemo: [], afterMemo: nil, keywords: [])
     }
+
 }

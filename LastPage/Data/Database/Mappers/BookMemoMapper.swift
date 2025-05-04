@@ -23,8 +23,27 @@ class BookMemoMapper: BookMemoMapperProtocol {
         default:
             statusEntity = .unread
         }
-        return BookEntity(id: realmModel.id.stringValue, bookDetail:             BookDetailEntity(imagePath: realmModel.imagePath, addedDate: realmModel.addedDate,
-                title: realmModel.title,author: realmModel.author,status: statusEntity,shortMemo: realmModel.shortMemo,categories: Array(realmModel.categories),feelings: Array(realmModel.feelings)),beforeMemo: realmModel.beforeMemo.map {
+        let backgroundColorEntity: BackColorEntity? = {
+            guard let colorObject = realmModel.backColor else { return nil }
+            return BackColorEntity(
+                hexColors: Array(colorObject.hexColors),
+                startPoint: CGPoint(x: CGFloat(colorObject.startX), y: CGFloat(colorObject.startY)),
+                endPoint: CGPoint(x: CGFloat(colorObject.endX), y: CGFloat(colorObject.endY))
+            )
+        }()
+
+        let detailEntity = BookDetailEntity(
+            imagePath: realmModel.imagePath,
+            addedDate: realmModel.addedDate,
+            title: realmModel.title,
+            author: realmModel.author,
+            status: statusEntity,
+            shortMemo: realmModel.shortMemo,
+            categories: Array(realmModel.categories),
+            feelings: Array(realmModel.feelings),
+            backgroundColor: backgroundColorEntity
+        )
+        return BookEntity(id: realmModel.id.stringValue, bookDetail: detailEntity,beforeMemo: realmModel.beforeMemo.map {
             MemoEntity(date: $0.date, memo: $0.memo)
         },
         inProgressMemo: realmModel.inProgressMemo.map {
@@ -108,6 +127,18 @@ class BookMemoMapper: BookMemoMapperProtocol {
         }
         bookMemo.keywords.removeAll()
         bookMemo.keywords.append(objectsIn: domainModel.keywords)
+        
+        if let bgColor = domainModel.bookDetail.backgroundColor {
+            let bgColorObject = BackColorObject()
+            bgColorObject.hexColors.append(objectsIn: bgColor.hexColors)
+            bgColorObject.startX = Double(Float(bgColor.startPoint.x))
+            bgColorObject.startY = Double(Float(bgColor.startPoint.y))
+            bgColorObject.endX = Double(Float(bgColor.endPoint.x))
+            bgColorObject.endY = Double(Float(bgColor.endPoint.y))
+            bookMemo.backColor = bgColorObject
+        } else {
+            bookMemo.backColor = nil
+        }
         return bookMemo
     }
     func updateBookEntity<T>(existing: BookEntity, newValue: T?, field: UpdateTarget, index: Int? = nil) -> BookEntity {

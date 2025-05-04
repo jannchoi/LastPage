@@ -22,6 +22,8 @@ class BookMemo: Object {
     @Persisted var inProgressMemo: List<ProgressMemo>
     @Persisted var afterMemo: Memo?
     @Persisted var keywords: List<String>
+    
+    @Persisted var backColor: BackColorObject?
 
     convenience init(
         imagePath: String?,
@@ -34,7 +36,8 @@ class BookMemo: Object {
         beforeMemo: Memo?,
         inProgressMemo: [ProgressMemo],
         afterMemo: Memo?,
-        keywords: [String]
+        keywords: [String],
+        backColor: BackColorEntity?
     ) {
         self.init()
         self.imagePath = imagePath
@@ -49,5 +52,16 @@ class BookMemo: Object {
         self.inProgressMemo.append(objectsIn: inProgressMemo)
         self.afterMemo = afterMemo
         self.keywords.append(objectsIn: keywords)
+
+        if let backColor = backColor {
+            let colorObject = BackColorObject()
+            colorObject.hexColors.append(objectsIn: backColor.hexColors)
+            colorObject.startX = Double(backColor.startPoint.x)
+            colorObject.startY = Double(backColor.startPoint.y)
+            colorObject.endX = Double(backColor.endPoint.x)
+            colorObject.endY = Double(backColor.endPoint.y)
+            self.backColor = colorObject
+        }
     }
+
 }

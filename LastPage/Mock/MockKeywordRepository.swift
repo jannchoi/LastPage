@@ -58,7 +58,7 @@ class MockKeywordRepository: KeywordRepositoryProtocol {
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: mockSuccessResponse, options: [])
             let decoder = JSONDecoder()
-            let keywordDTO = try decoder.decode(KeywordDTO.self, from: jsonData)
+            let keywordDTO = try decoder.decode(ChatGPTDTO.self, from: jsonData)
             
             // toDomain을 통해 Entity로 변환
             if let keywordEntity = keywordDTO.toDomain() {

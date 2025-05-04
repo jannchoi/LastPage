@@ -17,4 +17,5 @@ struct BookDetailEntity {
     let shortMemo: String
     let categories: [String]
     let feelings: [String]
+    var backgroundColor: BackColorEntity?
 }
