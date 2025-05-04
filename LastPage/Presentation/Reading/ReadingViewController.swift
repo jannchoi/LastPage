@@ -19,6 +19,7 @@ final class ReadingViewController: BaseViewController {
     private let bookDetailView: UIView = {
         let view = UIView()
         view.backgroundColor = .white
+        view.makeShadow()
         return view
     }()
     
@@ -144,7 +145,8 @@ final class ReadingViewController: BaseViewController {
     private let memoContainerView: UIView = {
         let view = UIView()
         view.backgroundColor = .white
-        view.layer.cornerRadius = 12
+        view.makeShadow()
+        
         return view
     }()
     private let memoTitleLabel: UILabel = {
@@ -279,7 +281,7 @@ final class ReadingViewController: BaseViewController {
         
         // Book detail layout
         bookDetailView.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview()
+            make.top.leading.trailing.equalToSuperview().inset(16)
             make.height.equalTo(140)
         }
         
@@ -383,7 +385,7 @@ final class ReadingViewController: BaseViewController {
         
         // Reading status layout
         memoContainerView.snp.makeConstraints { make in
-            make.top.equalTo(feelingsCardView.snp.bottom).offset(8)
+            make.top.equalTo(feelingsCardView.snp.bottom).offset(16)
             make.leading.trailing.equalToSuperview().inset(16)
             make.height.equalTo(500)
             make.bottom.equalToSuperview().inset(24)
@@ -453,7 +455,7 @@ final class ReadingViewController: BaseViewController {
         navigationItem.title = item.bookDetail.title
         titleLabel.text = item.bookDetail.title
         authorLabel.text = item.bookDetail.author
-        
+       
         let imgPath = item.bookDetail.imagePath ?? TextResource.Global.empty.text
         ImageFormatter.shared.setImage(target: bookCoverImageView, path: imgPath)
         dateAddedLabel.text = DateFormattManager.shared.dateToStr(item.bookDetail.addedDate)
@@ -465,6 +467,9 @@ final class ReadingViewController: BaseViewController {
         updateNotesVisibility(notes: item.bookDetail.shortMemo)
         updateFeelingsVisibility(feelings: item.bookDetail.feelings)
         setupGenreLabels(genres: item.bookDetail.categories)
+        guard let backcolor =  item.bookDetail.backgroundColor else {return}
+        updateBackgroundColor(backcolor)
+        
     }
     
     private func updateFeelingsVisibility(feelings: [String]) {

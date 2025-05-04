@@ -29,14 +29,17 @@ class BookMemoDataSource: BookMemoDataSourceProtocol {
     
     func getBook(with id: ObjectId) -> AnyPublisher<BookMemo?, Error> {
         return Future<BookMemo?, Error> { promise in
-            do {
-                let book = self.realm.object(ofType: BookMemo.self, forPrimaryKey: id)
-                promise(.success(book))
-            } catch {
-                promise(.failure(error))
+            DispatchQueue.main.async {
+                do {
+                    let book = self.realm.object(ofType: BookMemo.self, forPrimaryKey: id)
+                    promise(.success(book))
+                } catch {
+                    promise(.failure(error))
+                }
             }
         }.eraseToAnyPublisher()
     }
+
     
     func saveBook(_ book: BookMemo) -> AnyPublisher<ObjectId, Error> {
         return Future<ObjectId, Error> { promise in
@@ -53,13 +56,15 @@ class BookMemoDataSource: BookMemoDataSourceProtocol {
     
     func updateBook(_ book: BookMemo) -> AnyPublisher<Void, Error> {
         return Future<Void, Error> { promise in
-            do {
-                try self.realm.write {
-                    self.realm.add(book, update: .modified)
+            DispatchQueue.main.async {
+                do {
+                    try self.realm.write {
+                        self.realm.add(book, update: .modified)
+                    }
+                    promise(.success(()))
+                } catch {
+                    promise(.failure(error))
                 }
-                promise(.success(()))
-            } catch {
-                promise(.failure(error))
             }
         }.eraseToAnyPublisher()
     }

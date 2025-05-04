@@ -89,23 +89,32 @@ final class ReadingViewModel: BaseViewModel {
     }
     private func fetchBook(itemId: String) {
         getBookUseCase.execute(with: itemId)
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
-                if case .failure(let error) = completion {
+                if case .failure(_) = completion {
                     self?.fetchError = TextResource.DataError.fetchError.text
                 }
             } receiveValue: { [weak self] book in
-                guard let self = self, let book = book else {return}
+                guard let self = self, let book = book else { return }
                 self.bookDetail = book
                 
                 let newFeelings = book.bookDetail.feelings
-                if !newFeelings.isEmpty && newFeelings != self.oldFeelings {
+                let backgroundColor = book.bookDetail.backgroundColor
+                
+                let shouldFetch: Bool = (
+                    backgroundColor == nil &&
+                    !newFeelings.isEmpty &&
+                    newFeelings != self.oldFeelings
+                )
+                
+                if shouldFetch {
                     self.oldFeelings = newFeelings
                     self.fetchBackColors(newFeelings)
                 }
-                
             }
             .store(in: &cancellables)
     }
+
     private func fetchBackColors(_ feelings: [String]) {
         fetchBackColorsUsecase.execute(feelings: feelings)
             .sink { [weak self] completion in
@@ -115,6 +124,21 @@ final class ReadingViewModel: BaseViewModel {
             } receiveValue: { [weak self]  backColorsEntity in
                 guard let self = self else {return}
                 self.backColor = backColorsEntity
+                self.updateBackColor(backColorsEntity)
+            }.store(in: &cancellables)
+
+    }
+    private func updateBackColor(_ target: BackColorEntity) {
+        guard let newBookDetail = bookDetail, let bookId = bookId else {return}
+        var newValue = newBookDetail.bookDetail
+        newValue.backgroundColor = backColor
+        updateBookUsecase.execute(bookId: bookId, field: .detail, newValue: newValue, index: nil).sink { [weak self] completion in
+            if case .failure(_) = completion {
+                self?.fetchError = TextResource.DataError.updateError.text
+            }
+            } receiveValue: { [weak self] _ in
+                guard let self = self else {return}
+                //
             }.store(in: &cancellables)
 
     }

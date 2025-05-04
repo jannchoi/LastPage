@@ -40,7 +40,7 @@ class NetworkManager {
                     jsonString = String(decoding: data, as: UTF8.self)
 
                 }
-                print("RawData🪣🪣🪣🪣🪣🪣🪣\n",String(data: data, encoding: .utf8))
+//                print("RawData🪣🪣🪣🪣🪣🪣🪣\n",String(data: data, encoding: .utf8))
                 // 4️⃣ sanitize 이전 상태 출력
                 let invalidControlChars = jsonString.filter { char in
                     let scalars = String(char).unicodeScalars

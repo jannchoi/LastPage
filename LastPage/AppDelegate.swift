@@ -40,18 +40,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
     func migration() {
-        let config = Realm.Configuration(schemaVersion: 1) { // 첫 번째 마이그레이션이므로 schemaVersion은 1
-            migration, oldSchemaVersion in
+        let config = Realm.Configuration(schemaVersion: 2) { migration, oldSchemaVersion in
             
-            // 0 -> 1: BookMemo에 keywords 추가
             if oldSchemaVersion < 1 {
-                // 단순히 필드를 추가하는 것이므로 추가 코드는 필요 없음
-                // Realm이 자동으로 새 필드를 추가하고 기본값(빈 List)으로 초기화함
+                // 0 -> 1: keywords 필드 추가 (기존 주석 그대로 유지)
+            }
+            
+            if oldSchemaVersion < 2 {
+                // 1 -> 2: BookMemo에 backColor (BackColorObject) 추가
+                // EmbeddedObject를 추가하는 것이므로 특별한 로직 없이 Realm이 기본적으로 nil로 처리함
+                // 하지만 명시적으로 처리하고 싶다면 아래와 같이 작성 가능
+                migration.enumerateObjects(ofType: BookMemo.className()) { oldObject, newObject in
+                    newObject?["backColor"] = nil
+                }
             }
         }
         
         Realm.Configuration.defaultConfiguration = config
     }
+
 
     // MARK: UISceneSession Lifecycle
 
