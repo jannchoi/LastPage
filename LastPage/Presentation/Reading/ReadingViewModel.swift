@@ -97,14 +97,13 @@ final class ReadingViewModel: BaseViewModel {
             } receiveValue: { [weak self] book in
                 guard let self = self, let book = book else { return }
                 self.bookDetail = book
-                
                 let newFeelings = book.bookDetail.feelings
                 let backgroundColor = book.bookDetail.backgroundColor
                 
                 let shouldFetch: Bool = (
                     backgroundColor == nil &&
                     !newFeelings.isEmpty &&
-                    newFeelings != self.oldFeelings
+                    Set(newFeelings) != Set(oldFeelings)
                 )
                 
                 if shouldFetch {
