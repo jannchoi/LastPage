@@ -255,6 +255,26 @@ final class ReadingViewController: BaseViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.navigationBar.prefersLargeTitles = false
+        NavigationBarStyleManager.applyStyle(.blur, to: navigationController)
+        //navigationBarBlur()
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        NavigationBarStyleManager.applyStyle(.default, to: navigationController)
+    }
+    private func navigationBarBlur() {
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithTransparentBackground() // 배경 투명 설정
+        appearance.backgroundEffect = UIBlurEffect(style: .systemMaterial) // 블러 효과 추가
+        appearance.backgroundColor = UIColor.backgroundBase.withAlphaComponent(0.3) // 약간 투명한 배경색
+
+        appearance.titleTextAttributes = [.foregroundColor: UIColor.mainText]
+        appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.mainText]
+
+        navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        navigationController?.navigationBar.compactAppearance = appearance
+        navigationController?.navigationBar.tintColor = .mainText
     }
     // MARK: - UI Setup
     
